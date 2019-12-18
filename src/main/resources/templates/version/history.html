@@ -1,0 +1,46 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<title class="lang" langKey="xxxx">历史版本</title>
+		
+  		<div th:replace="version/head::head"></div>
+	</head>
+	<body>
+		<div th:include="version/navbar::navbar"></div>
+    			<div class="container-fluid">
+      		<div class="row-fluid">
+        		<div class="span12">
+          				<h3>
+          					历史版本
+          					
+          				</h3>
+						<table id="dataTable" class="table table-bordered table-striped responsive-utilities">
+							<thead>
+								<tr>
+									<th>序号</th>
+									
+									<th><a id="th-URI" class="lang" langKey="URI">版本号</a></th>
+									<th><a id="th-RequestCount" class="lang" langKey="RequestCount">最后更新时间</a></th>
+									<th><a id="th-RequestTimeMillis" class="lang" langKey="RequestTimeMillis">更新内容</a></th>
+								</tr>
+							</thead> 
+							<tbody>
+							 <tr  th:each="pd,pdStat : ${list}"> 
+							 <td th:text="${pdStat.index}"></td> 
+							 <td th:text="${pd.Version}"></td> 
+							 <td th:text="${pd.lastUpdateTime}"></td> 
+							 <td th:text="${pd.Content}"></td> 
+							 
+							</tr>
+							</tbody>
+						</table>
+        		</div>
+      		</div> 
+    	</div>
+		<script type="text/javascript">
+		$(document).ready(function() {
+			//dataservice.common.buildHead(0);
+		});
+		</script>
+	</body>
+</html>

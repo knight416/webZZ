@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.net.hlk.data.mapper.AlarmMapper">
+
+	 <!--表名 -->
+	<sql id="tableName">
+		t_alarm
+	</sql>
+	<!-- 字段 -->
+	<sql id="field">
+		alarm_id,
+		alarm_category,
+		alarm_type,
+		alarm_state,
+		dossier_message,
+		warns,
+		alarm_access_state,
+		alarm_processing_content,
+		remark,
+		createtime,
+		createuser,
+		updatetime,
+		updateuser,
+		visibale,
+		alarm_time
+ 	</sql>
+ 	
+ 	<!-- 关联查询字段 -->
+ 	<sql id="fieldd">
+		a.alarm_id,
+		a.alarm_category,
+		CASE a.alarm_category when 0 then '告警'::varchar when 1 then '预警'::varchar 
+				else null end as alarm_categorymc,
+		a.alarm_type,
+		CASE a.alarm_type when 0 then '超期送卷'::varchar when 1 then '超期归还'::varchar 
+						  when 2 then '违规出库'::varchar  when 3 then '归还预警'::varchar 
+				else null end as alarm_typemc,
+		a.alarm_state,
+		CASE a.alarm_state when 0 then '警告中'::varchar when 1 then '已处理'::varchar 
+				else null end as alarm_statemc,
+		<!-- a.dossier_message, -->
+		a.warns,
+		a.alarm_access_state,
+		a.alarm_processing_content,
+		a.remark,
+		a.createtime,
+		a.createuser,
+		<!-- a.updatetime, -->
+		to_char(a.updatetime,'YYYY-MM-DD HH24:MI:SS') AS updatetime,
+		a.updateuser,
+		a.visibale,
+		<!-- a.alarm_time, -->
+		to_char(a.alarm_time,'YYYY-MM-DD HH24:MI:SS') AS alarm_time,
+		a.dossier_message ->> 'dossier_name' as dossier_name,
+		a.dossier_message ->> 'case_name' as case_name,
+		a.dossier_message ->> 'casepolice' as casepolice,
+		a.dossier_message ->> 'dossier_id' as dossier_id,
+		a.dossier_message ->> 'dossier_categorymc' as dossier_categorymc,
+		a.dossier_message ->> 'application_id' as application_id
+ 	</sql>
+	
+	<!-- 添加字段 -->
+ 	<sql id="insertfield">
+ 		alarm_id,
+		alarm_category,
+		alarm_type,
+		alarm_state,
+		dossier_message,
+		warns,
+		alarm_access_state,
+		alarm_processing_content,	
+		remark,
+		createtime,
+		createuser,
+		updatetime,
+		updateuser,
+		visibale,
+		alarm_time
+ 	</sql>
+	
+	<sql id="insertvalue">
+		#{alarm_id},
+		#{alarm_category}::integer,
+		#{alarm_type}::integer,
+		<!-- #{alarm_state}::integer, -->
+		0,
+		#{dossier_message}::jsonb,
+		#{warns}::jsonb,
+		<!-- #{alarm_access_state}::integer, -->
+		1,
+		#{alarm_processing_content}::jsonb,	
+		#{remark},
+		now(),
+		#{updateuser},
+		now(),
+		#{updateuser},
+		1,
+		#{alarm_time}
+	</sql>
+	
+	<!-- 告警添加 -->
+	<insert id="addAlarm" parameterType="pd">
+		insert into 
+		<include refid="tableName"></include>
+			(
+		<include refid="insertfield"></include>
+			) values (
+		<include refid="insertvalue"></include>
+			)
+	</insert>
+	
+	<!-- 告警修改  -->
+	<update id="updateAlarm" parameterType="pd">
+		update 
+		<include refid="tableName"></include> 
+		<set>
+			<if test="alarm_category != null ">
+				alarm_category=#{alarm_category}::integer,
+			</if>
+			<if test="alarm_type != null ">
+				alarm_type=#{alarm_type}::integer,
+			</if>
+			<if test="alarm_state != null ">
+				alarm_state=#{alarm_state}::integer,
+			</if>
+			<if test="dossier_message != null ">
+				dossier_message=#{dossier_message}::jsonb,
+			</if>
+			<if test="warns != null ">
+				warns=#{warns}::jsonb,
+			</if>
+			<if test="alarm_access_state != null ">
+				alarm_access_state=#{alarm_access_state}::integer,
+			</if>
+			<if test="alarm_processing_content != null ">
+				alarm_processing_content = #{alarm_processing_content}::jsonb,
+			</if>
+			<if test="remark != null and remark != '' ">
+				remark=#{remark},
+			</if>
+			<if test="updateuser != null and updateuser != '' ">
+				updateuser=#{updateuser},
+			</if>
+				updatetime=now(),
+			<if test="visibale != null">
+				visibale=#{visibale}::integer,
+			</if>
+			<if test="alarm_time != null and alarm_time != ''">
+				alarm_time = #{alarm_time}::TIMESTAMP,
+			</if>
+		</set>
+		where alarm_id = #{alarm_id}
+	</update>
+	
+	<!-- 告警条件查询 -->
+	<select id="searchAlarmPgListPage" parameterType="page" resultType="pd">
+		SELECT 
+			row_number() over (ORDER BY a.updatetime DESC) as xh,
+			<include refid="fieldd"></include>
+			from <include refid="tableName"></include> a
+			where 1=1 
+			<!-- 告警类别 -->
+			<if test="pd.alarm_category !=null ">
+				and a.alarm_category = #{pd.alarm_category}
+			</if>
+			<!-- 告警类型 -->
+			<if test="pd.alarm_type !=null ">
+				and a.alarm_type = #{pd.alarm_type}
+			</if>
+			<!-- 告警状态 -->
+			<if test="pd.alarm_state !=null ">
+				and a.alarm_state = #{pd.alarm_state}
+			</if>
+			<!-- 卷宗名称 -->
+			<if test="pd.dossier_name !=null and pd.dossier_name != '' ">
+				and a.dossier_message ->> 'dossier_name' like CONCAT(CONCAT('%',#{pd.dossier_name}),'%')
+			</if>
+			<!-- 案件名称 -->
+			<if test="pd.case_name !=null and pd.case_name != '' ">
+				and a.dossier_message ->> 'case_name' like CONCAT(CONCAT('%',#{pd.case_name}),'%')
+			</if>
+			<!-- 查阅状态-->
+			<if test="pd.alarm_access_state !=null ">
+				and a.alarm_access_state = #{pd.alarm_access_state}
+			</if>
+			<if test="pd.beginTime!=null and pd.beginTime!=''"><!-- 开始时间检索 -->
+				and a.alarm_time &gt;= concat(#{pd.beginTime},' 00:00:00')::TIMESTAMP
+			</if>
+			<if test="pd.endTime!=null and pd.endTime!=''"><!-- 结束时间检索 -->
+				and a.alarm_time &lt;= concat(#{pd.endTime},' 23:59:59')::TIMESTAMP
+			</if>
+			<if test="pd.xxid != null and pd.xxid != '' ">
+				and a.alarm_id = #{pd.xxid}
+			</if>
+			and a.warns ->> 'police_idcard' = #{pd.police_idcard} 
+			and a.visibale = 1
+	</select>
+	
+	<!-- 获取预警列表 -->
+	<select id="getalarmCategory1"  resultType="pd">
+		SELECT 
+			row_number() over (ORDER BY a.updatetime DESC) as xh,
+			<include refid="fieldd"></include>,a.dossier_message
+			from <include refid="tableName"></include> a
+			where 1=1 
+			and a.alarm_category = 1
+			and a.visibale = 1
+			and a.alarm_state = 0
+	</select>
+	
+	<!-- 获取告警信息 根据卷宗id -->
+	<select id="getALarmByDossierId"  resultType="pd" parameterType="pd">
+		SELECT 
+			<include refid="fieldd"></include>,a.dossier_message
+			from <include refid="tableName"></include> a
+			where 1=1 
+			<!-- 告警类型 -->
+			<if test="alarm_type !=null ">
+				and a.alarm_type = #{alarm_type}
+			</if>
+			<!-- 告警类别 -->
+			<if test="alarm_category != null">
+				and a.alarm_category = #{alarm_category}
+			</if>
+			<!-- 告警状态 -->
+			<if test="alarm_state != null">
+				and a.alarm_state = #{alarm_state}
+			</if>
+			and a.visibale = 1
+			and a.alarm_state = 0
+			and a.dossier_message ->> 'dossier_id' = #{dossier_id}
+	</select>
+	
+	<!-- 根据告警id 获取告警信息 -->
+	<select id="getAlarmById"  resultType="pd" parameterType="pd">
+		SELECT 
+			<include refid="fieldd"></include>,a.dossier_message
+			from <include refid="tableName"></include> a
+			where 1=1 
+			and a.visibale = 1
+			and a.alarm_id = #{alarm_id}
+	</select>
+	
+</mapper>

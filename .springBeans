@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beansProjectDescription>
+	<version>1</version>
+	<pluginVersion><![CDATA[3.6.2.me201505141600]]></pluginVersion>
+	<configSuffixes>
+		<configSuffix><![CDATA[xml]]></configSuffix>
+	</configSuffixes>
+	<enableImports><![CDATA[false]]></enableImports>
+	<configs>
+	</configs>
+	<autoconfigs>
+		<config>java:cn.net.hlk.data.controller.ApprovalController</config>
+		<config>java:cn.net.hlk.data.controller.InformationController</config>
+		<config>java:cn.net.hlk.data.controller.TransferConfirmController</config>
+		<config>java:cn.net.hlk.data.controller.PageHomeController</config>
+		<config>java:cn.net.hlk.data.controller.ElectronicDossierApplyController</config>
+		<config>java:cn.net.hlk.data.controller.LogController</config>
+		<config>java:cn.net.hlk.data.controller.TrajectoryController</config>
+		<config>java:cn.net.hlk.data.controller.PoliceDossierController</config>
+		<config>java:cn.net.hlk.data.controller.VersionController</config>
+		<config>java:cn.net.hlk.data.controller.QueryStatisticsController</config>
+		<config>java:cn.net.hlk.data.controller.CustodianDossierController</config>
+		<config>java:cn.net.hlk.data.controller.ElectronicDossierController</config>
+	</autoconfigs>
+	<configSets>
+	</configSets>
+</beansProjectDescription>

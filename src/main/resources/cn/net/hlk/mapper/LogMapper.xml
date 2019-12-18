@@ -1,0 +1,54 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.net.hlk.data.mapper.LogMapper">
+    
+	<insert id="saveLog" parameterType="pd" useGeneratedKeys="true" keyProperty="id">
+ 		insert into t_log
+		(opt_name,opt_id,action,type,opt_date,opt_time,details,method,params,time,ip,visiable,opt_idcard,opt_unit_code)
+		values
+		(#{opt_name},#{opt_id},#{action},#{type},now(),now(),#{details},#{method},#{params},#{time},#{ip},1,#{opt_idcard},#{opt_unit_code})
+ 	</insert>
+
+	<select id="queryLogPgListPage" parameterType="page" resultType="pd">
+		select row_number() over(order by opt_time desc) as xh,* 
+		from (SELECT 
+		id,action,method,type,params,ip,details,to_char(opt_time,'yyyy-MM-dd HH24:MI:SS') as opt_time,opt_name,time,opt_idcard
+		  FROM "t_log" where 1=1
+		<!-- 操作人姓名查询-->
+		<if test="pd.opt_name !=null and pd.opt_name!=''" >
+			<!--and UPPER(opt_name) like '%'|| UPPER('${pd.opt_name}') ||'%'-->
+			and opt_name ~*  '${pd.opt_name}'
+		</if>
+		<!-- 操作模块查询-->
+		<if test="pd.action !=null and pd.action!=''" >
+			<!--and UPPER(action) like '%'|| UPPER('${pd.action}') ||'%'-->
+			and action ~*  '${pd.action}'
+		</if>
+		<!-- 操作方法查询-->
+		<if test="pd.type !=null and pd.type!=''" >
+			<!--and UPPER(type) like '%'|| UPPER('${pd.type}') ||'%'-->
+			and type ~*  '${pd.type}'
+		</if>
+		<!-- 操作时间查询 -->
+		<if test="pd.starttime != null and pd.starttime != ''">
+			and opt_time &gt;= #{pd.starttime}::timestamp
+		</if>
+		<if test="pd.endtime != null and pd.endtime != ''">
+			and opt_time &lt;= #{pd.endtime}::timestamp
+		</if>
+		
+		<if test="pd.idcard != null and pd.idcard != ''">
+			and (opt_idcard = #{pd.idcard} 
+			<if test="pd.unit_code != null and pd.menu != 'jz_mj'">
+				or opt_unit_code in 
+				<foreach item="item" index="index" collection="pd.unit_code" open="(" separator="," close=")">
+		   			#{pd.unit_code[${index}]}
+		   		</foreach>
+			</if>
+			)
+		</if>
+		order by opt_time desc
+		) as data
+	</select>
+</mapper>

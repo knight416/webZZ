@@ -1,0 +1,18 @@
+<div th:fragment="lastVersion">
+<table id="dataTable" style="background-color: #fff" class="table table-bordered responsive-utilities">
+							<tr >
+								<td valign="top" width="100" class="td_lable lang"  langKey="Version">
+									版本号
+								</td>
+								<td id="DruidVersion" th:text="${pd.Version}" width="90%"> </td>
+							</tr>
+							<tr >
+								<td valign="top" class="td_lable lang" langKey="Drivers"> 最后更新时间 </td>
+								<td id="DruidDrivers" th:text="${pd.lastUpdateTime}">  </td>
+							</tr>
+							<tr >
+								<td valign="top" class="td_lable lang" langKey="ResetEnable"> 更新内容 </td>
+								<td id="ResetEnable"  th:text="${pd.Content}"></td>
+							</tr>
+						</table>
+</div>
