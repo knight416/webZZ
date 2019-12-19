@@ -1,0 +1,59 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.net.hlk.data.mapper.LoginMapper">
+
+	<!--表名 -->
+	<sql id="tableName">
+		t_user
+	</sql>
+	<!-- 字段 -->
+	<sql id="field">
+		uid,
+		department,
+		name,
+		photo,
+		id_card,
+		password,
+		contact,
+		state,
+		createuser,
+		createtime,
+		updateuser,
+		updatetime,
+		visibale,
+		job_type,
+		user_message,
+		username
+ 	</sql>
+
+	<!-- 关联查询字段 -->
+	<sql id="fieldd">
+		u.uid,
+		u.department,
+		u.name,
+		u.photo,
+		u.id_card,
+		u.password,
+		u.contact,
+		u.state,
+		u.createuser,
+		u.createtime,
+		u.updateuser,
+		u.updatetime,
+		u.visibale,
+		u.job_type,
+		u.user_message,
+		u.username
+	</sql>
+
+ 	<select id="getUserByIdCard" parameterType="String" resultType="cn.net.hlk.data.pojo.user.User">
+ 		select <include refid="field"></include>
+ 		from t_user
+ 		where visiable=1  and (username = #{username} or username = #{username})
+ 	</select>
+
+ 	<update id="updatePassword" parameterType="pd">
+ 		update t_user set password = #{password} where visiable=1 and (id_card = #{idcard} or username = #{username})
+ 	</update>
+</mapper>

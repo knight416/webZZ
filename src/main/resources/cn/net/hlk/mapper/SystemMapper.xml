@@ -1,0 +1,146 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.net.hlk.data.mapper.SystemMapper">
+	<!-- 字典类树 -->
+ 	<resultMap type="cn.net.hlk.data.pojo.dictionary.DictionaryBean" id="dictionaryTree">
+	<result column="id" property="id" javaType="java.lang.Integer" />
+	<result column="parent_id" property="pid" javaType="java.lang.Integer" />
+	<result column="name" property="name" javaType="java.lang.String" />
+	<collection column="id" property="children" ofType="dictionaryTree" javaType="java.util.ArrayList" select="selectChildrenById"/>
+	</resultMap>
+	
+	<select id="queryTreeList" resultMap="dictionaryTree">
+		select id,name,parent_id from t_sys_dict  where parent_id = 0 and visiable = 1
+	</select>
+	
+	<select id="selectChildrenById" resultMap="dictionaryTree" parameterType="Integer">
+		select id,name,parent_id from t_sys_dict  where parent_id= #{id} and visiable = 1
+	</select>
+	
+	<resultMap type="cn.net.hlk.data.pojo.dictionary.DictionaryBean" id="dictionaryTreeByName">
+	<result column="id" property="id" javaType="java.lang.Integer" />
+	<result column="parent_id" property="pid" javaType="java.lang.Integer" />
+	<result column="name" property="name" javaType="java.lang.String" />
+	<result column="cname" property="cname" javaType="java.lang.String" />
+	<collection column="{id=id,condition=cname}" property="children" ofType="dictionaryTreeByName" javaType="java.util.ArrayList" select="selectChildrenByIdByName"/>
+	</resultMap>
+	
+	<select id="queryTreeListByName" resultMap="dictionaryTreeByName" parameterType="pd">
+		SELECT DISTINCT * , #{name} as cname from (
+			SELECT m.id,m.name,m.parent_id,m.visiable from (
+				WITH RECURSIVE t(id, parent_id, name,visiable) AS ( 
+					SELECT id, parent_id, name,visiable FROM t_sys_dict WHERE (name ~* #{name} OR cnfirstchar(name) ~* #{name})
+					UNION ALL 
+					SELECT r.id, r.parent_id, r.name,r.visiable FROM t_sys_dict r, t WHERE r.id = t.parent_id 
+				) SELECT id, parent_id, name,visiable FROM t ORDER BY id	
+			)m  where m.parent_id = 0 and m.visiable = 1
+			
+			UNION ALL
+			
+			select m.id,m.name,m.parent_id,m.visiable from (
+				WITH RECURSIVE t(id, parent_id, name,visiable) AS ( 
+					SELECT id, parent_id, name,visiable FROM t_sys_dict WHERE (name ~* #{name} OR cnfirstchar(name) ~* #{name})
+					UNION ALL 
+					SELECT r.id, r.parent_id, r.name,r.visiable FROM t_sys_dict r, t WHERE r.parent_id = t.id
+				) SELECT id, parent_id, name,visiable FROM t ORDER BY id	
+			) m where m.parent_id = 0 and m.visiable = 1
+		)a
+	</select>
+	
+	<select id="selectChildrenByIdByName" resultMap="dictionaryTreeByName" parameterType="java.util.Map">
+		SELECT DISTINCT * ,#{condition} as cname from (
+			SELECT m.id,m.name,m.parent_id,m.visiable from (
+				WITH RECURSIVE t(id, parent_id, name,visiable) AS ( 
+					SELECT id, parent_id, name,visiable FROM t_sys_dict WHERE (name ~* #{condition} OR cnfirstchar(name) ~* #{condition})
+					union ALL 
+					SELECT r.id, r.parent_id, r.name,r.visiable FROM t_sys_dict r, t WHERE r.id = t.parent_id 
+				) SELECT id, parent_id, name,visiable FROM t ORDER BY id	
+			) m where m.parent_id = #{id} and m.visiable = 1
+			
+			UNION ALL
+			
+			SELECT m.id,m.name,m.parent_id,m.visiable from (
+				WITH RECURSIVE t(id, parent_id, name,visiable) AS ( 
+					SELECT id, parent_id, name,visiable FROM t_sys_dict WHERE (name ~* #{condition} OR cnfirstchar(name) ~* #{condition})
+					union ALL 
+					SELECT r.id, r.parent_id, r.name,r.visiable FROM t_sys_dict r, t WHERE  r.parent_id = t.id
+				) SELECT id, parent_id, name,visiable FROM t ORDER BY id	
+			) m where m.parent_id = #{id} and m.visiable = 1
+		) a
+	</select>
+	
+	
+	<!-- 添加字典类 -->
+	<insert id="addDictionaryClass" parameterType="pd">
+		insert into t_sys_dict (id,parent_id,code,name,opt_time,opt_name,opt_id) values 
+		(#{id},#{pid}
+		<!-- <choose>
+			<when test="pid != null">
+				#{pid}
+			</when>
+			<otherwise>
+			  0
+			</otherwise>
+		</choose> -->
+		,#{code},#{name},now(),#{opt_name},#{opt_id})
+	</insert>
+	
+	<!-- 编辑字典类  -->
+	<update id="updateDictionaryClass" parameterType="pd">
+		update t_sys_dict set name = #{name},code = #{code},opt_time = now(),opt_name = #{opt_name},opt_id = #{opt_id} where id = #{id}
+	</update>
+	
+	<!-- 删除字典类 -->
+	<!-- <delete id="deleteDictionaryClass" parameterType="Integer">
+		delete from t_sys_dict where id = #{id}
+	</delete> -->
+	
+	<update id="deleteDictionaryClass" parameterType="Integer">
+		update t_sys_dict set visiable = 0 ,opt_name = #{opt_name},opt_id = #{opt_id} where id = #{id}
+	</update>
+	
+	<!-- 获取下级id -->
+	<select id="getNextId" parameterType="Integer" resultType="Integer">
+		SELECT t2.id FROM t_sys_dict t1 join t_sys_dict t2 on t1.id = t2.parent_id where t1.visiable=1 and t2.visiable=1 and t1.id = #{id}
+	</select>
+	
+	<!-- 查看字典项 -->
+	<select id="queryTermlistPage" parameterType="page" resultType="pd">
+		SELECT id, name, code, parent_id, to_char(opt_time, 'yyyy-MM-dd HH24:MI:SS') as date 
+		FROM t_sys_dict 
+		WHERE visiable = 1
+		<if test="pd.id != null">
+			AND parent_id = #{pd.id}
+		</if>
+		<if test="pd.name != null and pd.name != ''">
+			AND (
+				name ~* #{pd.name}
+				OR cnfirstchar(name) ~* #{pd.name}
+			)
+		</if> 
+		ORDER BY opt_time DESC
+	</select>
+	
+	<select id="queryDictionaryById" parameterType="pd" resultType="pd">
+		select id,name,code from t_sys_dict where visiable=1 and id = #{id}
+	</select>
+	
+	<select id="getNextID" resultType="Integer">
+		SELECT nextval('t_sys_dict_id_seq')
+	</select>
+	
+	<select id="queryNextDatas" parameterType="Integer" resultType="pd">
+		WITH RECURSIVE t(ID,parent_id,code,NAME) AS ( 
+			SELECT ID,parent_id,code,NAME FROM t_sys_dict 
+				WHERE visiable = 1 and parent_id = #{id} 
+			union   ALL 
+			SELECT r.ID,r.parent_id,r.code,r.NAME  FROM t_sys_dict r,t WHERE t.id = r.parent_id and r.visiable=1
+		)SELECT DISTINCT  id,parent_id,code,name FROM t
+	</select>
+	<select id="queryByCode" parameterType="pd" resultType="pd">
+		SELECT id,<!-- parent_id as "parentId", -->code,name FROM t_sys_dict 
+		where visiable=1 and parent_id = (select id FROM t_sys_dict where visiable=1 and code=#{ code})
+	</select>
+	
+</mapper>

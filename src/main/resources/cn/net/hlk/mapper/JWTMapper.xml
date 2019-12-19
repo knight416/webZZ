@@ -1,0 +1,21 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.net.hlk.data.mapper.JWTMapper">
+	<!-- 查询用户所属机构 -->
+	<select id="getDepartment" parameterType="String" resultType="cn.net.hlk.data.pojo.department.Group">
+		select id,parent_id as "parentId", depth,name,code from t_department where visiable=1 and code = #{department}
+	</select>
+ 	 <!-- 查询用户管辖机构 -->
+ 	 <select id="getDepartmentList" parameterType="String" resultType="cn.net.hlk.data.pojo.department.Group">
+ 	 	SELECT  d.id,d.parent_id as "parentId",d.depth,d.name,d.code from t_department d join t_user_dept t on  d.id::varchar = t.dept_id and t.user_id = #{id} where d.visiable=1
+ 	 </select>
+ 	 
+ 	 <select id="getRoleList" parameterType="String" resultType="pd">
+ 	 	SELECT r.id as rid,r.name as rname,r.description as description from t_role r,t_user_role
+		where r.id = t_user_role.role_id
+		and t_user_role.user_id = #{id}
+		and r.state = 1 and visiable = 1
+ 	 </select>
+ 	
+</mapper>

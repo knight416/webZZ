@@ -1,0 +1,185 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.net.hlk.data.mapper.UserMapper">
+	<!--表名 -->
+	<sql id="tableName">
+		t_user
+	</sql>
+	<!-- 字段 -->
+	<sql id="field">
+		uid,
+		department,
+		name,
+		photo,
+		id_card,
+		password,
+		contact,
+		state,
+		createuser,
+		createtime,
+		updateuser,
+		updatetime,
+		visibale,
+		job_type,
+		user_message,
+		username
+ 	</sql>
+
+	<!-- 关联查询字段 -->
+	<sql id="fieldd">
+		u.uid,
+		u.department,
+		u.name,
+		u.photo,
+		u.id_card,
+		u.password,
+		u.contact,
+		u.state,
+		u.createuser,
+		u.createtime,
+		u.updateuser,
+		u.updatetime,
+		u.visibale,
+		u.job_type,
+		u.user_message,
+		u.username
+	</sql>
+
+	<!-- 添加字段 -->
+	<sql id="insertfield">
+ 		uid,
+		department,
+		name,
+		photo,
+		id_card,
+		password,
+		contact,
+		state,
+		createuser,
+		createtime,
+		updateuser,
+		updatetime,
+		visibale,
+		job_type,
+		user_message,
+		username
+ 	</sql>
+
+	<sql id="insertvalue">
+		#{uid},
+		#{department},
+		#{name},
+		#{photo},
+		#{id_card},
+		#{password},
+		#{contact},
+		#{state}::integer,
+		#{updateuser},
+		now(),
+		#{updateuser},
+		now(),
+		1,
+		#{job_type},
+		#{user_message}::jsonb,
+		#{username}
+	</sql>
+
+	<!-- 用户添加 -->
+	<insert id="addUser" parameterType="pd">
+		insert into
+		<include refid="tableName"></include>
+		(
+		<include refid="insertfield"></include>
+		) values (
+		<include refid="insertvalue"></include>
+		)
+	</insert>
+
+	<!-- 用户修改  -->
+	<update id="editUser" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		<set>
+			<if test="department != null and department != '' ">
+				department=#{department},
+			</if>
+			<if test="name != null and name != '' ">
+				name=#{name},
+			</if>
+			<if test="photo != null and photo != '' ">
+				photo=#{photo},
+			</if>
+			<if test="id_card != null and id_card != '' ">
+				id_card=#{id_card},
+			</if>
+			<if test="password != null and password != '' ">
+				password=#{password},
+			</if>
+			<if test="contact != null and contact != '' ">
+				contact=#{contact},
+			</if>
+			<if test="state != null ">
+				state=#{state}::integer,
+			</if>
+			<if test="job_type != null and job_type != '' ">
+				job_type=#{job_type},
+			</if>
+			<if test="username != null and username != '' ">
+				username=#{username},
+			</if>
+			<if test="user_message != null ">
+				user_message=#{user_message}::jsonb,
+			</if>
+			<if test="updateuser != null and updateuser != '' ">
+				updateuser=#{updateuser},
+			</if>
+			updatetime=now(),
+			<if test="visibale != null">
+				visibale=#{visibale}::integer,
+			</if>
+		</set>
+		where uid = #{uid}
+	</update>
+
+
+	<!-- 用户条件查询 -->
+	<select id="findAllUserPgListPage" parameterType="page" resultType="pd">
+		SELECT
+		row_number() over (ORDER BY a.updatetime DESC) as xh,
+		<include refid="field"></include>
+		from <include refid="tableName"></include> a
+		where 1=1
+		<!-- 所属机构 -->
+		<if test="pd.department !=null and pd.department != '' ">
+			and department like CONCAT(CONCAT('%',#{pd.department}),'%')
+		</if>
+		<!-- 姓名-->
+		<if test="pd.name !=null and pd.name != '' ">
+			and name like CONCAT(CONCAT('%',#{pd.name}),'%')
+		</if>
+		<!-- 状态-->
+		<if test="pd.state !=null ">
+			and state  = #{pd.state}
+		</if>
+
+		<if test="pd.beginTime!=null and pd.beginTime!=''"><!-- 开始时间检索 -->
+			and createtime &gt;= concat(#{pd.beginTime},' 00:00:00')::TIMESTAMP
+		</if>
+		<if test="pd.endTime!=null and pd.endTime!=''"><!-- 结束时间检索 -->
+			and createtime &lt;= concat(#{pd.endTime},' 23:59:59')::TIMESTAMP
+		</if>
+		and a.visibale = 1
+	</select>
+
+	<!-- 根据告警id 获取告警信息 -->
+	<select id="findById"  resultType="pd" parameterType="pd">
+		SELECT
+		<include refid="field"></include>
+		from <include refid="tableName"></include> a
+		where 1=1
+		and a.visibale = 1
+		and a.uid = #{uid}
+	</select>
+	
+</mapper>

@@ -7,8 +7,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   
-  <name>hlk-dossier-service</name>
-  <description>海邻科智慧卷宗</description>
+  <name>webZZ</name>
+  <description>ZZ</description>
   
   <parent>
 		<groupId>org.springframework.boot</groupId>
@@ -330,10 +330,39 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
             <artifactId>hyph</artifactId>
             <version>7.0.3</version>
         </dependency>
+
+		<!-- lombok start -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.8</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- lombok end -->
+		<!-- easypoi start -->
+		<dependency>
+			<groupId>cn.afterturn</groupId>
+			<artifactId>easypoi-base</artifactId>
+			<version>4.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>cn.afterturn</groupId>
+			<artifactId>easypoi-web</artifactId>
+			<version>4.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>cn.afterturn</groupId>
+			<artifactId>easypoi-annotation</artifactId>
+			<version>4.1.0</version>
+		</dependency>
+		<!-- easypoi end -->
+
 	</dependencies>
-  
+
+
+
   	<build>
-		<finalName>jzgl-data-service</finalName>
+		<finalName>webZZ</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
