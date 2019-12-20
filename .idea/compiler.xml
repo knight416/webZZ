@@ -6,11 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="hlk-dossier-service" />
+        <module name="webZZ" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="hlk-dossier-service" target="1.8" />
+      <module name="webZZ" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
