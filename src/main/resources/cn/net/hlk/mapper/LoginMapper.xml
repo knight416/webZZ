@@ -21,7 +21,7 @@
 		createtime,
 		updateuser,
 		updatetime,
-		visibale,
+		visiable,
 		job_type,
 		user_message,
 		username,
@@ -42,14 +42,14 @@
 		u.createtime,
 		u.updateuser,
 		u.updatetime,
-		u.visibale,
+		u.visiable,
 		u.job_type,
 		u.user_message,
 		u.username,
 		u.system_id
 	</sql>
 
- 	<select id="getUserByIdCard" parameterType="String" resultType="cn.net.hlk.data.pojo.user.User">
+ 	<select id="getUserByIdCard" parameterType="pd" resultType="cn.net.hlk.data.pojo.user.User">
  		select <include refid="field"></include>
  		from t_user
  		where visiable=1  and username = #{username}
@@ -57,7 +57,7 @@
  	</select>
 
  	<update id="updatePassword" parameterType="pd">
- 		update t_user set password = #{password} where visiable=1 and (id_card = #{idcard} or username = #{username})
+ 		update t_user set password = #{password} where visiable=1 and  username = #{username}
  		and system_id = #{system_id}
  	</update>
 </mapper>

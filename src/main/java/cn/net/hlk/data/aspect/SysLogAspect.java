@@ -103,11 +103,11 @@ public class SysLogAspect {
 			    mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);  
 			    mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);  
 			    jsonpd =  mapper.readValue(jsonStr,PageData.class);
-			    PageData depart = JSON.parseObject(JSON.toJSONString(jsonpd.get("department")), PageData.class);
+			    // PageData depart = JSON.parseObject(JSON.toJSONString(jsonpd.get("department")), PageData.class);
 			    opt_id = String.valueOf(jsonpd.get("id"));
 			    opt_name = jsonpd.getString("name");
 			    opt_idcard = jsonpd.getString("idCard");
-			    opt_unit_code = depart.getString("code");
+			    opt_unit_code = jsonpd.getString("department");
 				}  catch (Exception e) {
 					e.printStackTrace();
 				}

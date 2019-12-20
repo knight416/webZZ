@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LoginMapper {
 
-	User getUserByIdCard(String idcard);
+	User getUserByIdCard(PageData pd);
 	
 	Integer updatePassword(PageData pd);
 

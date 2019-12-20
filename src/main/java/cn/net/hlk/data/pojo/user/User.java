@@ -3,12 +3,11 @@ package cn.net.hlk.data.pojo.user;
 //import org.hibernate.annotations.GenericGenerator;
 
 
+import java.sql.Timestamp; import java.util.List;
 import cn.net.hlk.data.pojo.PageData;
+import cn.net.hlk.data.pojo.department.Department;
 import cn.net.hlk.data.pojo.department.Group;
-import org.apache.ibatis.type.Alias;
-import lombok.Data;
-import java.sql.Timestamp;
-import java.util.List;
+import lombok.Data; import org.apache.ibatis.type.Alias;
 
 /**
  * 【描 述】：<用户表实体类>

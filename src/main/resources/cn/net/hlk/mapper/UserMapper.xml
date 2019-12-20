@@ -20,7 +20,7 @@
 		createtime,
 		updateuser,
 		updatetime,
-		visibale,
+		visiable,
 		job_type,
 		user_message,
 		username,
@@ -41,7 +41,7 @@
 		u.createtime,
 		u.updateuser,
 		u.updatetime,
-		u.visibale,
+		u.visiable,
 		u.job_type,
 		u.user_message,
 		u.username,
@@ -62,7 +62,7 @@
 		createtime,
 		updateuser,
 		updatetime,
-		visibale,
+		visiable,
 		job_type,
 		user_message,
 		username,
@@ -139,8 +139,8 @@
 				updateuser=#{updateuser},
 			</if>
 			updatetime=now(),
-			<if test="visibale != null">
-				visibale=#{visibale}::integer,
+			<if test="visiable != null">
+				visiable=#{visiable}::integer,
 			</if>
 		</set>
 		where uid = #{uid}
@@ -177,17 +177,7 @@
 		<if test="pd.endTime!=null and pd.endTime!=''"><!-- 结束时间检索 -->
 			and createtime &lt;= concat(#{pd.endTime},' 23:59:59')::TIMESTAMP
 		</if>
-		and a.visibale = 1
+		and a.visiable = 1
 	</select>
 
-	<!-- 根据告警id 获取告警信息 -->
-	<select id="findById"  resultType="pd" parameterType="pd">
-		SELECT
-		<include refid="field"></include>
-		from <include refid="tableName"></include> a
-		where 1=1
-		and a.visibale = 1
-		and a.uid = #{uid}
-	</select>
-	
 </mapper>

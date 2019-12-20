@@ -19,7 +19,7 @@ import cn.net.hlk.data.config.DynamicDataSourceRegister;
 @EnableAsync //异步调用配置注解 配合@Async使用
 @EnableCaching //缓存注解 
 @EnableTransactionManagement //事务注解
-@ServletComponentScan //拦截注册类 
+@ServletComponentScan //拦截注册类 v
 @EnableSwagger2 //swagger注解
 //@Import({DynamicDataSourceRegister.class}) // 注册动态多数据源
 public class HlkApplication { 

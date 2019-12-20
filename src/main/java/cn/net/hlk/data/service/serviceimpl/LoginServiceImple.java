@@ -61,7 +61,7 @@ public class LoginServiceImple extends BaseServiceImple implements
 		ReasonBean reasonBean = new ReasonBean();
 		String username = (String) pd.get("username");
 		String password = (String) pd.get("password");
-		User user = loginMapper.getUserByIdCard(username);
+		User user = loginMapper.getUserByIdCard(pd);
 		if(user == null){
 			reasonBean.setCode("500");
 			reasonBean.setText("用户名或密码错误！");
@@ -149,8 +149,9 @@ public class LoginServiceImple extends BaseServiceImple implements
 		ReasonBean reasonBean = new ReasonBean();
 		String oldPassword = (String) pd.get("oldPassword");
 		String newPassword = (String) pd.get("newPassword");
-		String idcard = (String) pd.get("idcard");
-		User user = loginMapper.getUserByIdCard(idcard);
+		String username = (String) pd.get("username");
+		String system_id = (String) pd.get("system_id");
+		User user = loginMapper.getUserByIdCard(pd);
 		String password = user.getPassword();
 		if(!oldPassword.equals(password)){  //if(!MD5.md5(oldPassword).equals(password)){
 			reasonBean.setCode("500");
@@ -159,8 +160,9 @@ public class LoginServiceImple extends BaseServiceImple implements
 		} else {
 			PageData pageData = new PageData();
 		//	newPassword = MD5.md5(newPassword);
-			pageData.put("idcard", idcard);
+			pageData.put("username", username);
 			pageData.put("password", newPassword);
+			pageData.put("system_id", system_id);
 			Integer updatePassword = loginMapper.updatePassword(pageData);
 			if(updatePassword == 1){
 				responseBodyBean.setResult("success");

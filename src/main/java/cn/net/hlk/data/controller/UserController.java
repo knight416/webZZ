@@ -115,7 +115,7 @@ public class UserController extends BaseController {
 	@ApiOperation(value = "用户查询", notes = "用户查询方法")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "body", name = "page", dataType = "Page", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
-		@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzNTM3Y2RmYS0zMjc0LTQ4MjUtYTc1Mi02MGM3ZmEyM2QwYTMiLCJpYXQiOjE1MTc2MzA0MzksInN1YiI6IjMiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50Ijp7ImRlcHRoIjoxLCJuYW1lIjoi6buR6b6Z5rGf55yBIiwiY29kZSI6IjIzMDAwMDAwMDAwMCJ9LCJnb3Zlcm5tZW50IjpbXSwiaWQiOjMsImlkQ2FyZCI6IjIzMDEwMjE5OTIwMTExMDAwMSIsInBjYXJkIjoiMjMwMDAxIiwibmFtZSI6Inh1IiwiaXNBZG1pbiI6MCwiZXhwIjoxNTE5NzA0MDM5fQ.Kas4PlaCjnwIMCbl1Dkkfe5zAvQo9plwjI1otfl0Y2A") })
+		@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJiMmFmNjMwMy03YjQyLTRmMDAtODA2OC02YjJiNGFlZTUyMTkiLCJpYXQiOjE1NzY4NDY0MzUsInN1YiI6IjAiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50IjoiMCIsImlkIjoiMCIsIm5hbWUiOiJhZG1pbiIsImV4cCI6MTU3ODkyMDAzNX0.J_QEqbomvsROW48ZixYFNeXpUhQIpR9ntLzJJbc7Fnc") })
 	@ApiResponses({
         @ApiResponse(code=200,message="指示客服端的请求已经成功收到，解析，接受"),
         @ApiResponse(code=201,message="资源已被创建"),
@@ -146,7 +146,7 @@ public class UserController extends BaseController {
 	@ApiOperation(value = "用户删除", notes = "用户删除方法")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
-		@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzNTM3Y2RmYS0zMjc0LTQ4MjUtYTc1Mi02MGM3ZmEyM2QwYTMiLCJpYXQiOjE1MTc2MzA0MzksInN1YiI6IjMiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50Ijp7ImRlcHRoIjoxLCJuYW1lIjoi6buR6b6Z5rGf55yBIiwiY29kZSI6IjIzMDAwMDAwMDAwMCJ9LCJnb3Zlcm5tZW50IjpbXSwiaWQiOjMsImlkQ2FyZCI6IjIzMDEwMjE5OTIwMTExMDAwMSIsInBjYXJkIjoiMjMwMDAxIiwibmFtZSI6Inh1IiwiaXNBZG1pbiI6MCwiZXhwIjoxNTE5NzA0MDM5fQ.Kas4PlaCjnwIMCbl1Dkkfe5zAvQo9plwjI1otfl0Y2A") })
+		@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJiMmFmNjMwMy03YjQyLTRmMDAtODA2OC02YjJiNGFlZTUyMTkiLCJpYXQiOjE1NzY4NDY0MzUsInN1YiI6IjAiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50IjoiMCIsImlkIjoiMCIsIm5hbWUiOiJhZG1pbiIsImV4cCI6MTU3ODkyMDAzNX0.J_QEqbomvsROW48ZixYFNeXpUhQIpR9ntLzJJbc7Fnc") })
 	@ApiResponses({
         @ApiResponse(code=200,message="指示客服端的请求已经成功收到，解析，接受"),
         @ApiResponse(code=201,message="资源已被创建"),
@@ -175,7 +175,7 @@ public class UserController extends BaseController {
 	@ApiOperation(value = "用户禁用", notes = "用户禁用方法")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
-		@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzNTM3Y2RmYS0zMjc0LTQ4MjUtYTc1Mi02MGM3ZmEyM2QwYTMiLCJpYXQiOjE1MTc2MzA0MzksInN1YiI6IjMiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50Ijp7ImRlcHRoIjoxLCJuYW1lIjoi6buR6b6Z5rGf55yBIiwiY29kZSI6IjIzMDAwMDAwMDAwMCJ9LCJnb3Zlcm5tZW50IjpbXSwiaWQiOjMsImlkQ2FyZCI6IjIzMDEwMjE5OTIwMTExMDAwMSIsInBjYXJkIjoiMjMwMDAxIiwibmFtZSI6Inh1IiwiaXNBZG1pbiI6MCwiZXhwIjoxNTE5NzA0MDM5fQ.Kas4PlaCjnwIMCbl1Dkkfe5zAvQo9plwjI1otfl0Y2A") })
+			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJiMmFmNjMwMy03YjQyLTRmMDAtODA2OC02YjJiNGFlZTUyMTkiLCJpYXQiOjE1NzY4NDY0MzUsInN1YiI6IjAiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50IjoiMCIsImlkIjoiMCIsIm5hbWUiOiJhZG1pbiIsImV4cCI6MTU3ODkyMDAzNX0.J_QEqbomvsROW48ZixYFNeXpUhQIpR9ntLzJJbc7Fnc") })
 	@ApiResponses({
         @ApiResponse(code=200,message="指示客服端的请求已经成功收到，解析，接受"),
         @ApiResponse(code=201,message="资源已被创建"),
@@ -204,7 +204,7 @@ public class UserController extends BaseController {
 	@ApiOperation(value = "用户启用", notes = "用户启用方法")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
-		@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzNTM3Y2RmYS0zMjc0LTQ4MjUtYTc1Mi02MGM3ZmEyM2QwYTMiLCJpYXQiOjE1MTc2MzA0MzksInN1YiI6IjMiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50Ijp7ImRlcHRoIjoxLCJuYW1lIjoi6buR6b6Z5rGf55yBIiwiY29kZSI6IjIzMDAwMDAwMDAwMCJ9LCJnb3Zlcm5tZW50IjpbXSwiaWQiOjMsImlkQ2FyZCI6IjIzMDEwMjE5OTIwMTExMDAwMSIsInBjYXJkIjoiMjMwMDAxIiwibmFtZSI6Inh1IiwiaXNBZG1pbiI6MCwiZXhwIjoxNTE5NzA0MDM5fQ.Kas4PlaCjnwIMCbl1Dkkfe5zAvQo9plwjI1otfl0Y2A") })
+			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJiMmFmNjMwMy03YjQyLTRmMDAtODA2OC02YjJiNGFlZTUyMTkiLCJpYXQiOjE1NzY4NDY0MzUsInN1YiI6IjAiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50IjoiMCIsImlkIjoiMCIsIm5hbWUiOiJhZG1pbiIsImV4cCI6MTU3ODkyMDAzNX0.J_QEqbomvsROW48ZixYFNeXpUhQIpR9ntLzJJbc7Fnc") })
 	@ApiResponses({
         @ApiResponse(code=200,message="指示客服端的请求已经成功收到，解析，接受"),
         @ApiResponse(code=201,message="资源已被创建"),
@@ -238,7 +238,7 @@ public class UserController extends BaseController {
 	@ApiOperation(value = "添加用户", notes = "添加用户方法")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
-		@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzNTM3Y2RmYS0zMjc0LTQ4MjUtYTc1Mi02MGM3ZmEyM2QwYTMiLCJpYXQiOjE1MTc2MzA0MzksInN1YiI6IjMiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50Ijp7ImRlcHRoIjoxLCJuYW1lIjoi6buR6b6Z5rGf55yBIiwiY29kZSI6IjIzMDAwMDAwMDAwMCJ9LCJnb3Zlcm5tZW50IjpbXSwiaWQiOjMsImlkQ2FyZCI6IjIzMDEwMjE5OTIwMTExMDAwMSIsInBjYXJkIjoiMjMwMDAxIiwibmFtZSI6Inh1IiwiaXNBZG1pbiI6MCwiZXhwIjoxNTE5NzA0MDM5fQ.Kas4PlaCjnwIMCbl1Dkkfe5zAvQo9plwjI1otfl0Y2A") })
+			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJiMmFmNjMwMy03YjQyLTRmMDAtODA2OC02YjJiNGFlZTUyMTkiLCJpYXQiOjE1NzY4NDY0MzUsInN1YiI6IjAiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50IjoiMCIsImlkIjoiMCIsIm5hbWUiOiJhZG1pbiIsImV4cCI6MTU3ODkyMDAzNX0.J_QEqbomvsROW48ZixYFNeXpUhQIpR9ntLzJJbc7Fnc") })
 	@ApiResponses({
         @ApiResponse(code=200,message="指示客服端的请求已经成功收到，解析，接受"),
         @ApiResponse(code=201,message="资源已被创建"),
@@ -284,7 +284,7 @@ public class UserController extends BaseController {
 	@ApiOperation(value = "根据id查询用户", notes = "根据id查询用户方法")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
-		@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzNTM3Y2RmYS0zMjc0LTQ4MjUtYTc1Mi02MGM3ZmEyM2QwYTMiLCJpYXQiOjE1MTc2MzA0MzksInN1YiI6IjMiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50Ijp7ImRlcHRoIjoxLCJuYW1lIjoi6buR6b6Z5rGf55yBIiwiY29kZSI6IjIzMDAwMDAwMDAwMCJ9LCJnb3Zlcm5tZW50IjpbXSwiaWQiOjMsImlkQ2FyZCI6IjIzMDEwMjE5OTIwMTExMDAwMSIsInBjYXJkIjoiMjMwMDAxIiwibmFtZSI6Inh1IiwiaXNBZG1pbiI6MCwiZXhwIjoxNTE5NzA0MDM5fQ.Kas4PlaCjnwIMCbl1Dkkfe5zAvQo9plwjI1otfl0Y2A") })
+			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJiMmFmNjMwMy03YjQyLTRmMDAtODA2OC02YjJiNGFlZTUyMTkiLCJpYXQiOjE1NzY4NDY0MzUsInN1YiI6IjAiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50IjoiMCIsImlkIjoiMCIsIm5hbWUiOiJhZG1pbiIsImV4cCI6MTU3ODkyMDAzNX0.J_QEqbomvsROW48ZixYFNeXpUhQIpR9ntLzJJbc7Fnc") })
 	@ApiResponses({
         @ApiResponse(code=200,message="指示客服端的请求已经成功收到，解析，接受"),
         @ApiResponse(code=201,message="资源已被创建"),
@@ -312,7 +312,7 @@ public class UserController extends BaseController {
 	@ApiOperation(value = "修改用户", notes = "修改用户方法")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
-		@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzNTM3Y2RmYS0zMjc0LTQ4MjUtYTc1Mi02MGM3ZmEyM2QwYTMiLCJpYXQiOjE1MTc2MzA0MzksInN1YiI6IjMiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50Ijp7ImRlcHRoIjoxLCJuYW1lIjoi6buR6b6Z5rGf55yBIiwiY29kZSI6IjIzMDAwMDAwMDAwMCJ9LCJnb3Zlcm5tZW50IjpbXSwiaWQiOjMsImlkQ2FyZCI6IjIzMDEwMjE5OTIwMTExMDAwMSIsInBjYXJkIjoiMjMwMDAxIiwibmFtZSI6Inh1IiwiaXNBZG1pbiI6MCwiZXhwIjoxNTE5NzA0MDM5fQ.Kas4PlaCjnwIMCbl1Dkkfe5zAvQo9plwjI1otfl0Y2A") })
+			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJiMmFmNjMwMy03YjQyLTRmMDAtODA2OC02YjJiNGFlZTUyMTkiLCJpYXQiOjE1NzY4NDY0MzUsInN1YiI6IjAiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50IjoiMCIsImlkIjoiMCIsIm5hbWUiOiJhZG1pbiIsImV4cCI6MTU3ODkyMDAzNX0.J_QEqbomvsROW48ZixYFNeXpUhQIpR9ntLzJJbc7Fnc") })
 	@ApiResponses({
         @ApiResponse(code=200,message="指示客服端的请求已经成功收到，解析，接受"),
         @ApiResponse(code=201,message="资源已被创建"),

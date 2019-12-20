@@ -94,7 +94,7 @@ public class LoginController extends BaseController {
 			status = HttpStatus.OK.value();
 			return resultBody;
 		}
-		User user = loginMapper.getUserByIdCard(idCard);
+		User user = loginMapper.getUserByIdCard(pd);
 		if(user==null){
 			resultBody.put("error", new PageData("code","412","text","用户不存在！"));
 			resultBody.put("data",null);
@@ -134,7 +134,7 @@ public class LoginController extends BaseController {
 	@SuppressWarnings("all")
 	@ApiOperation(value = "改密", notes = "改密")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI2ZGI3MWM5Yy05NDg0LTQ5M2MtOTcyMy0xMjlhMDBlOGRmNzEiLCJpYXQiOjE1MTUyMjAzNDgsInN1YiI6IjEiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJncm91cGNvZGUiOiIwMDAwMDAwMDAwMDAiLCJpZCI6MSwiaWRjYXJkIjoiMjMwMTAzMTk5MTAzMDQyMjEwIiwibmFtZSI6IueuoeeQhuWRmCIsImV4cCI6MTUxNzI5Mzk0OH0.mQr2LJlU3rwWfnfGifKf3ePpR0l-l_wGI4jCLhseQVU"),
+			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJiMmFmNjMwMy03YjQyLTRmMDAtODA2OC02YjJiNGFlZTUyMTkiLCJpYXQiOjE1NzY4NDY0MzUsInN1YiI6IjAiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50IjoiMCIsImlkIjoiMCIsIm5hbWUiOiJhZG1pbiIsImV4cCI6MTU3ODkyMDAzNX0.J_QEqbomvsROW48ZixYFNeXpUhQIpR9ntLzJJbc7Fnc"),
 			@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = false, value = "客户端传入JSON字符串", defaultValue = "") })
 	@ApiResponses({ @ApiResponse(code = 200, message = "指示客服端的请求已经成功收到，解析，接受"),
 			@ApiResponse(code = 201, message = "资源已被创建"), @ApiResponse(code = 401, message = "未授权"),

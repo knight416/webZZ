@@ -15,6 +15,7 @@ import cn.net.hlk.data.pojo.user.User;
 import cn.net.hlk.data.pojo.user.UserExcel;
 import cn.net.hlk.data.service.IUserService;
 import cn.net.hlk.util.StringUtil;
+import cn.net.hlk.util.UuidUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -146,9 +147,13 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 	@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT, timeout = 36000, rollbackFor = Exception.class)
 	@Override
 	public Integer addUser(PageData pd) {
-		pd.put("id", UUID.randomUUID().toString());
+		pd.put("uid", UuidUtil.get32UUID());
 		/* 插入用户信息 */
-		pd.put("user_message",JSON.parseObject(JSON.toJSONString(pd.get("user_message"))));
+		pd.put("user_message",JSON.toJSONString(pd.get("user_message")));
+		// if(pd.get("user_message").toString().length() > 3){
+		// }else{
+		// 	pd.put("user_message",new PageData());
+		// }
 		Integer addUser = userMapper.addUser(pd);
 		logger.info("addUser:"+addUser);
 		return addUser;

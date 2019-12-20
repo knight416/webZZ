@@ -19,7 +19,7 @@
 		writerid,
 		news_message,
 		news_type,
-		visibale,
+		visiable,
 		system_id,
 		updateuser,
 		updatetime,
@@ -39,7 +39,7 @@
 		n.writerid,
 		n.news_message,
 		n.news_type,
-		n.visibale,
+		n.visiable,
 		n.system_id,
 		n.updateuser,
 		n.updatetime,
@@ -59,7 +59,7 @@
 		writerid,
 		news_message,
 		news_type,
-		visibale,
+		visiable,
 		system_id,
 		updateuser,
 		updatetime,
@@ -124,8 +124,8 @@
 				updateuser=#{updateuser},
 			</if>
 				updatetime=now(),
-			<if test="visibale != null">
-				visibale=#{visibale}::integer,
+			<if test="visiable != null">
+				visiable=#{visiable}::integer,
 			</if>
 		</set>
 		where xid = #{xid}
@@ -173,7 +173,7 @@
 			<if test="pd.endTime!=null and pd.endTime!=''"><!-- 结束时间检索 -->
 				and newstime &lt;= concat(#{pd.endTime},' 23:59:59')::TIMESTAMP
 			</if>
-			and n.visibale = 1
+			and n.visiable = 1
 	</select>
 	
 
@@ -183,7 +183,7 @@
 			<include refid="fieldd"></include>,a.dossier_message
 			from <include refid="tableName"></include> a
 			where 1=1 
-			and n.visibalen = 1
+			and n.visiable = 1
 			and n.xid = #{xid}
 	</select>
 	
