@@ -5,6 +5,7 @@ import cn.net.hlk.data.pojo.PageData;
 import cn.net.hlk.data.pojo.ReasonBean;
 import cn.net.hlk.data.pojo.ResponseBodyBean;
 import cn.net.hlk.data.service.AlarmService;
+import cn.net.hlk.data.service.NewsService;
 import cn.net.hlk.util.ResponseUtil;
 import cn.net.hlk.util.StringUtil2;
 import io.swagger.annotations.Api;
@@ -41,11 +42,11 @@ import java.util.List;
 public class NewsController extends BaseController{
 
 	@Autowired
-	private AlarmService alarmService;
+	private NewsService newsService;
 
 	/**
 	 * @Title: addAlarm
-	 * @discription 告警新增
+	 * @discription 消息新增
 	 * @author 张泽恒       
 	 * @created 2018年10月8日 上午10:09:05     
 	 * @param pd
@@ -53,7 +54,7 @@ public class NewsController extends BaseController{
 	 * @return
 	 */
 	@SuppressWarnings("all")
-	@ApiOperation(value = "告警新增", notes = "告警新增")
+	@ApiOperation(value = "消息新增", notes = "消息新增")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
 		@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJqdGkiOiIzYzdhN2UzNy0yMWUyLTRhMTYtOTUwNS0zMjVlMjI0NGMxZjAiLCJpYXQiOjE1MDM4ODc5MDcsInN1YiI6IjEiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJncm91cGNvZGUiOiIyMzAwMDAwMDAwMDAiLCJ1dHlwZSI6IjEifQ"),
@@ -68,8 +69,8 @@ public class NewsController extends BaseController{
         @ApiResponse(code=406,message="不是指定的数据类型"),
         @ApiResponse(code=500,message="服务器内部错误")
      })
-	@RequestMapping(value="/addAlarm", method=RequestMethod.POST)
-	public  @ResponseBody ResponseBodyBean addAlarm( @RequestBody PageData pd,  @RequestHeader String Authorization) { 
+	@RequestMapping(value="/addNews", method=RequestMethod.POST)
+	public  @ResponseBody ResponseBodyBean addNews( @RequestBody PageData pd,  @RequestHeader String Authorization) {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();//状态码
 		response.setStatus(status);//状态码存入
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
@@ -77,9 +78,8 @@ public class NewsController extends BaseController{
 		PageData resData = new PageData();//返回数据
 		try{
 			if(pd != null 
-//					&& StringUtil2.isNotEmpty(pd.get("box_id"))//箱id
 					){
-				responseBodyBean = alarmService.addAlarm(pd);
+				responseBodyBean = newsService.addNews(pd);
 				if(responseBodyBean.getReason() == null){
 					status = HttpStatus.OK.value();
 					response.setStatus(status);
@@ -102,7 +102,7 @@ public class NewsController extends BaseController{
 	
 	/**
 	 * @Title: updateAlarm
-	 * @discription 告警修改
+	 * @discription 消息修改
 	 * @author 张泽恒       
 	 * @created 2018年10月8日 下午1:38:40     
 	 * @param pd
@@ -110,7 +110,7 @@ public class NewsController extends BaseController{
 	 * @return
 	 */
 	@SuppressWarnings("all")
-	@ApiOperation(value = "告警修改", notes = "告警修改")
+	@ApiOperation(value = "消息修改", notes = "消息修改")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
 		@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJqdGkiOiIzYzdhN2UzNy0yMWUyLTRhMTYtOTUwNS0zMjVlMjI0NGMxZjAiLCJpYXQiOjE1MDM4ODc5MDcsInN1YiI6IjEiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJncm91cGNvZGUiOiIyMzAwMDAwMDAwMDAiLCJ1dHlwZSI6IjEifQ"),
@@ -125,18 +125,17 @@ public class NewsController extends BaseController{
         @ApiResponse(code=406,message="不是指定的数据类型"),
         @ApiResponse(code=500,message="服务器内部错误")
      })
-	@RequestMapping(value="/updateAlarm", method=RequestMethod.POST)
-	public  @ResponseBody ResponseBodyBean updateAlarm( @RequestBody PageData pd,  @RequestHeader String Authorization) { 
+	@RequestMapping(value="/updateNews", method=RequestMethod.POST)
+	public  @ResponseBody ResponseBodyBean updateNews( @RequestBody PageData pd,  @RequestHeader String Authorization) {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();//状态码
 		response.setStatus(status);//状态码存入
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
 		ReasonBean reasonBean = new ReasonBean();//返回参数
 		PageData resData = new PageData();//返回数据
 		try{
-			if(pd != null && StringUtil2.isNotEmpty(pd.get("alarm_id"))//告警id
-//					&& StringUtil2.isNotEmpty(pd.get("box_id"))//箱id
+			if(pd != null && StringUtil2.isNotEmpty(pd.get("xid"))//消息id
 					){
-				responseBodyBean = alarmService.updateAlarm(pd);
+				responseBodyBean = newsService.updateNews(pd);
 				if(responseBodyBean.getReason() == null){
 					status = HttpStatus.OK.value();
 					response.setStatus(status);
@@ -159,7 +158,7 @@ public class NewsController extends BaseController{
 
 	/**
 	 * @Title: searchAlarm
-	 * @discription 告警条件查询
+	 * @discription 消息条件查询
 	 * @author 张泽恒       
 	 * @created 2018年10月10日 下午3:11:10     
 	 * @param page
@@ -167,7 +166,7 @@ public class NewsController extends BaseController{
 	 * @return
 	 */
 	@SuppressWarnings("all")
-	@ApiOperation(value = "告警条件查询", notes = "告警条件查询")
+	@ApiOperation(value = "消息条件查询", notes = "消息条件查询")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "body", name = "page", dataType = "Page", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
 		@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJqdGkiOiIzYzdhN2UzNy0yMWUyLTRhMTYtOTUwNS0zMjVlMjI0NGMxZjAiLCJpYXQiOjE1MDM4ODc5MDcsInN1YiI6IjEiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJncm91cGNvZGUiOiIyMzAwMDAwMDAwMDAiLCJ1dHlwZSI6IjEifQ"),
@@ -182,8 +181,8 @@ public class NewsController extends BaseController{
         @ApiResponse(code=406,message="不是指定的数据类型"),
         @ApiResponse(code=500,message="服务器内部错误")
      })
-	@RequestMapping(value="/searchAlarm", method=RequestMethod.POST)
-	public  @ResponseBody ResponseBodyBean searchAlarm( @RequestBody Page page,  @RequestHeader String Authorization) { 
+	@RequestMapping(value="/searchNews", method=RequestMethod.POST)
+	public  @ResponseBody ResponseBodyBean searchNews( @RequestBody Page page,  @RequestHeader String Authorization) {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();//状态码
 		response.setStatus(status);//状态码存入
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
@@ -193,10 +192,10 @@ public class NewsController extends BaseController{
 			List<PageData> pdList = new ArrayList<PageData>();
 			PageData pd = page.getPd();
 			if(page != null ){
-				if(pd != null && StringUtil2.isNotEmpty(pd.get("police_idcard"))
+				if(pd != null
 //						&& StringUtil2.isNotEmpty(pd.get("menu"))//用户资源
 						){
-					responseBodyBean = alarmService.searchAlarm(page);
+					responseBodyBean = newsService.searchNews(page);
 					if(responseBodyBean.getReason() == null){
 						status = HttpStatus.OK.value();
 						response.setStatus(status);
@@ -226,7 +225,7 @@ public class NewsController extends BaseController{
 
 	/**
 	 * @Title: getAlarmInfomationById
-	 * @discription 根据告警id 获取告警信息
+	 * @discription 根据消息id 获取告警信息
 	 * @author 张泽恒       
 	 * @created 2018年10月19日 上午8:54:49     
 	 * @param pd
@@ -234,7 +233,7 @@ public class NewsController extends BaseController{
 	 * @return
 	 */
 	@SuppressWarnings("all")
-	@ApiOperation(value = "根据告警ID获取信息", notes = "根据告警ID获取告警信息")
+	@ApiOperation(value = "根据消息ID获取信息", notes = "根据消息ID获取告警信息")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
 		@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJqdGkiOiIzYzdhN2UzNy0yMWUyLTRhMTYtOTUwNS0zMjVlMjI0NGMxZjAiLCJpYXQiOjE1MDM4ODc5MDcsInN1YiI6IjEiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJncm91cGNvZGUiOiIyMzAwMDAwMDAwMDAiLCJ1dHlwZSI6IjEifQ"),
@@ -249,8 +248,8 @@ public class NewsController extends BaseController{
         @ApiResponse(code=406,message="不是指定的数据类型"),
         @ApiResponse(code=500,message="服务器内部错误")
      })
-	@RequestMapping(value="/getAlarmInfomationById", method=RequestMethod.POST)
-	public  @ResponseBody ResponseBodyBean getAlarmInfomationById( @RequestBody PageData pd,  @RequestHeader String Authorization) { 
+	@RequestMapping(value="/getNewsById", method=RequestMethod.POST)
+	public  @ResponseBody ResponseBodyBean getNewsById( @RequestBody PageData pd,  @RequestHeader String Authorization) {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();//状态码
 		response.setStatus(status);//状态码存入
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
@@ -260,7 +259,7 @@ public class NewsController extends BaseController{
 			if(pd != null 
 //					&& StringUtil2.isNotEmpty(pd.get("box_id"))//箱id
 					){
-				responseBodyBean = alarmService.getAlarmInfomationById(pd);
+				responseBodyBean = newsService.getNewsById(pd);
 				if(responseBodyBean.getReason() == null){
 					status = HttpStatus.OK.value();
 					response.setStatus(status);

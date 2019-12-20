@@ -24,7 +24,8 @@
 		visibale,
 		job_type,
 		user_message,
-		username
+		username,
+		system_id
  	</sql>
 
 	<!-- 关联查询字段 -->
@@ -44,16 +45,19 @@
 		u.visibale,
 		u.job_type,
 		u.user_message,
-		u.username
+		u.username,
+		u.system_id
 	</sql>
 
  	<select id="getUserByIdCard" parameterType="String" resultType="cn.net.hlk.data.pojo.user.User">
  		select <include refid="field"></include>
  		from t_user
- 		where visiable=1  and (username = #{username} or username = #{username})
+ 		where visiable=1  and username = #{username}
+		and system_id = #{system_id}
  	</select>
 
  	<update id="updatePassword" parameterType="pd">
  		update t_user set password = #{password} where visiable=1 and (id_card = #{idcard} or username = #{username})
+ 		and system_id = #{system_id}
  	</update>
 </mapper>

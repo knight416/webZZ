@@ -23,7 +23,8 @@
 		visibale,
 		job_type,
 		user_message,
-		username
+		username,
+		system_id
  	</sql>
 
 	<!-- 关联查询字段 -->
@@ -43,7 +44,8 @@
 		u.visibale,
 		u.job_type,
 		u.user_message,
-		u.username
+		u.username,
+		u.system_id
 	</sql>
 
 	<!-- 添加字段 -->
@@ -63,7 +65,8 @@
 		visibale,
 		job_type,
 		user_message,
-		username
+		username,
+		system_id
  	</sql>
 
 	<sql id="insertvalue">
@@ -82,7 +85,8 @@
 		1,
 		#{job_type},
 		#{user_message}::jsonb,
-		#{username}
+		#{username},
+		#{system_id}
 	</sql>
 
 	<!-- 用户添加 -->
@@ -157,6 +161,10 @@
 		<!-- 姓名-->
 		<if test="pd.name !=null and pd.name != '' ">
 			and name like CONCAT(CONCAT('%',#{pd.name}),'%')
+		</if>
+		<!-- 系统id-->
+		<if test="pd.system_id !=null and pd.system_id != '' ">
+			and name like CONCAT(CONCAT('%',#{pd.system_id}),'%')
 		</if>
 		<!-- 状态-->
 		<if test="pd.state !=null ">

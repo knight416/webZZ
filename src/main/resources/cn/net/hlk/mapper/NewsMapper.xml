@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.net.hlk.data.mapper.NewsMapper">
+
+	 <!--表名 -->
+	<sql id="tableName">
+		t_news
+	</sql>
+	<!-- 字段 -->
+	<sql id="field">
+		xid,
+		title,
+		newstime,
+		titlepic,
+		smalltext,
+		newstext,
+		writer,
+		writerid,
+		news_message,
+		news_type,
+		visibale,
+		system_id,
+		updateuser,
+		updatetime,
+		createuser,
+		createtime
+ 	</sql>
+ 	
+ 	<!-- 关联查询字段 -->
+ 	<sql id="fieldd">
+		n.xid,
+		n.title,
+		n.newstime,
+		n.titlepic,
+		n.smalltext,
+		n.newstext,
+		n.writer,
+		n.writerid,
+		n.news_message,
+		n.news_type,
+		n.visibale,
+		n.system_id,
+		n.updateuser,
+		n.updatetime,
+		n.createuser,
+		n.createtime
+ 	</sql>
+	
+	<!-- 添加字段 -->
+ 	<sql id="insertfield">
+ 		xid,
+		title,
+		newstime,
+		titlepic,
+		smalltext,
+		newstext,
+		writer,
+		writerid,
+		news_message,
+		news_type,
+		visibale,
+		system_id,
+		updateuser,
+		updatetime,
+		createuser,
+		createtime
+ 	</sql>
+	
+	<sql id="insertvalue">
+		#{xid},
+		#{title},
+		#{newstime},
+		#{titlepic},
+		#{smalltext},
+		#{newstext},
+		#{writer},
+		#{writerid},
+		#{news_message}::jsonb,
+		#{news_type},
+		1,
+		#{system_id},
+		#{updateuser},
+		now(),
+		#{updateuser},
+		now()
+	</sql>
+	
+	<!-- 消息添加 -->
+	<insert id="addNews" parameterType="pd">
+		insert into 
+		<include refid="tableName"></include>
+			(
+		<include refid="insertfield"></include>
+			) values (
+		<include refid="insertvalue"></include>
+			)
+	</insert>
+	
+	<!-- 告警修改  -->
+	<update id="updateNews" parameterType="pd">
+		update 
+		<include refid="tableName"></include> 
+		<set>
+			<if test="title != null and title != '' ">
+				title=#{title},
+			</if>
+			<if test="titlepic != null and titlepic != '' ">
+				titlepic=#{titlepic},
+			</if>
+			<if test="smalltext != null and smalltext != '' ">
+				smalltext=#{smalltext},
+			</if>
+			<if test="newstext != null and newstext != '' ">
+				newstext=#{newstext},
+			</if>
+			<if test="news_message != null ">
+				news_message=#{news_message}::jsonb,
+			</if>
+			<if test="news_type != null and news_type != '' ">
+				news_type=#{news_type},
+			</if>
+			<if test="updateuser != null and updateuser != '' ">
+				updateuser=#{updateuser},
+			</if>
+				updatetime=now(),
+			<if test="visibale != null">
+				visibale=#{visibale}::integer,
+			</if>
+		</set>
+		where xid = #{xid}
+	</update>
+	
+	<!-- 告警条件查询 -->
+	<select id="searchNewsPgListPage" parameterType="page" resultType="pd">
+		SELECT 
+			row_number() over (ORDER BY a.updatetime DESC) as xh,
+			<include refid="field"></include>
+			from <include refid="tableName"></include> a
+			where 1=1
+			<!-- 标题 -->
+			<if test="pd.title !=null and pd.title != '' ">
+				and title like CONCAT(CONCAT('%',#{pd.title}),'%')
+			</if>
+			<!-- 内容简介 -->
+			<if test="pd.smalltext !=null and pd.smalltext != '' ">
+				and smalltext like CONCAT(CONCAT('%',#{pd.smalltext}),'%')
+			</if>
+			<!-- 正文 -->
+			<if test="pd.newstext !=null and pd.newstext != '' ">
+				and newstext like CONCAT(CONCAT('%',#{pd.newstext}),'%')
+			</if>
+			<!-- 创建人 -->
+			<if test="pd.writer !=null and pd.writer != '' ">
+				and writer like CONCAT(CONCAT('%',#{pd.writer}),'%')
+			</if>
+			<!-- 创建id -->
+			<if test="pd.writerid !=null and pd.writerid != '' ">
+				and writerid = #{pd.writerid}
+			</if>
+			<!-- 消息类型 -->
+			<if test="pd.news_type !=null and pd.news_type != '' ">
+				and news_type = #{pd.news_type}
+			</if>
+			<!-- 系统id -->
+			<if test="pd.system_id !=null and pd.system_id != '' ">
+				and system_id = #{pd.system_id}
+			</if>
+
+			<if test="pd.beginTime!=null and pd.beginTime!=''"><!-- 开始时间检索 -->
+				and newstime &gt;= concat(#{pd.beginTime},' 00:00:00')::TIMESTAMP
+			</if>
+			<if test="pd.endTime!=null and pd.endTime!=''"><!-- 结束时间检索 -->
+				and newstime &lt;= concat(#{pd.endTime},' 23:59:59')::TIMESTAMP
+			</if>
+			and n.visibale = 1
+	</select>
+	
+
+	<!-- 根据告警id 获取告警信息 -->
+	<select id="getNewsById"  resultType="pd" parameterType="pd">
+		SELECT 
+			<include refid="fieldd"></include>,a.dossier_message
+			from <include refid="tableName"></include> a
+			where 1=1 
+			and n.visibalen = 1
+			and n.xid = #{xid}
+	</select>
+	
+</mapper>
