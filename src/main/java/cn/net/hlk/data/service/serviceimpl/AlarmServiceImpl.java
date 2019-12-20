@@ -1,7 +1,6 @@
 package cn.net.hlk.data.service.serviceimpl;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +15,9 @@ import cn.net.hlk.data.pojo.PageData;
 import cn.net.hlk.data.pojo.ReasonBean;
 import cn.net.hlk.data.pojo.ResponseBodyBean;
 import cn.net.hlk.data.service.AlarmService;
-import cn.net.hlk.data.service.InformationService;
 import cn.net.hlk.util.ResponseUtil;
 import cn.net.hlk.util.StringUtil2;
 import cn.net.hlk.util.UuidUtil;
-
-import com.alibaba.fastjson.JSON;
 
 /**
  * @package: cn.net.hlk.data.service.serviceimpl   
@@ -36,8 +32,6 @@ public class AlarmServiceImpl implements AlarmService {
 
 	@Autowired
 	private AlarmMapper alarmMapper;
-	@Autowired
-	private InformationService informationService;
 
 	/**
 	 * @Title: addAlarm
@@ -60,7 +54,7 @@ public class AlarmServiceImpl implements AlarmService {
 			}
 			pd.put("alarm_id", UuidUtil.get32UUID());//主键生成
 			alarmMapper.addAlarm(pd);//告警添加
-			int n = informationService.xmppSend(pd,0);
+			// int n = informationService.xmppSend(pd,0);
 			responseBodyBean.setResult(resData);
 		} catch (Exception e) {
 			e.printStackTrace();

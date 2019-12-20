@@ -7,9 +7,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import cn.net.hlk.data.service.AlarmService;
-import cn.net.hlk.data.service.BacklogService;
-
 @Component
 public class TimedTask {
 
