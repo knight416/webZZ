@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.net.hlk.data.mapper.EnclosureMapper">
+	<sql id="tableName">
+		t_enclosure
+	</sql>
+	
+	<sql id="Filed">
+		enclosure_id,
+		xid,
+		enclosure_url,
+		enclosure_details,
+		enclosure_suffix,
+		enclosure_type,
+		createuser,
+		createtime,
+		updateuser,
+		updatetime,
+		visibale,
+		flag,
+		enclosure_name
+	</sql>
+	
+	<sql id="FiledValue">
+		#{enclosure_id},
+		#{xid},
+		#{enclosure_url},
+		#{enclosure_details},
+		#{enclosure_suffix},
+		#{enclosure_type},
+		#{createuser},
+		now()::timestamp,
+		#{updateuser},
+		now()::timestamp,
+		#{visibale},
+		#{flag},
+		#{enclosure_name}
+	</sql>
+
+	<insert id="addApprovalEnclosureData" parameterType="pd">
+		insert into
+			<include refid="tableName"></include>
+			(
+			<include refid="Filed"></include>
+			) values
+			(
+			<include refid="FiledValue"></include>
+			)
+	</insert>
+
+
+
+</mapper>

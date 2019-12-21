@@ -27,6 +27,25 @@
 		system_id
  	</sql>
 
+	<!--列表展示数据-->
+	<sql id="fields">
+		uid,
+		department,
+		name,
+		photo,
+		id_card,
+		contact,
+		state,
+		createuser,
+		createtime,
+		updateuser,
+		updatetime,
+		job_type,
+		user_message,
+		username,
+		system_id
+ 	</sql>
+
 	<!-- 关联查询字段 -->
 	<sql id="fieldd">
 		u.uid,
@@ -150,8 +169,8 @@
 	<!-- 用户条件查询 -->
 	<select id="findAllUserPgListPage" parameterType="page" resultType="pd">
 		SELECT
-		row_number() over (ORDER BY a.updatetime DESC) as xh,
-		<include refid="field"></include>
+		row_number() over (ORDER BY updatetime DESC) as xh,
+		<include refid="fields"></include>
 		from <include refid="tableName"></include> a
 		where 1=1
 		<!-- 所属机构 -->
@@ -164,7 +183,7 @@
 		</if>
 		<!-- 系统id-->
 		<if test="pd.system_id !=null and pd.system_id != '' ">
-			and name like CONCAT(CONCAT('%',#{pd.system_id}),'%')
+			and system_id = #{pd.system_id}
 		</if>
 		<!-- 状态-->
 		<if test="pd.state !=null ">
@@ -179,5 +198,16 @@
 		</if>
 		and a.visiable = 1
 	</select>
+
+	<!-- 根据告警id 获取用户信息 -->
+	<select id="findById"  resultType="pd" parameterType="pd">
+		SELECT
+		<include refid="fields"></include>
+		from <include refid="tableName"></include>
+		where 1=1
+		and visiable = 1
+		and uid = #{uid}
+	</select>
+
 
 </mapper>

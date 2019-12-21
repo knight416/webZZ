@@ -163,7 +163,6 @@ public class UserController extends BaseController {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();
 		Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
-		String optId = (String) parseJwt.getBody().get("id");
 		String optName = (String) parseJwt.getBody().get("name");
 		pd.put("updateuser", optName);
 		responseBodyBean = userService.deleteUser(pd);
@@ -221,9 +220,7 @@ public class UserController extends BaseController {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();
 		Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
-		String optId = (String) parseJwt.getBody().get("id");
 		String optName = (String) parseJwt.getBody().get("name");
-	//	String idcard = (String) parseJwt.getBody().get("idcard");
 		pd.put("updateuser", optName);
 		Integer ableUser = userService.ableUser(pd);
 		if(ableUser >= 1){

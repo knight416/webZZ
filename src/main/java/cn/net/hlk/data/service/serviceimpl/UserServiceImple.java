@@ -80,17 +80,13 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 	@Override
 	public ResponseBodyBean deleteUser(PageData pd){
 		ResponseBodyBean responseBodyBean =new ResponseBodyBean();
-		if(isContainsAdmin(pd)){
-			responseBodyBean.setReason(new ReasonBean("fail", "警告：admin用户不能删除!"));
+		Integer deleteUser = null;
+		pd.put("visibale",0);
+		deleteUser = userMapper.editUser(pd);
+		if(deleteUser > 0){
+			responseBodyBean.setResult("success:删除"+deleteUser+"条");
 		}else{
-			Integer deleteUser = null;
-			pd.put("visibale",1);
-			deleteUser = userMapper.editUser(pd);
-			if(deleteUser > 0){
-				responseBodyBean.setResult("success:删除"+deleteUser+"条");
-			}else{
-				responseBodyBean.setReason(new ReasonBean("fail", "删除失败!"));
-			}
+			responseBodyBean.setReason(new ReasonBean("fail", "删除失败!"));
 		}
 		return responseBodyBean;
 	}
@@ -104,17 +100,13 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 	@Override
 	public ResponseBodyBean disableUser(PageData pd) {
 		ResponseBodyBean responseBodyBean =new ResponseBodyBean();
-		if(isContainsAdmin(pd)){
-			responseBodyBean.setReason(new ReasonBean("fail", "警告：admin用户不能禁用!"));
+		Integer disableUser = null;
+		pd.put("state",0);
+		disableUser = userMapper.editUser(pd);
+		if(disableUser > 0){
+			responseBodyBean.setResult("success:禁用"+disableUser+"条");
 		}else{
-			Integer disableUser = null;
-			pd.put("state",0);
-			disableUser = userMapper.editUser(pd);
-			if(disableUser > 0){
-				responseBodyBean.setResult("success:禁用"+disableUser+"条");
-			}else{
-				responseBodyBean.setReason(new ReasonBean("fail", "禁用失败!"));
-			}
+			responseBodyBean.setReason(new ReasonBean("fail", "禁用失败!"));
 		}
 		return responseBodyBean ;
 	}
@@ -128,12 +120,8 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 	public Integer ableUser(PageData pd) {
 		Integer disableUser = 0;
 		ResponseBodyBean responseBodyBean =new ResponseBodyBean();
-		if(isContainsAdmin(pd)){
-			responseBodyBean.setReason(new ReasonBean("fail", "警告：admin用户不能禁用!"));
-		}else{
-			pd.put("state",0);
-			disableUser = userMapper.editUser(pd);
-		}
+		pd.put("state",0);
+		disableUser = userMapper.editUser(pd);
 		return disableUser ;
 	}
 
@@ -150,10 +138,6 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 		pd.put("uid", UuidUtil.get32UUID());
 		/* 插入用户信息 */
 		pd.put("user_message",JSON.toJSONString(pd.get("user_message")));
-		// if(pd.get("user_message").toString().length() > 3){
-		// }else{
-		// 	pd.put("user_message",new PageData());
-		// }
 		Integer addUser = userMapper.addUser(pd);
 		logger.info("addUser:"+addUser);
 		return addUser;
@@ -180,26 +164,9 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 	@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT, timeout = 36000, rollbackFor = Exception.class)
 	@Override
 	public Integer editUser(PageData pd) {
+		pd.put("user_message",JSON.toJSONString(pd.get("user_message")));
 		Integer editUser = userMapper.editUser(pd);
 		return editUser;
-	}
-
-
-	/**
-	 * 【描 述】：<是否包含admin用户>
-	 * @param pd
-	 * @return
-	 */
-	private boolean isContainsAdmin(PageData pd){
-		@SuppressWarnings("unchecked")
-		List<String> ids = (List<String>) pd.get("ids");
-		for(String id:ids){
-			if("1".equals(id)){
-				return true;
-			}
-		}
-		return false;
-
 	}
 
 }

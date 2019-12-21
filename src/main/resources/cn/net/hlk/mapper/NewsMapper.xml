@@ -12,6 +12,7 @@
 		xid,
 		title,
 		newstime,
+		to_char(newstime,'YYYY-MM-DD HH24:MI:SS') AS newstimestr,
 		titlepic,
 		smalltext,
 		newstext,
@@ -32,6 +33,7 @@
 		n.xid,
 		n.title,
 		n.newstime,
+		to_char(n.newstime,'YYYY-MM-DD HH24:MI:SS') AS newstimestr,
 		n.titlepic,
 		n.smalltext,
 		n.newstext,
@@ -70,7 +72,7 @@
 	<sql id="insertvalue">
 		#{xid},
 		#{title},
-		#{newstime},
+		now(),
 		#{titlepic},
 		#{smalltext},
 		#{newstext},
@@ -97,7 +99,7 @@
 			)
 	</insert>
 	
-	<!-- 告警修改  -->
+	<!-- 消息修改  -->
 	<update id="updateNews" parameterType="pd">
 		update 
 		<include refid="tableName"></include> 
@@ -131,12 +133,16 @@
 		where xid = #{xid}
 	</update>
 	
-	<!-- 告警条件查询 -->
+	<!-- 消息条件查询 -->
 	<select id="searchNewsPgListPage" parameterType="page" resultType="pd">
 		SELECT 
-			row_number() over (ORDER BY a.updatetime DESC) as xh,
-			<include refid="field"></include>
-			from <include refid="tableName"></include> a
+			row_number() over (ORDER BY updatetime DESC) as xh,
+			<include refid="field"></include>,
+			(select array_to_json(array_agg(row_to_json(t)))
+			from
+			(select * from t_enclosure de where xid = de.xid) t
+			) enclosure
+			from <include refid="tableName"></include>
 			where 1=1
 			<!-- 标题 -->
 			<if test="pd.title !=null and pd.title != '' ">
@@ -173,15 +179,15 @@
 			<if test="pd.endTime!=null and pd.endTime!=''"><!-- 结束时间检索 -->
 				and newstime &lt;= concat(#{pd.endTime},' 23:59:59')::TIMESTAMP
 			</if>
-			and n.visiable = 1
+			and visiable = 1
 	</select>
 	
 
-	<!-- 根据告警id 获取告警信息 -->
+	<!-- 根据消息id 获取告警信息 -->
 	<select id="getNewsById"  resultType="pd" parameterType="pd">
 		SELECT 
-			<include refid="fieldd"></include>,a.dossier_message
-			from <include refid="tableName"></include> a
+			<include refid="fieldd"></include>
+			from <include refid="tableName"></include> as n
 			where 1=1 
 			and n.visiable = 1
 			and n.xid = #{xid}

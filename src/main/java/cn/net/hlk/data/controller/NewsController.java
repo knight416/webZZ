@@ -6,8 +6,11 @@ import cn.net.hlk.data.pojo.ReasonBean;
 import cn.net.hlk.data.pojo.ResponseBodyBean;
 import cn.net.hlk.data.service.AlarmService;
 import cn.net.hlk.data.service.NewsService;
+import cn.net.hlk.util.JwtUtil;
 import cn.net.hlk.util.ResponseUtil;
 import cn.net.hlk.util.StringUtil2;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -78,6 +81,12 @@ public class NewsController extends BaseController{
 		try{
 			if(pd != null 
 					){
+				Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
+				String optName = (String) parseJwt.getBody().get("name");
+				String uid = (String) parseJwt.getBody().get("id");
+				pd.put("updateuser", optName);
+				pd.put("writer", optName);
+				pd.put("writerid", uid);
 				responseBodyBean = newsService.addNews(pd);
 				if(responseBodyBean.getReason() == null){
 					status = HttpStatus.OK.value();
@@ -134,6 +143,10 @@ public class NewsController extends BaseController{
 		try{
 			if(pd != null && StringUtil2.isNotEmpty(pd.get("xid"))//消息id
 					){
+				Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
+				String optName = (String) parseJwt.getBody().get("name");
+				String uid = (String) parseJwt.getBody().get("uid");
+				pd.put("updateuser", optName);
 				responseBodyBean = newsService.updateNews(pd);
 				if(responseBodyBean.getReason() == null){
 					status = HttpStatus.OK.value();
@@ -194,6 +207,10 @@ public class NewsController extends BaseController{
 				if(pd != null
 //						&& StringUtil2.isNotEmpty(pd.get("menu"))//用户资源
 						){
+					Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
+					String optName = (String) parseJwt.getBody().get("name");
+					String uid = (String) parseJwt.getBody().get("uid");
+					pd.put("updateuser", optName);
 					responseBodyBean = newsService.searchNews(page);
 					if(responseBodyBean.getReason() == null){
 						status = HttpStatus.OK.value();
@@ -258,6 +275,10 @@ public class NewsController extends BaseController{
 			if(pd != null 
 //					&& StringUtil2.isNotEmpty(pd.get("box_id"))//箱id
 					){
+				Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
+				String optName = (String) parseJwt.getBody().get("name");
+				String uid = (String) parseJwt.getBody().get("uid");
+				pd.put("updateuser", optName);
 				responseBodyBean = newsService.getNewsById(pd);
 				if(responseBodyBean.getReason() == null){
 					status = HttpStatus.OK.value();

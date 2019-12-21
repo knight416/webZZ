@@ -11,6 +11,7 @@ import cn.net.hlk.data.service.NewsService;
 import cn.net.hlk.util.ResponseUtil;
 import cn.net.hlk.util.StringUtil2;
 import cn.net.hlk.util.UuidUtil;
+import com.alibaba.fastjson.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -54,6 +55,7 @@ public class NewsServiceImpl extends BaseServiceImple implements NewsService {
 			if(StringUtil2.isEmpty(pd.get("news_message"))){
 			}
 			pd.put("xid", UuidUtil.get32UUID());//主键生成
+			pd.put("news_message",JSON.toJSONString(pd.get("news_message")));
 			newsMapper.addNews(pd);//消息添加
 			// int n = informationService.xmppSend(pd,0);
 			responseBodyBean.setResult(resData);
@@ -81,7 +83,7 @@ public class NewsServiceImpl extends BaseServiceImple implements NewsService {
 		PageData resData = new PageData();//返回数据
 		try {
 			//根据时间类型 区分操作
-
+			pd.put("news_message",JSON.toJSONString(pd.get("news_message")));
 			newsMapper.updateNews(pd);//消息修改
 			responseBodyBean.setResult(resData);
 		} catch (Exception e) {
