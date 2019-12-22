@@ -185,6 +185,10 @@
 		<if test="pd.system_id !=null and pd.system_id != '' ">
 			and system_id = #{pd.system_id}
 		</if>
+		<!-- 用户身份-->
+		<if test="pd.job_type !=null and pd.job_type != '' ">
+			and job_type = #{pd.job_type}
+		</if>
 		<!-- 状态-->
 		<if test="pd.state !=null ">
 			and state  = #{pd.state}
