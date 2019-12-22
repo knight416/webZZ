@@ -374,6 +374,11 @@ public class UserController extends BaseController {
             	reason.setText("姓名超长");
         	}
         }
+		User user = userService.usernameVerification(pd);
+		if(user != null){
+			reason.setCode("fail");
+			reason.setText("用户名已存在");
+		}
         // if (pd.getString("idCard")==null ||  ("").equals(pd.getString("idCard"))) {
         // 	reason.setCode("fail");
         // 	reason.setText("身份证号不能为空");
@@ -385,5 +390,38 @@ public class UserController extends BaseController {
         // }
 		return reason;
 	}
+
+	@ApiOperation(value = "用户名验证", notes = "用户名验证")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
+			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJiMmFmNjMwMy03YjQyLTRmMDAtODA2OC02YjJiNGFlZTUyMTkiLCJpYXQiOjE1NzY4NDY0MzUsInN1YiI6IjAiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50IjoiMCIsImlkIjoiMCIsIm5hbWUiOiJhZG1pbiIsImV4cCI6MTU3ODkyMDAzNX0.J_QEqbomvsROW48ZixYFNeXpUhQIpR9ntLzJJbc7Fnc") })
+	@ApiResponses({
+			@ApiResponse(code=200,message="指示客服端的请求已经成功收到，解析，接受"),
+			@ApiResponse(code=201,message="资源已被创建"),
+			@ApiResponse(code=401,message="未授权"),
+			@ApiResponse(code=400,message="请求参数没填好"),
+			@ApiResponse(code=403,message="拒绝访问"),
+			@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对"),
+			@ApiResponse(code=406,message="不是指定的数据类型"),
+			@ApiResponse(code=500,message="服务器内部错误")
+	})
+	@RequestMapping(value="/usernameVerification", method=RequestMethod.POST)
+	public  @ResponseBody ResponseBodyBean usernameVerification(@RequestHeader String Authorization, @RequestBody PageData pd ) {
+		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
+		ResponseBodyBean responseBodyBean = new ResponseBodyBean();
+		//ReasonBean reason = null;
+		PageData pdPageData = new PageData();
+		User user = userService.usernameVerification(pd);
+		boolean falsg = true;
+		if(user != null){
+			falsg = false;
+		}
+		pdPageData.put("isok", falsg);
+		status = HttpStatus.OK.value();
+		responseBodyBean.setResult(pdPageData);
+		response.setStatus(status);
+		return responseBodyBean;
+	}
+
 
 }

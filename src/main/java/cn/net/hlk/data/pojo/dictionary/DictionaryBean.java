@@ -5,11 +5,11 @@ import java.util.List;
 public class DictionaryBean {
 	
 	/** 【描 述】：id */
-	private Integer id;
+	private String id;
 	/** 【描 述】：name */
 	private String name;
 	/** 【描 述】：pid */
-	private Integer pid;
+	private String pid;
 	/** 【描 述】：条件 */
 	private String condition;
 	/** 【描 述】：cname */
@@ -34,17 +34,17 @@ public class DictionaryBean {
 	public void setCondition(String condition) {
 		this.condition = condition;
 	}
-	public Integer getPid() {
+	public String getPid() {
 		return pid;
 	}
-	public void setPid(Integer pid) {
+	public void setPid(String pid) {
 		this.pid = pid;
 	}
 	private List<DictionaryBean> children;
-	public Integer getId() {
+	public String getId() {
 		return id;
 	}
-	public void setId(Integer id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	public String getName() {

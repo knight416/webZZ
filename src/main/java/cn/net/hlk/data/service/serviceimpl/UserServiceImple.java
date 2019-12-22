@@ -2,6 +2,7 @@ package cn.net.hlk.data.service.serviceimpl;
 
 
 import cn.net.hlk.data.mapper.JWTMapper;
+import cn.net.hlk.data.mapper.LoginMapper;
 import cn.net.hlk.data.mapper.UserMapper;
 import cn.net.hlk.data.pojo.Page;
 import cn.net.hlk.data.pojo.PageData;
@@ -52,6 +53,8 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 
 	@Autowired
 	private UserMapper userMapper;
+	@Autowired
+	private LoginMapper loginMapper;
 	
 	@Autowired
 	private JWTMapper jwtMapper;
@@ -153,6 +156,19 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 	@Override
 	public PageData findById(PageData pd) {
 		return userMapper.findById(pd);
+	}
+
+	/**
+	 * @Title usernameVerification
+	 * @Description 用户名验证
+	 * @author 张泽恒
+	 * @date 2019/12/22 15:21
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.PageData
+	 */
+	@Override
+	public User usernameVerification(PageData pd) {
+		return loginMapper.getUserByIdCard(pd);
 	}
 
 	/**

@@ -4,23 +4,23 @@
 <mapper namespace="cn.net.hlk.data.mapper.SystemMapper">
 	<!-- 字典类树 -->
  	<resultMap type="cn.net.hlk.data.pojo.dictionary.DictionaryBean" id="dictionaryTree">
-	<result column="id" property="id" javaType="java.lang.Integer" />
-	<result column="parent_id" property="pid" javaType="java.lang.Integer" />
+	<result column="id" property="id" javaType="java.lang.String" />
+	<result column="parent_id" property="pid" javaType="java.lang.String" />
 	<result column="name" property="name" javaType="java.lang.String" />
 	<collection column="id" property="children" ofType="dictionaryTree" javaType="java.util.ArrayList" select="selectChildrenById"/>
 	</resultMap>
 	
 	<select id="queryTreeList" resultMap="dictionaryTree">
-		select id,name,parent_id from t_sys_dict  where parent_id = 0 and visiable = 1
+		select id,name,parent_id from t_sys_dict  where parent_id = '0' and visiable = 1
 	</select>
 	
-	<select id="selectChildrenById" resultMap="dictionaryTree" parameterType="Integer">
+	<select id="selectChildrenById" resultMap="dictionaryTree" parameterType="String">
 		select id,name,parent_id from t_sys_dict  where parent_id= #{id} and visiable = 1
 	</select>
 	
 	<resultMap type="cn.net.hlk.data.pojo.dictionary.DictionaryBean" id="dictionaryTreeByName">
-	<result column="id" property="id" javaType="java.lang.Integer" />
-	<result column="parent_id" property="pid" javaType="java.lang.Integer" />
+	<result column="id" property="id" javaType="java.lang.String" />
+	<result column="parent_id" property="pid" javaType="java.lang.String" />
 	<result column="name" property="name" javaType="java.lang.String" />
 	<result column="cname" property="cname" javaType="java.lang.String" />
 	<collection column="{id=id,condition=cname}" property="children" ofType="dictionaryTreeByName" javaType="java.util.ArrayList" select="selectChildrenByIdByName"/>
@@ -34,7 +34,7 @@
 					UNION ALL 
 					SELECT r.id, r.parent_id, r.name,r.visiable FROM t_sys_dict r, t WHERE r.id = t.parent_id 
 				) SELECT id, parent_id, name,visiable FROM t ORDER BY id	
-			)m  where m.parent_id = 0 and m.visiable = 1
+			)m  where m.parent_id = '0' and m.visiable = 1
 			
 			UNION ALL
 			
@@ -44,7 +44,7 @@
 					UNION ALL 
 					SELECT r.id, r.parent_id, r.name,r.visiable FROM t_sys_dict r, t WHERE r.parent_id = t.id
 				) SELECT id, parent_id, name,visiable FROM t ORDER BY id	
-			) m where m.parent_id = 0 and m.visiable = 1
+			) m where m.parent_id = '0' and m.visiable = 1
 		)a
 	</select>
 	
@@ -92,16 +92,16 @@
 	</update>
 	
 	<!-- 删除字典类 -->
-	<!-- <delete id="deleteDictionaryClass" parameterType="Integer">
+	<!-- <delete id="deleteDictionaryClass" parameterType="String">
 		delete from t_sys_dict where id = #{id}
 	</delete> -->
 	
-	<update id="deleteDictionaryClass" parameterType="Integer">
+	<update id="deleteDictionaryClass" parameterType="String">
 		update t_sys_dict set visiable = 0 ,opt_name = #{opt_name},opt_id = #{opt_id} where id = #{id}
 	</update>
 	
 	<!-- 获取下级id -->
-	<select id="getNextId" parameterType="Integer" resultType="Integer">
+	<select id="getNextId" parameterType="String" resultType="String">
 		SELECT t2.id FROM t_sys_dict t1 join t_sys_dict t2 on t1.id = t2.parent_id where t1.visiable=1 and t2.visiable=1 and t1.id = #{id}
 	</select>
 	
@@ -126,11 +126,11 @@
 		select id,name,code from t_sys_dict where visiable=1 and id = #{id}
 	</select>
 	
-	<select id="getNextID" resultType="Integer">
+	<select id="getNextID" resultType="String">
 		SELECT nextval('t_sys_dict_id_seq')
 	</select>
 	
-	<select id="queryNextDatas" parameterType="Integer" resultType="pd">
+	<select id="queryNextDatas" parameterType="String" resultType="pd">
 		WITH RECURSIVE t(ID,parent_id,code,NAME) AS ( 
 			SELECT ID,parent_id,code,NAME FROM t_sys_dict 
 				WHERE visiable = 1 and parent_id = #{id} 

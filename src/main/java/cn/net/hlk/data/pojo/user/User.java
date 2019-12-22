@@ -7,7 +7,8 @@ import java.sql.Timestamp; import java.util.List;
 import cn.net.hlk.data.pojo.PageData;
 import cn.net.hlk.data.pojo.department.Department;
 import cn.net.hlk.data.pojo.department.Group;
-import lombok.Data; import org.apache.ibatis.type.Alias;
+import lombok.Data;
+import org.apache.ibatis.type.Alias;
 
 /**
  * 【描 述】：<用户表实体类>
@@ -47,4 +48,6 @@ public class User implements java.io.Serializable {
     private String updateuser;
     /** 【描 述】：逻辑删除 */
     private Integer visiable;
+    /** 【描 述】：扩展字段 */
+    private PageData user_message;
 }

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.net.hlk.data.mapper.NewsOperationMapper">
+
+	 <!--表名 -->
+	<sql id="tableName">
+		t_news_operation
+	</sql>
+	<!-- 字段 -->
+	<sql id="field">
+		xid,
+		uid,
+		operation_type,
+		job_type,
+		operation_message,
+		createuser,
+		createtime,
+		updateuser,
+		updatetime,
+		visiable,
+		state,
+		system_id
+ 	</sql>
+ 	
+ 	<!-- 关联查询字段 -->
+ 	<sql id="fieldd">
+		o.xid,
+		o.uid,
+		o.operation_type,
+		o.job_type,
+		o.operation_message,
+		o.createuser,
+		o.createtime,
+		o.updateuser,
+		o.updatetime,
+		o.visiable,
+		o.state,
+		o.system_id
+ 	</sql>
+	
+	<!-- 添加字段 -->
+ 	<sql id="insertfield">
+ 		xid,
+		uid,
+		operation_type,
+		job_type,
+		operation_message,
+		createuser,
+		createtime,
+		updateuser,
+		updatetime,
+		visiable,
+		state,
+		system_id
+ 	</sql>
+	
+	<sql id="insertvalue">
+		#{xid},
+		#{uid},
+		#{operation_type},
+		#{job_type},
+		#{operation_message}::jsonb,
+		#{updateuser},
+		now(),
+		#{updateuser},
+		now(),
+		1,
+		#{state},
+		#{system_id}
+	</sql>
+	
+	<!-- 消息添加 -->
+	<insert id="addNewsOperation" parameterType="pd">
+		insert into 
+		<include refid="tableName"></include>
+			(
+		<include refid="insertfield"></include>
+			) values (
+		<include refid="insertvalue"></include>
+			)
+	</insert>
+	
+	<!-- 消息修改  -->
+	<update id="updateNewsOperation" parameterType="pd">
+		update 
+		<include refid="tableName"></include> 
+		<set>
+			<if test="state != null  ">
+				state=#{state},
+			</if>
+			<if test="operation_message != null ">
+				operation_message=#{operation_message}::jsonb,
+			</if>
+			<if test="updateuser != null and updateuser != '' ">
+				updateuser=#{updateuser},
+			</if>
+				updatetime=now(),
+			<if test="visiable != null">
+				visiable=#{visiable}::integer,
+			</if>
+		</set>
+		where xid = #{xid}
+		and uid = #{uid}
+	</update>
+	
+	<!-- 消息条件查询 -->
+	<select id="searchNewsOperationPgListPage" parameterType="page" resultType="pd">
+		SELECT 
+			row_number() over (ORDER BY updatetime DESC) as xh,
+			<include refid="field"></include>,
+			(select array_to_json(array_agg(row_to_json(t)))
+			from
+			(select * from t_enclosure de where xid = de.xid) t
+			) enclosure
+			from <include refid="tableName"></include>
+			where 1=1
+			<!-- 消息id -->
+			<if test="pd.xid !=null and pd.xid != '' ">
+				and xid = #{pd.xid}
+			</if>
+			<!-- 用户id -->
+			<if test="pd.uid !=null and pd.uid != '' ">
+				and uid = #{pd.uid}
+			</if>
+			<!-- 操作类别id -->
+			<if test="pd.operation_type !=null and pd.operation_type != '' ">
+				and operation_type = #{pd.operation_type}
+			</if>
+			<!-- 身份类别 -->
+			<if test="pd.job_type !=null and pd.job_type != '' ">
+				and job_type = #{pd.job_type}
+			</if>
+			<!-- 状态 -->
+			<if test="pd.state !=null  ">
+				and state = #{pd.state}
+			</if>
+
+			<!-- 系统id -->
+			<if test="pd.system_id !=null and pd.system_id != '' ">
+				and system_id = #{pd.system_id}
+			</if>
+
+			<if test="pd.beginTime!=null and pd.beginTime!=''"><!-- 开始时间检索 -->
+				and updatetime &gt;= concat(#{pd.beginTime},' 00:00:00')::TIMESTAMP
+			</if>
+			<if test="pd.endTime!=null and pd.endTime!=''"><!-- 结束时间检索 -->
+				and updatetime &lt;= concat(#{pd.endTime},' 23:59:59')::TIMESTAMP
+			</if>
+			and visiable = 1
+	</select>
+	
+
+	<!-- 根据消息id 获取告警信息 -->
+	<select id="getNewsOperationById"  resultType="pd" parameterType="pd">
+		SELECT 
+			<include refid="fieldd"></include>
+			from <include refid="tableName"></include> as n
+			where 1=1 
+			and n.visiable = 1
+			and n.xid = #{xid}
+			and n.uid = #{uid}
+	</select>
+	
+</mapper>

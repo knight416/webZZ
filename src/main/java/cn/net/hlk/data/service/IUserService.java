@@ -38,5 +38,6 @@ public interface IUserService {
 	Integer editUser(PageData pd);
 	/** 根据id查询用户 */
 	PageData findById(PageData pd);
-
+	/*用户名验证*/
+	User usernameVerification(PageData pd);
 }
