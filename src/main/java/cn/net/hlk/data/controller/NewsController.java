@@ -86,7 +86,9 @@ public class NewsController extends BaseController{
 				String uid = (String) parseJwt.getBody().get("id");
 				pd.put("updateuser", optName);
 				pd.put("writer", optName);
-				pd.put("writerid", uid);
+				if(StringUtil2.isEmpty(pd.get("writerid"))){
+					pd.put("writerid", uid);
+				}
 				responseBodyBean = newsService.addNews(pd);
 				if(responseBodyBean.getReason() == null){
 					status = HttpStatus.OK.value();

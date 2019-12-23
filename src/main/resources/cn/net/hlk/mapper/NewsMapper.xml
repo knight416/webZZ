@@ -152,6 +152,32 @@
 			<if test="pd.smalltext !=null and pd.smalltext != '' ">
 				and smalltext like CONCAT(CONCAT('%',#{pd.smalltext}),'%')
 			</if>
+
+			<!-- 地区 -->
+			<if test="pd.dq !=null and pd.dq != '' ">
+				and news_message ->>'dq' = #{pd.dq}
+			</if>
+			<!-- 工作性质 -->
+			<if test="pd.xz != null and pd.xz.size > 0 ">
+				and news_message ->>'xz' in
+				<foreach item="item" index="index" collection="pd.xz" open="(" separator="," close=")">
+					#{pd.xz[${index}]}
+				</foreach>
+			</if>
+			<!-- 学历  -->
+			<if test="pd.xl !=null and pd.xl == '007001' ">
+				and news_message ->>'xl' in ('007001','007002','007003','007004')
+			</if>
+			<if test="pd.xl !=null and pd.xl == '007002' ">
+				and news_message ->>'xl' in ('007002','007003','007004')
+			</if>
+			<if test="pd.xl !=null and pd.xl == '007003' ">
+				and news_message ->>'xl' in ('007003','007004')
+			</if>
+			<if test="pd.xl !=null and pd.xl == '007004' ">
+				and news_message ->>'xl' in ('007004')
+			</if>
+
 			<!-- 正文 -->
 			<if test="pd.newstext !=null and pd.newstext != '' ">
 				and newstext like CONCAT(CONCAT('%',#{pd.newstext}),'%')
