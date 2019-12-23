@@ -42,6 +42,7 @@
 		updatetime,
 		job_type,
 		user_message,
+		user_message ->> 'email' as email,
 		username,
 		system_id
  	</sql>
@@ -203,7 +204,7 @@
 		and a.visiable = 1
 	</select>
 
-	<!-- 根据告警id 获取用户信息 -->
+	<!-- 根据用户id 获取用户信息 -->
 	<select id="findById"  resultType="pd" parameterType="pd">
 		SELECT
 		<include refid="fields"></include>
@@ -213,5 +214,14 @@
 		and uid = #{uid}
 	</select>
 
+	<!-- 根据用户id 获取用户其他信息 -->
+	<select id="getuserOtherMessage"  resultType="pd" parameterType="java.lang.String">
+		SELECT
+		user_message ->> 'email',user_message
+		from <include refid="tableName"></include>
+		where 1=1
+		and visiable = 1
+		and uid = #{uid}
+	</select>
 
 </mapper>

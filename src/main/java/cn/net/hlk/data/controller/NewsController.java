@@ -1,5 +1,7 @@
 package cn.net.hlk.data.controller;
 
+import cn.net.hlk.data.annotation.SysLog;
+import cn.net.hlk.data.annotation.UserLoginToken;
 import cn.net.hlk.data.pojo.Page;
 import cn.net.hlk.data.pojo.PageData;
 import cn.net.hlk.data.pojo.ReasonBean;
@@ -71,6 +73,8 @@ public class NewsController extends BaseController{
         @ApiResponse(code=406,message="不是指定的数据类型"),
         @ApiResponse(code=500,message="服务器内部错误")
      })
+	@SysLog("消息新增")
+	@UserLoginToken
 	@RequestMapping(value="/addNews", method=RequestMethod.POST)
 	public  @ResponseBody ResponseBodyBean addNews( @RequestBody PageData pd,  @RequestHeader String Authorization) {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();//状态码
@@ -85,9 +89,9 @@ public class NewsController extends BaseController{
 				String optName = (String) parseJwt.getBody().get("name");
 				String uid = (String) parseJwt.getBody().get("id");
 				pd.put("updateuser", optName);
-				pd.put("writer", optName);
 				if(StringUtil2.isEmpty(pd.get("writerid"))){
 					pd.put("writerid", uid);
+					pd.put("writer", optName);
 				}
 				responseBodyBean = newsService.addNews(pd);
 				if(responseBodyBean.getReason() == null){
@@ -135,6 +139,8 @@ public class NewsController extends BaseController{
         @ApiResponse(code=406,message="不是指定的数据类型"),
         @ApiResponse(code=500,message="服务器内部错误")
      })
+	@SysLog("消息修改")
+	@UserLoginToken
 	@RequestMapping(value="/updateNews", method=RequestMethod.POST)
 	public  @ResponseBody ResponseBodyBean updateNews( @RequestBody PageData pd,  @RequestHeader String Authorization) {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();//状态码
@@ -209,10 +215,10 @@ public class NewsController extends BaseController{
 				if(pd != null
 //						&& StringUtil2.isNotEmpty(pd.get("menu"))//用户资源
 						){
-					Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
-					String optName = (String) parseJwt.getBody().get("name");
-					String uid = (String) parseJwt.getBody().get("uid");
-					pd.put("updateuser", optName);
+					// Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
+					// String optName = (String) parseJwt.getBody().get("name");
+					// String uid = (String) parseJwt.getBody().get("uid");
+					// pd.put("updateuser", optName);
 					responseBodyBean = newsService.searchNews(page);
 					if(responseBodyBean.getReason() == null){
 						status = HttpStatus.OK.value();
@@ -277,10 +283,10 @@ public class NewsController extends BaseController{
 			if(pd != null 
 //					&& StringUtil2.isNotEmpty(pd.get("box_id"))//箱id
 					){
-				Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
-				String optName = (String) parseJwt.getBody().get("name");
-				String uid = (String) parseJwt.getBody().get("uid");
-				pd.put("updateuser", optName);
+				// Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
+				// String optName = (String) parseJwt.getBody().get("name");
+				// String uid = (String) parseJwt.getBody().get("uid");
+				// pd.put("updateuser", optName);
 				responseBodyBean = newsService.getNewsById(pd);
 				if(responseBodyBean.getReason() == null){
 					status = HttpStatus.OK.value();

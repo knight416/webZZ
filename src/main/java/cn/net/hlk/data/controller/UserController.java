@@ -13,6 +13,7 @@ import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.afterturn.easypoi.excel.export.styler.ExcelExportStylerColorImpl;
 import cn.afterturn.easypoi.exception.excel.ExcelImportException;
 import cn.net.hlk.data.annotation.SysLog;
+import cn.net.hlk.data.annotation.UserLoginToken;
 import cn.net.hlk.data.mapper.UserMapper;
 import cn.net.hlk.data.pojo.Page;
 import cn.net.hlk.data.pojo.PageData;
@@ -158,6 +159,7 @@ public class UserController extends BaseController {
         @ApiResponse(code=500,message="服务器内部错误")
      })
 	@SysLog("删除-用户")
+	@UserLoginToken
 	@RequestMapping(value="/deleteUser", method=RequestMethod.POST)
 	public  @ResponseBody ResponseBodyBean deleteUser(@RequestHeader String Authorization, @RequestBody PageData pd ) {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
@@ -187,6 +189,7 @@ public class UserController extends BaseController {
      })
 	@RequestMapping(value="/disableUser", method=RequestMethod.POST)
 	@SysLog("禁用-用户")
+	@UserLoginToken
 	public  @ResponseBody ResponseBodyBean disableUser(@RequestHeader String Authorization, @RequestBody PageData pd ) {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();
@@ -216,6 +219,7 @@ public class UserController extends BaseController {
      })
 	@RequestMapping(value="/ableUser", method=RequestMethod.POST)
 	@SysLog("启用-用户")
+	@UserLoginToken
 	public  @ResponseBody ResponseBodyBean ableUser(@RequestHeader String Authorization, @RequestBody PageData pd ) {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();
@@ -247,6 +251,7 @@ public class UserController extends BaseController {
         @ApiResponse(code=500,message="服务器内部错误")
      })
 	@SysLog("添加-用户")
+	@UserLoginToken
 	@RequestMapping(value="/addUser", method=RequestMethod.POST)
 	public  @ResponseBody ResponseBodyBean addUser(@RequestHeader String Authorization, @RequestBody PageData pd ) {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
@@ -321,36 +326,29 @@ public class UserController extends BaseController {
         @ApiResponse(code=500,message="服务器内部错误")
      })
 	@SysLog("修改-用户")
+	@UserLoginToken
 	@RequestMapping(value="/editUser", method=RequestMethod.POST)
 	public  @ResponseBody ResponseBodyBean editUser(@RequestHeader String Authorization, @RequestBody PageData pd ) {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();
-		ReasonBean reason = failresult(pd);
 		Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
 		String optName = (String) parseJwt.getBody().get("name");
 		pd.put("updateuser", optName);
 		Integer editUser;
-		if(!("200").equals(reason.getCode())){
-			responseBodyBean.setReason(reason);
-			status = HttpStatus.OK.value();
-			response.setStatus(status);
-			return responseBodyBean;
-		}else{
-			if("admin".equals(pd.getString("name"))){
-				if(!((Integer)pd.get("id")).equals(1)){
-					responseBodyBean.setReason(new ReasonBean("fail","用户名不合法！"));
-					status = HttpStatus.OK.value();
-					return responseBodyBean;
-				}
+		if("admin".equals(pd.getString("name"))){
+			if(!((Integer)pd.get("id")).equals(1)){
+				responseBodyBean.setReason(new ReasonBean("fail","用户名不合法！"));
+				status = HttpStatus.OK.value();
+				return responseBodyBean;
 			}
-			editUser = userService.editUser(pd);
-			if(editUser ==1){
-    			responseBodyBean.setResult("success");
-    			status = HttpStatus.OK.value();
-    		}
-    		response.setStatus(status);
-    		return responseBodyBean;
 		}
+		editUser = userService.editUser(pd);
+		if(editUser ==1){
+			responseBodyBean.setResult("success");
+			status = HttpStatus.OK.value();
+		}
+		response.setStatus(status);
+		return responseBodyBean;
 	}
 	
 

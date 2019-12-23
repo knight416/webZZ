@@ -30,4 +30,6 @@ public interface UserMapper {
 	PageData findById(PageData pd);
 	/** 修改用户 */
 	Integer editUser(PageData pd);
+/*获取用户其他信息*/
+	PageData getuserOtherMessage(String uid);
 }

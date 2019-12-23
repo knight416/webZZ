@@ -19,6 +19,7 @@
 		writer,
 		writerid,
 		news_message,
+		news_message ->>'operation_type' as operation_type,
 		news_type,
 		visiable,
 		system_id,
