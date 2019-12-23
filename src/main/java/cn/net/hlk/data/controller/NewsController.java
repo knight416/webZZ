@@ -7,6 +7,7 @@ import cn.net.hlk.data.pojo.PageData;
 import cn.net.hlk.data.pojo.ReasonBean;
 import cn.net.hlk.data.pojo.ResponseBodyBean;
 import cn.net.hlk.data.service.AlarmService;
+import cn.net.hlk.data.service.IUserService;
 import cn.net.hlk.data.service.NewsService;
 import cn.net.hlk.util.JwtUtil;
 import cn.net.hlk.util.ResponseUtil;
@@ -48,6 +49,8 @@ public class NewsController extends BaseController{
 
 	@Autowired
 	private NewsService newsService;
+	@Autowired
+	private IUserService userService;
 
 	/**
 	 * @Title: addAlarm
@@ -91,7 +94,11 @@ public class NewsController extends BaseController{
 				pd.put("updateuser", optName);
 				if(StringUtil2.isEmpty(pd.get("writerid"))){
 					pd.put("writerid", uid);
-					pd.put("writer", optName);
+					PageData pdc = new PageData();
+					pdc.put("uid",uid);
+					userService.editUser(pdc);
+					PageData user = userService.findById(pd);
+					pd.put("writer", user.get("name"));
 				}
 				responseBodyBean = newsService.addNews(pd);
 				if(responseBodyBean.getReason() == null){
@@ -153,8 +160,11 @@ public class NewsController extends BaseController{
 					){
 				Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
 				String optName = (String) parseJwt.getBody().get("name");
-				String uid = (String) parseJwt.getBody().get("uid");
+				String uid = (String) parseJwt.getBody().get("id");
 				pd.put("updateuser", optName);
+				PageData pdc = new PageData();
+				pdc.put("uid",uid);
+				userService.editUser(pdc);
 				responseBodyBean = newsService.updateNews(pd);
 				if(responseBodyBean.getReason() == null){
 					status = HttpStatus.OK.value();

@@ -172,7 +172,14 @@
 		SELECT
 		row_number() over (ORDER BY updatetime DESC) as xh,
 		<include refid="fields"></include>
-		from <include refid="tableName"></include> a
+		<if test="pd.job_type !=null and pd.job_type != '' ">
+			,
+			(select array_to_json(array_agg(row_to_json(t)))
+			from
+			(select title from t_news de where uid = de.writerid) t
+			) news
+		</if>
+		from <include refid="tableName"></include>
 		where 1=1
 		<!-- 所属机构 -->
 		<if test="pd.department !=null and pd.department != '' ">
@@ -201,7 +208,7 @@
 		<if test="pd.endTime!=null and pd.endTime!=''"><!-- 结束时间检索 -->
 			and createtime &lt;= concat(#{pd.endTime},' 23:59:59')::TIMESTAMP
 		</if>
-		and a.visiable = 1
+		and visiable = 1
 	</select>
 
 	<!-- 根据用户id 获取用户信息 -->
