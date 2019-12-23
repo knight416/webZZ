@@ -238,8 +238,7 @@ public class UserController extends BaseController {
 	@SuppressWarnings("unchecked")
 	@ApiOperation(value = "添加用户", notes = "添加用户方法")
 	@ApiImplicitParams({
-		@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
-			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJiMmFmNjMwMy03YjQyLTRmMDAtODA2OC02YjJiNGFlZTUyMTkiLCJpYXQiOjE1NzY4NDY0MzUsInN1YiI6IjAiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50IjoiMCIsImlkIjoiMCIsIm5hbWUiOiJhZG1pbiIsImV4cCI6MTU3ODkyMDAzNX0.J_QEqbomvsROW48ZixYFNeXpUhQIpR9ntLzJJbc7Fnc") })
+		@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "")})
 	@ApiResponses({
         @ApiResponse(code=200,message="指示客服端的请求已经成功收到，解析，接受"),
         @ApiResponse(code=201,message="资源已被创建"),
@@ -251,9 +250,8 @@ public class UserController extends BaseController {
         @ApiResponse(code=500,message="服务器内部错误")
      })
 	@SysLog("添加-用户")
-	@UserLoginToken
 	@RequestMapping(value="/addUser", method=RequestMethod.POST)
-	public  @ResponseBody ResponseBodyBean addUser(@RequestHeader String Authorization, @RequestBody PageData pd ) {
+	public  @ResponseBody ResponseBodyBean addUser(@RequestBody PageData pd ) {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();
 		ReasonBean reason = failresult(pd);
@@ -269,10 +267,7 @@ public class UserController extends BaseController {
 				return responseBodyBean;
 			}
 			Integer addUser = 0;
-			Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
-			System.out.println("Jwt--->>>"+ (new Gson().toJson(parseJwt)));
-			String optName = (String) parseJwt.getBody().get("name");
-			pd.put("updateuser", optName);
+			pd.put("updateuser", "注册");
 			addUser = userService.addUser(pd);
 			if(addUser == 1) {
     			responseBodyBean.setResult("success");
