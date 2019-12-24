@@ -27,8 +27,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,11 +94,11 @@ public class NewsController extends BaseController{
 				String optName = (String) parseJwt.getBody().get("name");
 				String uid = (String) parseJwt.getBody().get("id");
 				pd.put("updateuser", optName);
+				PageData pdc = new PageData();
+				pdc.put("uid",uid);
+				userService.editUser(pdc);
 				if(StringUtil2.isEmpty(pd.get("writerid"))){
 					pd.put("writerid", uid);
-					PageData pdc = new PageData();
-					pdc.put("uid",uid);
-					userService.editUser(pdc);
 					PageData user = userService.findById(pdc);
 					pd.put("writer", user.get("name"));
 				}
@@ -314,6 +316,41 @@ public class NewsController extends BaseController{
 			reasonBean = ResponseUtil.getReasonBean("Exception", e.getClass().getSimpleName());
 			responseBodyBean.setReason(reasonBean);
 		}finally {
+			return responseBodyBean;
+		}
+	}
+
+	@SuppressWarnings("finally")
+	@ApiOperation(value = "审批文件上传", notes = "审批文件上传")
+	@ApiImplicitParams({
+//		@ApiImplicitParam(paramType = "header", name = "police_idcard", dataType = "String", required = true, value = "当前登录人身份证号", defaultValue = ""),
+			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJkNTIwZjU5OC1jZmRkLTRlNjQtOWY3NS0zNmE3ZTJmMzhjNWMiLCJpYXQiOjE1MDM5MDI4OTgsInN1YiI6IjEiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJncm91cGNvZGUiOiIyMzAwMDAwMDAwMDAiLCJ1dHlwZSI6IjEiLCJleHAiOjE1MDM5ODkyOTh9.GGMgfH193obsWqxSQPYhv676yt3f1DQUNmSXfE009uY") })
+	@ApiResponses({ @ApiResponse(code = 200, message = "指示客服端的请求已经成功收到，解析，接受"),
+			@ApiResponse(code = 201, message = "资源已被创建"), @ApiResponse(code = 401, message = "未授权"),
+			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 403, message = "拒绝访问"),
+			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对"), @ApiResponse(code = 406, message = "不是指定的数据类型"),
+			@ApiResponse(code = 500, message = "服务器内部错误") })
+	@SysLog("新增-文件上传")
+	@RequestMapping(value = "/ApprovalFileUpload", method = RequestMethod.POST)
+	public @ResponseBody ResponseBodyBean ApprovalFileUpload(@RequestParam(value ="file") MultipartFile file,
+															 @RequestHeader String Authorization,@RequestParam(value = "police_idcard") String police_idcard) {
+		ResponseBodyBean  responseBodyBean = new ResponseBodyBean();
+		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
+		ReasonBean reasonBean = null;
+		try {
+			/*PageData pad = new PageData();
+			pad.put("police_idcard", "230230");
+			pad.put("qwe", "asd");
+			producer.send("RFID/Dossier", JSON.toJSONString(pad));*/
+			PageData pd = newsService.saveApprovalFile(police_idcard,file);
+			responseBodyBean.setResult(pd);
+			status = HttpStatus.OK.value();
+		} catch (Exception e) {
+			e.printStackTrace();
+			reasonBean = ResponseUtil.getReasonBean("Exception", e.getClass().getSimpleName());
+			responseBodyBean.setReason(reasonBean);
+		}finally {
+			response.setStatus(status);
 			return responseBodyBean;
 		}
 	}

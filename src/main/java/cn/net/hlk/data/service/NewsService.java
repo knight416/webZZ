@@ -3,6 +3,7 @@ package cn.net.hlk.data.service;
 import cn.net.hlk.data.pojo.Page;
 import cn.net.hlk.data.pojo.PageData;
 import cn.net.hlk.data.pojo.ResponseBodyBean;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -56,4 +57,13 @@ public interface NewsService {
 	 */
 	ResponseBodyBean getNewsById(PageData pd);
 
+	/**
+	 * @Title saveApprovalFile
+	 * @Description 文件上传
+	 * @author 张泽恒
+	 * @date 2019/12/24 17:11
+	 * @param [police_idcard, file]
+	 * @return cn.net.hlk.data.pojo.PageData
+	 */
+	PageData saveApprovalFile(String police_idcard, MultipartFile file);
 }
