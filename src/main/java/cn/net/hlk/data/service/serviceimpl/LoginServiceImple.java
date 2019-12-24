@@ -14,6 +14,7 @@ import cn.net.hlk.util.HttpContextUtils;
 import cn.net.hlk.util.IPUtils;
 import cn.net.hlk.util.JwtUtil;
 import cn.net.hlk.util.StringUtil;
+import cn.net.hlk.util.StringUtil2;
 import cn.net.hlk.util.UuidUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
@@ -68,7 +69,9 @@ public class LoginServiceImple extends BaseServiceImple implements
 		String password = (String) pd.get("password");
 		User user = loginMapper.getUserByIdCard(pd);
 		PageData userOtherMessage = userMapper.getuserOtherMessage(user.getUid());
-		user.setUser_message(JSON.parseObject(JSON.toJSONString(userOtherMessage.get("user_message")),PageData.class));
+		if(StringUtil2.isNotEmpty(userOtherMessage) && StringUtil2.isNotEmpty(userOtherMessage.get("user_message"))){
+			user.setUser_message(JSON.parseObject(JSON.toJSONString(userOtherMessage.get("user_message")),PageData.class));
+		}
 		if(user == null){
 			reasonBean.setCode("500");
 			reasonBean.setText("用户名或密码错误！");
