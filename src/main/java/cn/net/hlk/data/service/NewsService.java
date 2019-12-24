@@ -65,5 +65,15 @@ public interface NewsService {
 	 * @param [police_idcard, file]
 	 * @return cn.net.hlk.data.pojo.PageData
 	 */
-	PageData saveApprovalFile(String police_idcard, MultipartFile file);
+	PageData saveApprovalFile(String police_idcard, MultipartFile file,String optName);
+
+	/**
+	 * @Title delFile
+	 * @Description 文件删除
+	 * @author 张泽恒
+	 * @date 2019/12/24 18:46
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	ResponseBodyBean delFile(PageData pd);
 }

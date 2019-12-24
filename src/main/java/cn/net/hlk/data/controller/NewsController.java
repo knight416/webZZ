@@ -320,29 +320,36 @@ public class NewsController extends BaseController{
 		}
 	}
 
+	/**
+	 * @Title ApprovalFileUpload
+	 * @Description 附件上传
+	 * @author 张泽恒
+	 * @date 2019/12/24 18:19
+	 * @param [file, Authorization, police_idcard]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
 	@SuppressWarnings("finally")
-	@ApiOperation(value = "审批文件上传", notes = "审批文件上传")
+	@ApiOperation(value = "文件上传", notes = "文件上传")
 	@ApiImplicitParams({
-//		@ApiImplicitParam(paramType = "header", name = "police_idcard", dataType = "String", required = true, value = "当前登录人身份证号", defaultValue = ""),
-			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJkNTIwZjU5OC1jZmRkLTRlNjQtOWY3NS0zNmE3ZTJmMzhjNWMiLCJpYXQiOjE1MDM5MDI4OTgsInN1YiI6IjEiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJncm91cGNvZGUiOiIyMzAwMDAwMDAwMDAiLCJ1dHlwZSI6IjEiLCJleHAiOjE1MDM5ODkyOTh9.GGMgfH193obsWqxSQPYhv676yt3f1DQUNmSXfE009uY") })
+			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJiMmFmNjMwMy03YjQyLTRmMDAtODA2OC02YjJiNGFlZTUyMTkiLCJpYXQiOjE1NzY4NDY0MzUsInN1YiI6IjAiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50IjoiMCIsImlkIjoiMCIsIm5hbWUiOiJhZG1pbiIsImV4cCI6MTU3ODkyMDAzNX0.J_QEqbomvsROW48ZixYFNeXpUhQIpR9ntLzJJbc7Fnc") })
 	@ApiResponses({ @ApiResponse(code = 200, message = "指示客服端的请求已经成功收到，解析，接受"),
 			@ApiResponse(code = 201, message = "资源已被创建"), @ApiResponse(code = 401, message = "未授权"),
 			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 403, message = "拒绝访问"),
 			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对"), @ApiResponse(code = 406, message = "不是指定的数据类型"),
 			@ApiResponse(code = 500, message = "服务器内部错误") })
-	@SysLog("新增-文件上传")
+	@SysLog("文件上传")
+	@UserLoginToken
 	@RequestMapping(value = "/ApprovalFileUpload", method = RequestMethod.POST)
 	public @ResponseBody ResponseBodyBean ApprovalFileUpload(@RequestParam(value ="file") MultipartFile file,
-															 @RequestHeader String Authorization,@RequestParam(value = "police_idcard") String police_idcard) {
+															 @RequestHeader String Authorization) {
 		ResponseBodyBean  responseBodyBean = new ResponseBodyBean();
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
 		ReasonBean reasonBean = null;
 		try {
-			/*PageData pad = new PageData();
-			pad.put("police_idcard", "230230");
-			pad.put("qwe", "asd");
-			producer.send("RFID/Dossier", JSON.toJSONString(pad));*/
-			PageData pd = newsService.saveApprovalFile(police_idcard,file);
+			Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
+			String optName = (String) parseJwt.getBody().get("name");
+			String uid = (String) parseJwt.getBody().get("id");
+			PageData pd = newsService.saveApprovalFile(uid,file,optName);
 			responseBodyBean.setResult(pd);
 			status = HttpStatus.OK.value();
 		} catch (Exception e) {
@@ -351,6 +358,69 @@ public class NewsController extends BaseController{
 			responseBodyBean.setReason(reasonBean);
 		}finally {
 			response.setStatus(status);
+			return responseBodyBean;
+		}
+	}
+
+
+	/**
+	 * @Title delFile
+	 * @Description 文件删除
+	 * @author 张泽恒
+	 * @date 2019/12/24 18:45
+	 * @param [pd, Authorization]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@SuppressWarnings("all")
+	@ApiOperation(value = "文件删除", notes = "文件删除")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
+			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJiMmFmNjMwMy03YjQyLTRmMDAtODA2OC02YjJiNGFlZTUyMTkiLCJpYXQiOjE1NzY4NDY0MzUsInN1YiI6IjAiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50IjoiMCIsImlkIjoiMCIsIm5hbWUiOiJhZG1pbiIsImV4cCI6MTU3ODkyMDAzNX0.J_QEqbomvsROW48ZixYFNeXpUhQIpR9ntLzJJbc7Fnc")
+	})
+	@ApiResponses({
+			@ApiResponse(code=200,message="指示客服端的请求已经成功收到，解析，接受"),
+			@ApiResponse(code=201,message="资源已被创建"),
+			@ApiResponse(code=401,message="未授权"),
+			@ApiResponse(code=400,message="请求参数没填好"),
+			@ApiResponse(code=403,message="拒绝访问"),
+			@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对"),
+			@ApiResponse(code=406,message="不是指定的数据类型"),
+			@ApiResponse(code=500,message="服务器内部错误")
+	})
+	@SysLog("文件删除")
+	@UserLoginToken
+	@RequestMapping(value="/delFile", method=RequestMethod.POST)
+	public  @ResponseBody ResponseBodyBean delFile( @RequestBody PageData pd,  @RequestHeader String Authorization) {
+		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();//状态码
+		response.setStatus(status);//状态码存入
+		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
+		ReasonBean reasonBean = new ReasonBean();//返回参数
+		PageData resData = new PageData();//返回数据
+		try{
+			if(pd != null
+					){
+				Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
+				String optName = (String) parseJwt.getBody().get("name");
+				String uid = (String) parseJwt.getBody().get("id");
+				pd.put("updateuser", optName);
+				pd.put("uid", uid);
+				responseBodyBean = newsService.delFile(pd);
+				if(responseBodyBean.getReason() == null){
+					status = HttpStatus.OK.value();
+					response.setStatus(status);
+				}
+			}else{
+				reasonBean.setCode("400");
+				reasonBean.setText("请求的参数不正确");
+				status = HttpStatus.PRECONDITION_REQUIRED.value();
+				response.setStatus(status);
+				responseBodyBean.setReason(reasonBean);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			reasonBean = ResponseUtil.getReasonBean("Exception", e.getClass().getSimpleName());
+			responseBodyBean.setReason(reasonBean);
+		}finally {
 			return responseBodyBean;
 		}
 	}

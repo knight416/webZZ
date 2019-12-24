@@ -17,7 +17,7 @@
 		createtime,
 		updateuser,
 		updatetime,
-		visibale,
+		visiable,
 		flag,
 		enclosure_name
 	</sql>
@@ -29,16 +29,16 @@
 		#{enclosure_details},
 		#{enclosure_suffix},
 		#{enclosure_type},
-		#{createuser},
+		#{updateuser},
 		now()::timestamp,
 		#{updateuser},
 		now()::timestamp,
-		#{visibale},
+		#{visiable},
 		#{flag},
 		#{enclosure_name}
 	</sql>
 
-	<insert id="addApprovalEnclosureData" parameterType="pd">
+	<insert id="addEnclosureData" parameterType="pd">
 		insert into
 			<include refid="tableName"></include>
 			(
@@ -49,6 +49,24 @@
 			)
 	</insert>
 
+	<!-- 消息附件  -->
+	<update id="updateEnclosureData" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		<set>
+			<if test="xid != null and xid != '' ">
+				xid=#{xid},
+			</if>
+			<if test="updateuser != null and updateuser != '' ">
+				updateuser=#{updateuser},
+			</if>
+			updatetime=now(),
+			<if test="visiable != null">
+				visiable=#{visiable}::integer,
+			</if>
+		</set>
+		where enclosure_id = #{enclosure_id}
+	</update>
 
 
 </mapper>

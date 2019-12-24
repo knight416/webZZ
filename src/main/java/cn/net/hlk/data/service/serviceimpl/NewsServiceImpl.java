@@ -2,6 +2,7 @@ package cn.net.hlk.data.service.serviceimpl;
 
 import cn.net.hlk.data.config.FileUploadProperteis;
 import cn.net.hlk.data.mapper.AlarmMapper;
+import cn.net.hlk.data.mapper.EnclosureMapper;
 import cn.net.hlk.data.mapper.NewsMapper;
 import cn.net.hlk.data.pojo.Page;
 import cn.net.hlk.data.pojo.PageData;
@@ -45,6 +46,8 @@ public class NewsServiceImpl extends BaseServiceImple implements NewsService {
 	private NewsMapper newsMapper;
 	@Autowired
 	private FileUploadProperteis fileUploadProperteis;
+	@Autowired
+	private EnclosureMapper enclosureMapper;
 
 	/**
 	 * @Title: addAlarm
@@ -63,36 +66,20 @@ public class NewsServiceImpl extends BaseServiceImple implements NewsService {
 		PageData resData = new PageData();//返回数据
 		try {
 			//根据时间类型 区分操作
-			if(StringUtil2.isEmpty(pd.get("news_message"))){
-			}
-			pd.put("xid", UuidUtil.get32UUID());//主键生成
+			String xid = UuidUtil.get32UUID();
+			pd.put("xid", xid);//主键生成
 			pd.put("news_message",JSON.toJSONString(pd.get("news_message")));
 			newsMapper.addNews(pd);//消息添加
 			// int n = informationService.xmppSend(pd,0);
 
 			//存储附件
-			List<String> enclosureList = (List<String>) pd.get("enclosureList");
-			String enclosure_ID = "";
+			List<PageData> enclosureList = JSON.parseArray(JSON.toJSONString(pd.get("enclosureList")),PageData.class);
 			PageData enclosurePd = null;
 			if(enclosureList != null && enclosureList.size() > 0){
-				for (int i = 0; i < enclosureList.size(); i++) {
-					enclosurePd = new PageData();
-					enclosure_ID = UUID.randomUUID().toString().replaceAll("-", "");
-					String enclosure_url = enclosureList.get(i);
-					String enclosure_suffix = enclosure_url.substring(enclosure_url.lastIndexOf("."));
-					String enclosure_name = enclosure_url.substring(enclosure_url.lastIndexOf(File.separator)+1,enclosure_url.lastIndexOf("."));
-					enclosurePd.put("enclosure_id", enclosure_ID);
-					enclosurePd.put("application_id", application_id);
-					enclosurePd.put("enclosure_url", enclosure_url);
-					enclosurePd.put("enclosure_details", "");
-					enclosurePd.put("enclosure_suffix", enclosure_suffix);
-					enclosurePd.put("enclosure_name", enclosure_name);
-					enclosurePd.put("enclosure_type", 0);
-					enclosurePd.put("createuser", applicant.get("police_name")+"-"+applicant.get("police_idcard"));
-					enclosurePd.put("updateuser", applicant.get("police_name")+"-"+applicant.get("police_idcard"));
-					enclosurePd.put("visibale", 1);
-					enclosurePd.put("flag", dataModel);
-					addApprovalEnclosureNum += approvalEnclosureMapper.addApprovalEnclosureData(enclosurePd);
+				for (PageData enclosure : enclosureList) {
+					enclosure.put("xid",xid);
+					enclosure.put("updateuser",pd.get("updateuser"));
+					enclosureMapper.updateEnclosureData(enclosure);
 				}
 			}
 
@@ -107,7 +94,7 @@ public class NewsServiceImpl extends BaseServiceImple implements NewsService {
 
 	/**
 	 * @Title: updateAlarm
-	 * @discription 告警修改
+	 * @discription 消息修改
 	 * @author 张泽恒
 	 * @created 2018年10月8日 下午1:40:38
 	 * @param pd
@@ -123,6 +110,18 @@ public class NewsServiceImpl extends BaseServiceImple implements NewsService {
 			//根据时间类型 区分操作
 			pd.put("news_message",JSON.toJSONString(pd.get("news_message")));
 			newsMapper.updateNews(pd);//消息修改
+
+			//存储附件
+			List<PageData> enclosureList = JSON.parseArray(JSON.toJSONString(pd.get("enclosureList")),PageData.class);
+			PageData enclosurePd = null;
+			if(enclosureList != null && enclosureList.size() > 0){
+				for (PageData enclosure : enclosureList) {
+					enclosure.put("xid",pd.get("xid"));
+					enclosure.put("updateuser",pd.get("updateuser"));
+					enclosureMapper.updateEnclosureData(enclosure);
+				}
+			}
+
 			responseBodyBean.setResult(resData);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -134,7 +133,7 @@ public class NewsServiceImpl extends BaseServiceImple implements NewsService {
 
 	/**
 	 * @Title: searchAlarm
-	 * @discription 告警条件查询
+	 * @discription 消息条件查询
 	 * @author 张泽恒
 	 * @created 2018年10月10日 下午3:15:14
 	 * @param page
@@ -163,7 +162,7 @@ public class NewsServiceImpl extends BaseServiceImple implements NewsService {
 
 	/**
 	 * @Title: getAlarmInfomationById
-	 * @discription 根据告警id 获取告警信息
+	 * @discription 根据消息id 获取告警信息
 	 * @author 张泽恒
 	 * @created 2018年10月19日 上午8:57:14
 	 * @param pd
@@ -197,26 +196,68 @@ public class NewsServiceImpl extends BaseServiceImple implements NewsService {
 	 * @return cn.net.hlk.data.pojo.PageData
 	 */
 	@Override
-	public PageData saveApprovalFile(String police_idcard, MultipartFile file) {
-		PageData pd = new PageData();
+	public PageData saveApprovalFile(String uid, MultipartFile file,String optName) {
+		PageData enclosurePd = new PageData();
 		String upLoadPath = CustomConfigUtil.getString("custom.file.upLoadPath");
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
 		String date = df.format(new Date()).replace("-", "").replaceAll(":", "").replaceAll(" ", "");
 		String name = file.getOriginalFilename();
 		String filename = name.substring(0,name.lastIndexOf(".")) + date;
-		String realPath = fileUploadProperteis.getUploadFolder()+ File.separator+police_idcard;
+		String realPath = fileUploadProperteis.getUploadFolder()+ File.separator+uid;
 		try {
 			String fileName = FileUpload.fileUp(file, realPath, filename);
 			logger.info("fileName:"+fileName);
-			String url = "/upload"+File.separator+police_idcard+ File.separator+fileName;
+			String url = "/upload"+File.separator+uid+ File.separator+fileName;
 			FileUtil.createDir(realPath);
-			pd.put("Path", url);
-			pd.put("PathName", fileName.substring(0, fileName.lastIndexOf(".")));
-			pd.put("PathSuffix", fileName.substring(fileName.lastIndexOf(".")));
+			String enclosure_ID = UUID.randomUUID().toString().replaceAll("-", "");
+			String enclosure_url = url;
+			String enclosure_suffix = enclosure_url.substring(enclosure_url.lastIndexOf("."));
+			String enclosure_name = enclosure_url.substring(enclosure_url.lastIndexOf(File.separator)+1,enclosure_url.lastIndexOf("."));
+			enclosurePd.put("enclosure_id", enclosure_ID);
+			enclosurePd.put("xid", "0");
+			enclosurePd.put("enclosure_url", enclosure_url);
+			enclosurePd.put("enclosure_details", "");
+			enclosurePd.put("enclosure_suffix", enclosure_suffix);
+			enclosurePd.put("enclosure_name", enclosure_name);
+			enclosurePd.put("enclosure_type", 0);
+			enclosurePd.put("updateuser", optName);
+			enclosurePd.put("visiable", 1);
+			enclosurePd.put("flag", "900901");
+			enclosureMapper.addEnclosureData(enclosurePd);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return pd;
+		return enclosurePd;
+	}
+
+	/**
+	 * @Title delFile
+	 * @Description 文件删除
+	 * @author 张泽恒
+	 * @date 2019/12/24 18:46
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@Override
+	public ResponseBodyBean delFile(PageData pd) {
+		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
+		ReasonBean reasonBean = new ReasonBean();//返回参数
+		PageData resData = new PageData();//返回数据
+		try {
+			String fileName = pd.getString("enclosure_name");
+			String uid = pd.getString("uid");
+			String enclosure_suffix = pd.getString("enclosure_suffix");
+			String fileUrl = fileUploadProperteis.getUploadFolder()+ File.separator+uid+ File.separator+fileName+enclosure_suffix;
+			FileUtil.delFile(fileUrl);
+			pd.put("visiable",0);
+			enclosureMapper.updateEnclosureData(pd);
+			responseBodyBean.setResult(resData);
+		} catch (Exception e) {
+			e.printStackTrace();
+			reasonBean = ResponseUtil.getReasonBean("Exception", e.getClass().getSimpleName());
+			responseBodyBean.setReason(reasonBean);
+		}
+		return responseBodyBean;
 	}
 
 
