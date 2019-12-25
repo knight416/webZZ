@@ -69,4 +69,15 @@
 	</update>
 
 
+	<!-- 附件条件查询 根据消息id-->
+	<select id="getListByXid" parameterType="page" resultType="pd">
+		SELECT
+		row_number() over (ORDER BY updatetime DESC) as xh,
+		<include refid="Filed"></include>
+		from <include refid="tableName"></include>
+		where 1=1
+		and visiable = 1
+		and xid = #{xid}
+	</select>
+
 </mapper>

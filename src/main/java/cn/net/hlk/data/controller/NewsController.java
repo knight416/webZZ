@@ -189,6 +189,67 @@ public class NewsController extends BaseController{
 	}
 
 	/**
+	 * @Title delNews
+	 * @Description 消息删除
+	 * @author 张泽恒
+	 * @date 2019/12/25 18:01
+	 * @param [pd, Authorization]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@SuppressWarnings("all")
+	@ApiOperation(value = "消息删除", notes = "消息删除")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
+			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJiMmFmNjMwMy03YjQyLTRmMDAtODA2OC02YjJiNGFlZTUyMTkiLCJpYXQiOjE1NzY4NDY0MzUsInN1YiI6IjAiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50IjoiMCIsImlkIjoiMCIsIm5hbWUiOiJhZG1pbiIsImV4cCI6MTU3ODkyMDAzNX0.J_QEqbomvsROW48ZixYFNeXpUhQIpR9ntLzJJbc7Fnc")
+	})
+	@ApiResponses({
+			@ApiResponse(code=200,message="指示客服端的请求已经成功收到，解析，接受"),
+			@ApiResponse(code=201,message="资源已被创建"),
+			@ApiResponse(code=401,message="未授权"),
+			@ApiResponse(code=400,message="请求参数没填好"),
+			@ApiResponse(code=403,message="拒绝访问"),
+			@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对"),
+			@ApiResponse(code=406,message="不是指定的数据类型"),
+			@ApiResponse(code=500,message="服务器内部错误")
+	})
+	@SysLog("消息修改")
+	@UserLoginToken
+	@RequestMapping(value="/delNews", method=RequestMethod.POST)
+	public  @ResponseBody ResponseBodyBean delNews( @RequestBody PageData pd,  @RequestHeader String Authorization) {
+		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();//状态码
+		response.setStatus(status);//状态码存入
+		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
+		ReasonBean reasonBean = new ReasonBean();//返回参数
+		PageData resData = new PageData();//返回数据
+		try{
+			if(pd != null && StringUtil2.isNotEmpty(pd.get("xidList"))//消息id
+					){
+				Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
+				String optName = (String) parseJwt.getBody().get("name");
+				String uid = (String) parseJwt.getBody().get("id");
+				pd.put("updateuser", optName);
+				responseBodyBean = newsService.delNews(pd);
+				if(responseBodyBean.getReason() == null){
+					status = HttpStatus.OK.value();
+					response.setStatus(status);
+				}
+			}else{
+				reasonBean.setCode("400");
+				reasonBean.setText("请求的参数不正确");
+				status = HttpStatus.PRECONDITION_REQUIRED.value();
+				response.setStatus(status);
+				responseBodyBean.setReason(reasonBean);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			reasonBean = ResponseUtil.getReasonBean("Exception", e.getClass().getSimpleName());
+			responseBodyBean.setReason(reasonBean);
+		}finally {
+			return responseBodyBean;
+		}
+	}
+
+	/**
 	 * @Title: searchAlarm
 	 * @discription 消息条件查询
 	 * @author 张泽恒       

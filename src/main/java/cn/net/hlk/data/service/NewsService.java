@@ -76,4 +76,14 @@ public interface NewsService {
 	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
 	 */
 	ResponseBodyBean delFile(PageData pd);
+
+	/**
+	 * @Title delNews
+	 * @Description 消息删除
+	 * @author 张泽恒
+	 * @date 2019/12/25 18:03
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	ResponseBodyBean delNews(PageData pd);
 }

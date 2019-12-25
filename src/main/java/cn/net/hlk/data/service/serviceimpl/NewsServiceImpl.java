@@ -260,5 +260,45 @@ public class NewsServiceImpl extends BaseServiceImple implements NewsService {
 		return responseBodyBean;
 	}
 
+	/**
+	 * @Title delNews
+	 * @Description 消息删除
+	 * @author 张泽恒
+	 * @date 2019/12/25 18:04
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@Override
+	public ResponseBodyBean delNews(PageData pd) {
+		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
+		ReasonBean reasonBean = new ReasonBean();//返回参数
+		PageData resData = new PageData();//返回数据
+		try {
+			List<String> xidList = JSON.parseArray(JSON.toJSONString(pd.get("xidList")),String.class);
+			if(xidList != null && xidList.size() > 0){
+				for(String xid : xidList){
+					PageData pdc = new PageData();
+					pdc.put("xid",xid);
+					pdc.put("visiable",0);
+					newsMapper.updateNews(pdc);//消息修改
+
+					//附件删除 根据消息id 获取附件列表
+					List<PageData> enclosureList = enclosureMapper.getListByXid(pdc);
+					if(enclosureList != null && enclosureList.size() > 0){
+						for(PageData enclosure : enclosureList){
+							delFile(enclosure);
+						}
+					}
+				}
+			}
+			responseBodyBean.setResult(resData);
+		} catch (Exception e) {
+			e.printStackTrace();
+			reasonBean = ResponseUtil.getReasonBean("Exception", e.getClass().getSimpleName());
+			responseBodyBean.setReason(reasonBean);
+		}
+		return responseBodyBean;
+	}
+
 
 }
