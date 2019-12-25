@@ -68,7 +68,10 @@ public class LoginServiceImple extends BaseServiceImple implements
 		String username = (String) pd.get("username");
 		String password = (String) pd.get("password");
 		User user = loginMapper.getUserByIdCard(pd);
-		PageData userOtherMessage = userMapper.getuserOtherMessage(user.getUid());
+		PageData userOtherMessage = new PageData();
+		if(user != null ){
+			userOtherMessage = userMapper.getuserOtherMessage(user.getUid());
+		}
 		if(StringUtil2.isNotEmpty(userOtherMessage) && StringUtil2.isNotEmpty(userOtherMessage.get("user_message"))){
 			user.setUser_message(JSON.parseObject(JSON.toJSONString(userOtherMessage.get("user_message")),PageData.class));
 		}
