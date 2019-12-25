@@ -50,4 +50,6 @@ public class User implements java.io.Serializable {
     private Integer visiable;
     /** 【描 述】：扩展字段 */
     private PageData user_message;
+    /** 【描 述】：扩展字段 */
+    private String job_type;
 }

@@ -212,7 +212,7 @@ public class NewsController extends BaseController{
 			@ApiResponse(code=406,message="不是指定的数据类型"),
 			@ApiResponse(code=500,message="服务器内部错误")
 	})
-	@SysLog("消息修改")
+	@SysLog("消息删除")
 	@UserLoginToken
 	@RequestMapping(value="/delNews", method=RequestMethod.POST)
 	public  @ResponseBody ResponseBodyBean delNews( @RequestBody PageData pd,  @RequestHeader String Authorization) {
