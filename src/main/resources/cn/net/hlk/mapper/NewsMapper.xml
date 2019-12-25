@@ -166,17 +166,8 @@
 				</foreach>
 			</if>
 			<!-- 学历  -->
-			<if test="pd.xl !=null and pd.xl == '007001' ">
-				and news_message ->>'xl' in ('007001','007002','007003','007004')
-			</if>
-			<if test="pd.xl !=null and pd.xl == '007002' ">
-				and news_message ->>'xl' in ('007002','007003','007004')
-			</if>
-			<if test="pd.xl !=null and pd.xl == '007003' ">
-				and news_message ->>'xl' in ('007003','007004')
-			</if>
-			<if test="pd.xl !=null and pd.xl == '007004' ">
-				and news_message ->>'xl' in ('007004')
+			<if test="pd.xl !=null and pd.xl != '' ">
+				and news_message ->>'xl' > #{xl}
 			</if>
 
 			<!-- 正文 -->
