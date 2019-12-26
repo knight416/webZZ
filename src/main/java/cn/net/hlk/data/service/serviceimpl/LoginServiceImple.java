@@ -1,6 +1,7 @@
 package cn.net.hlk.data.service.serviceimpl;
 
 
+import cn.net.hlk.data.email.MailService;
 import cn.net.hlk.data.mapper.LoginMapper;
 import cn.net.hlk.data.mapper.UserMapper;
 import cn.net.hlk.data.pojo.PageData;
@@ -18,13 +19,23 @@ import cn.net.hlk.util.StringUtil2;
 import cn.net.hlk.util.UuidUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
+import freemarker.template.Configuration;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.xml.transform.Result;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import java.security.SecureRandom;
+import java.util.Random;
 
 //import cn.net.hylink.util.MD5;
 
@@ -52,7 +63,10 @@ public class LoginServiceImple extends BaseServiceImple implements
 	private LoginMapper loginMapper;
 	@Autowired
 	private UserMapper 	userMapper;
-
+	@Resource
+	MailService mailService;
+	private static final String SYMBOLS = "0123456789"; // 数字
+	private static final Random RANDOM = new SecureRandom();
 
 	/**
 	 * 【重载方法】
@@ -221,6 +235,184 @@ public class LoginServiceImple extends BaseServiceImple implements
 		logger.info("该IP地址登陆："+ip);
 		return getIP;
 	}
-	
+
+	/**
+	 * @Title findPass
+	 * @Description 密码找回
+	 * @author 张泽恒
+	 * @date 2019/12/26 22:31
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@Override
+	public ResponseBodyBean findPass(PageData pd) {
+		ResponseBodyBean responseBodyBean = new ResponseBodyBean();
+		ReasonBean reasonBean = new ReasonBean();
+		PageData resData = new PageData();//返回数据
+		User user = loginMapper.getUserByIdCard(pd);
+		PageData userOtherMessage = new PageData();
+		if(user == null){
+			reasonBean.setCode("500");
+			reasonBean.setText("此用户不存在");
+			responseBodyBean.setReason(reasonBean);
+		} else {
+			//获取email发送信息
+			userOtherMessage = userMapper.getuserOtherMessage(user.getUid());
+			if(userOtherMessage != null){
+				PageData user_message = JSON.parseObject(JSON.toJSONString(userOtherMessage.get("user_message")),PageData.class);
+				if(user_message != null ){
+					String email = user_message.getString("email");
+					if(email != null ){
+						String nonceStr = getNonce_str();
+						try{
+							//邮件发送
+							Map<String, Object> params = new HashMap<>();
+							params.put("email", email);
+							params.put("pass", nonceStr);
+							Configuration configuration = new Configuration(Configuration.VERSION_2_3_23);
+							configuration.setClassForTemplateLoading(this.getClass(), "/");
+							String html = FreeMarkerTemplateUtils.processTemplateIntoString(configuration.getTemplate("mail.ftl"), params);
+							mailService.sendHtmlMail(email,"密码找回",html);
+
+
+						}catch (Exception e){
+							e.printStackTrace();
+							reasonBean.setCode("500");
+							reasonBean.setText("邮件发送失败");
+							responseBodyBean.setReason(reasonBean);
+						}
+						resData.put("uid",user.getUid());
+						resData.put("username",user.getUsername());
+						resData.put("system_id",pd.get("system_id"));
+						responseBodyBean.setResult(resData);
+
+						PageData pdc = new PageData();
+						PageData check_code = new PageData();
+						check_code.put("pass",nonceStr);
+						check_code.put("passDate",new Date().getTime());
+						pdc.put("uid",user.getUid());
+						pdc.put("check_code",JSON.toJSONString(check_code));
+						loginMapper.updateCheck(pdc);
+					}else{
+						reasonBean.setCode("500");
+						reasonBean.setText("没有email");
+						responseBodyBean.setReason(reasonBean);
+					}
+				}else{
+					reasonBean.setCode("500");
+					reasonBean.setText("没有email");
+					responseBodyBean.setReason(reasonBean);
+				}
+			}else{
+				reasonBean.setCode("500");
+				reasonBean.setText("没有email");
+				responseBodyBean.setReason(reasonBean);
+			}
+		}
+		return responseBodyBean;
+	}
+
+	/**
+	 * @Title findPassCheck
+	 * @Description 密码找回验证
+	 * @author 张泽恒
+	 * @date 2019/12/26 23:07
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@Override
+	public ResponseBodyBean findPassCheck(PageData pd) {
+		ResponseBodyBean responseBodyBean = new ResponseBodyBean();
+		ReasonBean reasonBean = new ReasonBean();
+		PageData resData = new PageData();//返回数据
+		String username = (String) pd.get("username");
+		String password = (String) pd.get("password");
+		PageData checkcode  = loginMapper.getCheck(pd);
+		if(checkcode == null || checkcode.get("check_code") == null){
+			reasonBean.setCode("500");
+			reasonBean.setText("无验证信息");
+			responseBodyBean.setReason(reasonBean);
+		} else {
+			PageData check_code = JSON.parseObject(JSON.toJSONString(checkcode.get("check_code")),PageData.class);
+			String pass = check_code.getString("pass");
+			long passDate = Long.valueOf(check_code.get("passDate").toString());
+			if(pass.equals(pd.getString("pass"))){
+				if(new Date().getTime() - passDate < 10*60*1000){
+					resData.put("message","ok");
+					responseBodyBean.setResult(resData);
+				}else{
+					reasonBean.setCode("500");
+					reasonBean.setText("验证码超时");
+					responseBodyBean.setReason(reasonBean);
+				}
+			}else{
+				reasonBean.setCode("500");
+				reasonBean.setText("验证码不正确");
+				responseBodyBean.setReason(reasonBean);
+			}
+		}
+		return responseBodyBean;
+	}
+
+	/**
+	 * @Title updatePasswordForFind
+	 * @Description 密码找回 改密
+	 * @author 张泽恒
+	 * @date 2019/12/26 23:25
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@Override
+	public ResponseBodyBean updatePasswordForFind(PageData pd) {
+		ResponseBodyBean responseBodyBean = new ResponseBodyBean();
+		ReasonBean reasonBean = new ReasonBean();
+		PageData resData = new PageData();//返回数据
+		String username = (String) pd.get("username");
+		String password = (String) pd.get("password");
+		PageData checkcode  = loginMapper.getCheck(pd);
+		if(checkcode == null || checkcode.get("check_code") == null){
+			reasonBean.setCode("500");
+			reasonBean.setText("无验证信息");
+			responseBodyBean.setReason(reasonBean);
+		} else {
+			PageData check_code = JSON.parseObject(JSON.toJSONString(checkcode.get("check_code")),PageData.class);
+			String pass = check_code.getString("pass");
+			long passDate = Long.valueOf(check_code.get("passDate").toString());
+			if(pass.equals(pd.getString("pass"))){
+				if(new Date().getTime() - passDate < 10*60*1000){
+					Integer updatePassword = loginMapper.updatePassword(pd);
+					if(updatePassword == 1){
+						responseBodyBean.setResult("success");
+					}
+				}else{
+					reasonBean.setCode("500");
+					reasonBean.setText("验证码超时");
+					responseBodyBean.setReason(reasonBean);
+				}
+			}else{
+				reasonBean.setCode("500");
+				reasonBean.setText("验证码不正确");
+				responseBodyBean.setReason(reasonBean);
+			}
+		}
+		return responseBodyBean;
+	}
+
+	/**
+	 * 获取长度为 6 的随机数字
+	 * @return 随机数字
+	 * @date 修改日志：由 space 创建于 2018-8-2 下午2:43:51
+	 */
+	public static String getNonce_str() {
+
+		// 如果需要4位，那 new char[4] 即可，其他位数同理可得
+		char[] nonceChars = new char[6];
+
+		for (int index = 0; index < nonceChars.length; ++index) {
+			nonceChars[index] = SYMBOLS.charAt(RANDOM.nextInt(SYMBOLS.length()));
+		}
+		return new String(nonceChars);
+	}
+
 
 }

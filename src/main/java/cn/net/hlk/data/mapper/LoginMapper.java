@@ -12,4 +12,8 @@ public interface LoginMapper {
 	
 	Integer updatePassword(PageData pd);
 
+	//校验修改
+	void updateCheck(PageData pdc);
+	//校验获取
+	PageData getCheck(PageData pd);
 }

@@ -35,4 +35,33 @@ public interface ILoginService {
 
 	ResponseBodyBean getIPpath(HttpServletRequest request);
 
+	/**
+	 * @Title findPass
+	 * @Description 密码找回
+	 * @author 张泽恒
+	 * @date 2019/12/26 22:30
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	ResponseBodyBean findPass(PageData pd);
+
+	/**
+	 * @Title findPassCheck
+	 * @Description 密码找回验证
+	 * @author 张泽恒
+	 * @date 2019/12/26 23:06
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	ResponseBodyBean findPassCheck(PageData pd);
+
+	/**
+	 * @Title updatePasswordForFind
+	 * @Description 密码找回 改密
+	 * @author 张泽恒
+	 * @date 2019/12/26 23:25
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	ResponseBodyBean updatePasswordForFind(PageData pd);
 }

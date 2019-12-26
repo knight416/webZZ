@@ -57,7 +57,18 @@
  	</select>
 
  	<update id="updatePassword" parameterType="pd">
- 		update t_user set password = #{password} where visiable=1 and  username = #{username}
+ 		update t_user set password = #{password} where visiable=1 and  (username = #{username} or uid = #{uid})
  		and system_id = #{system_id}
  	</update>
+
+	<update id="updateCheck" parameterType="pd">
+ 		update t_user set check_code  = #{check_code}::jsonb where visiable=1 and  uid = #{uid}
+ 	</update>
+
+	<select id="getCheck" parameterType="pd" resultType="pd">
+		select check_code
+		from t_user
+		where visiable=1  and uid = #{uid}
+	</select>
+
 </mapper>

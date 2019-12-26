@@ -167,4 +167,92 @@ public class LoginController extends BaseController {
 		return iPpath;
 	}
 
+
+	/**
+	 * @Title findPass
+	 * @Description 密码找回
+	 * @author 张泽恒
+	 * @date 2019/12/26 22:30
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@SuppressWarnings("all")
+	@ApiOperation(value = "密码找回", notes = "密码找回")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") })
+	@ApiResponses({ @ApiResponse(code = 200, message = "指示客服端的请求已经成功收到，解析，接受"),
+			@ApiResponse(code = 201, message = "资源已被创建"), @ApiResponse(code = 401, message = "未授权"),
+			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 403, message = "拒绝访问"),
+			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对"), @ApiResponse(code = 406, message = "不是指定的数据类型"),
+			@ApiResponse(code = 500, message = "服务器内部错误") })
+	@RequestMapping(value = "/findPass", method = RequestMethod.POST)
+//	@SysLog("登录-用户")
+	public @ResponseBody ResponseBodyBean findPass(@RequestBody PageData pd) {
+		loginServiceImple.getIPpath(request);
+		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
+		ResponseBodyBean login = loginServiceImple.findPass(pd);
+
+		status = HttpStatus.OK.value();
+
+		response.setStatus(status);
+		return login;
+	}
+
+
+	/**
+	 * @Title findPassCheck
+	 * @Description 验证码找回验证
+	 * @author 张泽恒
+	 * @date 2019/12/26 23:20
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@SuppressWarnings("all")
+	@ApiOperation(value = "密码找回验证", notes = "密码找回验证")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") })
+	@ApiResponses({ @ApiResponse(code = 200, message = "指示客服端的请求已经成功收到，解析，接受"),
+			@ApiResponse(code = 201, message = "资源已被创建"), @ApiResponse(code = 401, message = "未授权"),
+			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 403, message = "拒绝访问"),
+			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对"), @ApiResponse(code = 406, message = "不是指定的数据类型"),
+			@ApiResponse(code = 500, message = "服务器内部错误") })
+	@RequestMapping(value = "/findPassCheck", method = RequestMethod.POST)
+//	@SysLog("登录-用户")
+	public @ResponseBody ResponseBodyBean findPassCheck(@RequestBody PageData pd) {
+		loginServiceImple.getIPpath(request);
+		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
+		ResponseBodyBean login = loginServiceImple.findPassCheck(pd);
+
+		status = HttpStatus.OK.value();
+
+		response.setStatus(status);
+		return login;
+	}
+
+
+	@SuppressWarnings("all")
+	@ApiOperation(value = "改密-找回", notes = "改密-找回")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = false, value = "客户端传入JSON字符串", defaultValue = "") })
+	@ApiResponses({ @ApiResponse(code = 200, message = "指示客服端的请求已经成功收到，解析，接受"),
+			@ApiResponse(code = 201, message = "资源已被创建"), @ApiResponse(code = 401, message = "未授权"),
+			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 403, message = "拒绝访问"),
+			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对"), @ApiResponse(code = 406, message = "不是指定的数据类型"),
+			@ApiResponse(code = 500, message = "服务器内部错误") })
+	// @SysLog("改密-找回")
+	@RequestMapping(value = "/updatePasswordForFind", method = RequestMethod.POST)
+	public @ResponseBody ResponseBodyBean updatePasswordForFind(@RequestBody PageData pd) {
+		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
+		// String id = (String) parseJwt.getBody().get("id");
+		// String name = (String) parseJwt.getBody().get("name");
+		pd.put("opt_name", "Own");
+		pd.put("opt_id", pd.get("uid"));
+		logger.info("更改密码："+pd);
+		ResponseBodyBean updatePassword = loginServiceImple.updatePasswordForFind(pd);
+		status = HttpStatus.OK.value();
+		response.setStatus(status);
+		return updatePassword;
+	}
+
+
 }
