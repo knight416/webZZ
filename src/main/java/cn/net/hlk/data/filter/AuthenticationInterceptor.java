@@ -12,6 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 import java.lang.reflect.Method;
 
 /**
@@ -53,7 +54,10 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 					String code = reason.getCode();
 					String text = reason.getText();
 					if(!"200".equals(code)){
-						throw new RuntimeException(text);
+						// PrintWriter pw = httpServletResponse.getWriter();
+						httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,text);
+						return false;
+						// throw new RuntimeException(text);
 					}
 				}else{
 					throw new RuntimeException("token验证失败");

@@ -86,30 +86,30 @@ public class JwtUtil {
 			reason.setText("Token验证通过");
 		} catch (ExpiredJwtException e) {
 			System.err.println("JWT签名已经过期：" + e.getMessage());
-			reason.setCode("500");
+			reason.setCode("401");
 			reason.setText("JWT签名已经过期");
 		} catch (SignatureException e) {
 			System.err.println("claimJws JWS签名验证失败：" + e.getMessage());
-			reason.setCode("500");
+			reason.setCode("401");
 			reason.setText("JWS签名验证失败");
 		} catch (MalformedJwtException e) {
 			System.err.println("claimJws字符串不是有效的JWS：" + e.getMessage());
-			reason.setCode("500");
+			reason.setCode("401");
 			reason.setText("Token字符串不是有效的JWS");
 		} catch(IllegalArgumentException e) {
 			System.err.println("claimJws的字符串为空或为空，或仅为空格：" + e.getMessage());
-			reason.setCode("500");
+			reason.setCode("401");
 			reason.setText("Token字符串为空或仅为空格");
 		} catch (UnsupportedJwtException e) {
 			System.err.println("claimJws参数不代表Claim JWS：" + e.getMessage());
-			reason.setCode("500");
+			reason.setCode("401");
 			reason.setText("Jws参数不代表Claim JWS");
 		} catch(MissingClaimException e) {
 			System.err.println("1111"+e.getMessage());
-			reason.setCode("500");
+			reason.setCode("401");
 		} catch(IncorrectClaimException e) {
 			System.err.println("22222"+ e.getMessage());
-			reason.setCode("500");
+			reason.setCode("401");
 		}
 //		if(apiBean.getCode() != 1) {
 //			apiBean.setNote("非法请求");
