@@ -30,6 +30,7 @@ import cn.net.hlk.util.CustomConfigUtil;
 import cn.net.hlk.util.FileUpload;
 import cn.net.hlk.util.ImageAnd64Binary;
 import cn.net.hlk.util.JwtUtil;
+import cn.net.hlk.util.ResponseUtil;
 import cn.net.hlk.util.StringUtil;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -414,6 +415,62 @@ public class UserController extends BaseController {
 		responseBodyBean.setResult(pdPageData);
 		response.setStatus(status);
 		return responseBodyBean;
+	}
+
+
+	/**
+	 * @Title load
+	 * @Description 下载
+	 * @author 张泽恒
+	 * @date 2019/12/29 20:18
+	 * @param [Authorization, pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@ApiOperation(value = "下载", notes = "下载")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
+			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJiMmFmNjMwMy03YjQyLTRmMDAtODA2OC02YjJiNGFlZTUyMTkiLCJpYXQiOjE1NzY4NDY0MzUsInN1YiI6IjAiLCJpc3MiOiJTZWN1cml0eSBDZW50ZXIiLCJkZXBhcnRtZW50IjoiMCIsImlkIjoiMCIsIm5hbWUiOiJhZG1pbiIsImV4cCI6MTU3ODkyMDAzNX0.J_QEqbomvsROW48ZixYFNeXpUhQIpR9ntLzJJbc7Fnc") })
+	@ApiResponses({
+			@ApiResponse(code=200,message="指示客服端的请求已经成功收到，解析，接受"),
+			@ApiResponse(code=201,message="资源已被创建"),
+			@ApiResponse(code=401,message="未授权"),
+			@ApiResponse(code=400,message="请求参数没填好"),
+			@ApiResponse(code=403,message="拒绝访问"),
+			@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对"),
+			@ApiResponse(code=406,message="不是指定的数据类型"),
+			@ApiResponse(code=500,message="服务器内部错误")
+	})
+	@RequestMapping(value="/load", method=RequestMethod.POST)
+	public  @ResponseBody ResponseBodyBean load(@RequestHeader String Authorization, @RequestBody PageData pd ) {
+		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();//状态码
+		response.setStatus(status);//状态码存入
+		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
+		ReasonBean reasonBean = new ReasonBean();//返回参数
+		PageData resData = new PageData();//返回数据
+		try{
+			List<PageData> pdList = new ArrayList<PageData>();
+			if(pd != null
+//						&& StringUtil2.isNotEmpty(pd.get("menu"))//用户资源
+					){
+				// responseBodyBean = userService.load(pd);
+				if(responseBodyBean.getReason() == null){
+					status = HttpStatus.OK.value();
+					response.setStatus(status);
+				}
+			}else{
+				reasonBean.setCode("400");
+				reasonBean.setText("请求的参数不正确");
+				status = HttpStatus.PRECONDITION_REQUIRED.value();
+				response.setStatus(status);
+				responseBodyBean.setReason(reasonBean);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			reasonBean = ResponseUtil.getReasonBean("Exception", e.getClass().getSimpleName());
+			responseBodyBean.setReason(reasonBean);
+		}finally {
+			return responseBodyBean;
+		}
 	}
 
 

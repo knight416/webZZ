@@ -14,6 +14,7 @@ import cn.net.hlk.data.service.ILoginService;
 import cn.net.hlk.util.HttpContextUtils;
 import cn.net.hlk.util.IPUtils;
 import cn.net.hlk.util.JwtUtil;
+import cn.net.hlk.util.MD5;
 import cn.net.hlk.util.StringUtil;
 import cn.net.hlk.util.StringUtil2;
 import cn.net.hlk.util.UuidUtil;
@@ -80,6 +81,7 @@ public class LoginServiceImple extends BaseServiceImple implements
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();
 		ReasonBean reasonBean = new ReasonBean();
 		String username = (String) pd.get("username");
+		pd.put("password",MD5.md5(pd.get("password").toString()));
 		String password = (String) pd.get("password");
 		User user = loginMapper.getUserByIdCard(pd);
 		PageData userOtherMessage = new PageData();
@@ -174,6 +176,8 @@ public class LoginServiceImple extends BaseServiceImple implements
 	public ResponseBodyBean updatePassword(PageData pd) {
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();
 		ReasonBean reasonBean = new ReasonBean();
+		pd.put("oldPassword",MD5.md5(pd.get("oldPassword").toString()));
+		pd.put("newPassword",MD5.md5(pd.get("newPassword").toString()));
 		String oldPassword = (String) pd.get("oldPassword");
 		String newPassword = (String) pd.get("newPassword");
 		String username = (String) pd.get("username");
@@ -368,6 +372,7 @@ public class LoginServiceImple extends BaseServiceImple implements
 		ReasonBean reasonBean = new ReasonBean();
 		PageData resData = new PageData();//返回数据
 		String username = (String) pd.get("username");
+		pd.put("password",MD5.md5(pd.get("password").toString()));
 		String password = (String) pd.get("password");
 		PageData checkcode  = loginMapper.getCheck(pd);
 		if(checkcode == null || checkcode.get("check_code") == null){

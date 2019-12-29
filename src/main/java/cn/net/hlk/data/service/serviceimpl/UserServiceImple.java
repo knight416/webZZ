@@ -15,6 +15,7 @@ import cn.net.hlk.data.pojo.user.FeatureMqtt;
 import cn.net.hlk.data.pojo.user.User;
 import cn.net.hlk.data.pojo.user.UserExcel;
 import cn.net.hlk.data.service.IUserService;
+import cn.net.hlk.util.MD5;
 import cn.net.hlk.util.StringUtil;
 import cn.net.hlk.util.UuidUtil;
 import com.alibaba.fastjson.JSON;
@@ -139,6 +140,7 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 	@Override
 	public Integer addUser(PageData pd) {
 		pd.put("uid", UuidUtil.get32UUID());
+		pd.put("password",MD5.md5(pd.get("password").toString()));
 		/* 插入用户信息 */
 		pd.put("user_message",JSON.toJSONString(pd.get("user_message")));
 		Integer addUser = userMapper.addUser(pd);
