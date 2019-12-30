@@ -17,6 +17,7 @@ import cn.net.hlk.data.pojo.user.UserExcel;
 import cn.net.hlk.data.service.IUserService;
 import cn.net.hlk.util.MD5;
 import cn.net.hlk.util.StringUtil;
+import cn.net.hlk.util.StringUtil2;
 import cn.net.hlk.util.UuidUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
@@ -182,7 +183,9 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 	@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT, timeout = 36000, rollbackFor = Exception.class)
 	@Override
 	public Integer editUser(PageData pd) {
-		pd.put("user_message",JSON.toJSONString(pd.get("user_message")));
+		if(StringUtil2.isNotEmpty(pd.get("user_message"))){
+			pd.put("user_message",JSON.toJSONString(pd.get("user_message")));
+		}
 		Integer editUser = userMapper.editUser(pd);
 		return editUser;
 	}
