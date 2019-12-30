@@ -30,7 +30,6 @@ import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.CellRangeAddressList;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.util.CellRangeAddress;
 
@@ -38,6 +37,7 @@ import cn.net.hlk.data.pojo.PageData;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.poi.ss.util.CellRangeAddressList;
 
 public class PoiExcelDownLoad<T> {
 	public static final String FILE_SEPARATOR = System.getProperties()
@@ -437,7 +437,7 @@ public class PoiExcelDownLoad<T> {
         // 加载下拉列表内容  
         DVConstraint constraint = DVConstraint.createExplicitListConstraint(textlist);  
         // 设置数据有效性加载在哪个单元格上,四个参数分别是：起始行、终止行、起始列、终止列  
-        CellRangeAddressList regions = new CellRangeAddressList(firstRow,endRow, firstCol, endCol);  
+        CellRangeAddressList regions = new CellRangeAddressList(firstRow,endRow, firstCol, endCol);
         // 数据有效性对象  
         HSSFDataValidation data_validation_list = new HSSFDataValidation(regions, constraint);  
         sheet.addValidationData(data_validation_list);  

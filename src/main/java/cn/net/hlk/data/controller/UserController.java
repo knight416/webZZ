@@ -14,7 +14,9 @@ import cn.afterturn.easypoi.excel.export.styler.ExcelExportStylerColorImpl;
 import cn.afterturn.easypoi.exception.excel.ExcelImportException;
 import cn.net.hlk.data.annotation.SysLog;
 import cn.net.hlk.data.annotation.UserLoginToken;
+import cn.net.hlk.data.config.FileUploadProperteis;
 import cn.net.hlk.data.mapper.UserMapper;
+import cn.net.hlk.data.poi.poi.WordUtils;
 import cn.net.hlk.data.pojo.Page;
 import cn.net.hlk.data.pojo.PageData;
 import cn.net.hlk.data.pojo.ReasonBean;
@@ -28,8 +30,10 @@ import cn.net.hlk.data.pojo.user.UserExcel;
 import cn.net.hlk.data.service.IUserService;
 import cn.net.hlk.util.CustomConfigUtil;
 import cn.net.hlk.util.FileUpload;
+import cn.net.hlk.util.FileUtil;
 import cn.net.hlk.util.ImageAnd64Binary;
 import cn.net.hlk.util.JwtUtil;
+import cn.net.hlk.util.PoiExcelDownLoad;
 import cn.net.hlk.util.ResponseUtil;
 import cn.net.hlk.util.StringUtil;
 import com.google.common.collect.Lists;
@@ -74,6 +78,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -110,6 +115,8 @@ public class UserController extends BaseController {
     private IUserService userService;
 	@Autowired
     private UserMapper userMapper;
+	@Autowired
+	public FileUploadProperteis fileUploadProperteis;
 	
 	/** 【描 述】：openfire开关 */
 	final static boolean OPENFIRE_SWITCH = "1".equals(CustomConfigUtil.getString("openfire.enable"));
@@ -452,7 +459,64 @@ public class UserController extends BaseController {
 			if(pd != null
 //						&& StringUtil2.isNotEmpty(pd.get("menu"))//用户资源
 					){
-				// responseBodyBean = userService.load(pd);
+				String fileName= new String("测试文档.docx");    //生成word文件的文件名
+				//虚拟路径存储
+				String realPath = fileUploadProperteis.getUploadFolder();
+				String filePath = realPath + File.separator+ "load"+ File.separator+fileName;
+				FileUtil.createDir(filePath);
+
+				//文件地址
+				OutputStream out = new FileOutputStream(filePath);
+				String url = "/upload"+ File.separator+ "load"+File.separator+fileName;
+
+				WordUtils wordUtil=new WordUtils();
+				Map<String, Object> params = new HashMap<String, Object>();
+				params.put("${position}", "java开发");
+				params.put("${name}", "段然涛");
+				params.put("${sex}", "男");
+				params.put("${national}", "汉族");
+				params.put("${birthday}", "生日");
+				params.put("${address}", "许昌");
+				params.put("${height}", "165cm");
+				params.put("${biYeDate}", "1994-02-03");
+				params.put("${landscape}", "团员");
+				params.put("${zhuanYe}", "社会工作");
+				params.put("${xueLi}", "本科");
+				params.put("${school}", "江西科技师范大学");
+				params.put("${phone}", "177");
+				params.put("${eMail}", "157");
+
+				try{
+					Map<String,Object> header = new HashMap<String, Object>();
+					header.put("width", 100);
+					header.put("height", 150);
+					header.put("type", "jpg");
+					header.put("content", WordUtils.inputStream2ByteArray(new FileInputStream("D:/a.jpg"), true));
+					params.put("${header}",header);
+					Map<String,Object> header2 = new HashMap<String, Object>();
+					header2.put("width", 100);
+					header2.put("height", 150);
+					header2.put("type", "jpg");
+					header2.put("content", WordUtils.inputStream2ByteArray(new FileInputStream("D:/a.jpg"), true));
+					params.put("${header2}",header2);
+					List<String[]> testList = new ArrayList<String[]>();
+					testList.add(new String[]{"1","1AA","1BB","1CC"});
+					testList.add(new String[]{"2","2AA","2BB","2CC"});
+					testList.add(new String[]{"3","3AA","3BB","3CC"});
+					testList.add(new String[]{"4","4AA","4BB","4CC"});
+					String path="D:/demo.docx";  //模板文件位置
+
+					wordUtil.getWord(path,params,testList,fileName,response,out);
+
+
+					//残留文件删除
+					FileUtil.delFileByTime(fileUploadProperteis.getUploadFolder()+ File.separator+ "QueryStatistics",(long)1000*60*60*24*5);
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+
+
+
 				if(responseBodyBean.getReason() == null){
 					status = HttpStatus.OK.value();
 					response.setStatus(status);

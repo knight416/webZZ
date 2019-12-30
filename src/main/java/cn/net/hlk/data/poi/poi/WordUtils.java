@@ -2,6 +2,7 @@ package cn.net.hlk.data.poi.poi;
 
 import org.apache.poi.xwpf.usermodel.*;
 import org.springframework.web.bind.annotation.RequestMapping;
+import scala.annotation.meta.param;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,18 +32,22 @@ public class WordUtils {
 	 * @param fileName 生成word文件的文件名
 	 * @param response
 	 */
-	public void getWord(String path, Map<String, Object> params, List<String[]> tableList, String fileName, HttpServletResponse response) throws Exception {
-		File file = new File(path);
-		InputStream is = new FileInputStream(file);
-		CustomXWPFDocument doc = new CustomXWPFDocument(is);
-		this.replaceInPara(doc, params);    //替换文本里面的变量
-		this.replaceInTable(doc, params, tableList); //替换表格里面的变量
-		OutputStream os = response.getOutputStream();
-		response.setHeader("Content-disposition", "attachment; filename=" + fileName);
-		doc.write(os);
-		this.close(os);
-		this.close(is);
+	public void getWord(String path, Map<String, Object> params, List<String[]> tableList, String fileName, HttpServletResponse response,OutputStream os) throws Exception {
+		try {
+			File file = new File(path);
+			InputStream is = new FileInputStream(file);
+			CustomXWPFDocument doc = new CustomXWPFDocument(is);
+			// this.replaceInPara(doc, params);    //替换文本里面的变量
+			// this.replaceInTable(doc, params, tableList); //替换表格里面的变量
+			// OutputStream os = response.getOutputStream();
+			// response.setHeader("Content-disposition", "attachment; filename=" + fileName);
 
+			doc.write(os);
+			this.close(os);
+			this.close(is);
+		}catch (Exception e){
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -70,6 +75,37 @@ public class WordUtils {
 		Matcher matcher;
 		if (this.matcher(para.getParagraphText()).find()) {
 			runs = para.getRuns();
+			//合并逻辑
+			for(Integer i = 0; i < runs.size(); i++){
+				String text0 = runs.get(i).getText(runs.get(i).getTextPosition());
+				if(text0!=null && text0.startsWith("$")){
+					//记录分隔符中间跨越的runs数量，用于字符串拼接和替换
+					int num=0;
+					int j = i+1;
+					for(; j < runs.size(); j++){
+						String text1 = runs.get(j).getText(runs.get(j).getTextPosition());
+						if(text1!=null && text1.endsWith("}")){
+							num=j-i;
+							break;
+						}
+					}
+					if(num!=0) {
+						//num!=0说明找到了[]配对，需要替换
+						StringBuilder newText = new StringBuilder();
+						for (int s = i; s <= i+num; s++) {
+							String text2 = runs.get(s).getText(runs.get(s).getTextPosition());
+							newText.append(text2);
+							runs.get(s).setText(null, 0);
+						}
+						runs.get(i).setText(newText.toString(),0);
+
+						//重新定义遍历位置，跳过设置为null的位置
+						i=j+1;
+					}
+				}
+			}
+
+
 			int start = -1;
 			int end = -1;
 			String str = "";
@@ -282,6 +318,46 @@ public class WordUtils {
 		}
 	}
 
+	private CustomXWPFDocument generateDoc(CustomXWPFDocument doc){
+		//获取所有段落
+		List<XWPFParagraph> paragraphList = doc.getParagraphs();
+		for(XWPFParagraph paragraph:paragraphList){
+			//遍历获取段落中所有的runs
+			List<XWPFRun> runs = paragraph.getRuns();
+			//合并逻辑
+			for(Integer i = 0; i < runs.size(); i++){
+				String text0 = runs.get(i).getText(runs.get(i).getTextPosition());
+				if(text0!=null && text0.startsWith("[")){
+					//记录分隔符中间跨越的runs数量，用于字符串拼接和替换
+					int num=0;
+					int j = i+1;
+					for(; j < runs.size(); j++){
+						String text1 = runs.get(j).getText(runs.get(j).getTextPosition());
+						if(text1!=null && text1.endsWith("]")){
+							num=j-i;
+							break;
+						}
+					}
+					if(num!=0) {
+						//num!=0说明找到了[]配对，需要替换
+						StringBuilder newText = new StringBuilder();
+						for (int s = i; s <= i+num; s++) {
+							String text2 = runs.get(s).getText(runs.get(s).getTextPosition());
+							newText.append(text2);
+							runs.get(s).setText(null, 0);
+						}
+						runs.get(i).setText(newText.toString(),0);
+
+						//重新定义遍历位置，跳过设置为null的位置
+						i=j+1;
+					}
+				}
+			}
+		}
+		return doc;
+	}
+
+
 	@RequestMapping("exportWordData")
 	public void exportWordData(HttpServletRequest request, HttpServletResponse response){
 		WordUtils wordUtil=new WordUtils();
@@ -306,22 +382,22 @@ public class WordUtils {
 			header.put("width", 100);
 			header.put("height", 150);
 			header.put("type", "jpg");
-			header.put("content", WordUtils.inputStream2ByteArray(new FileInputStream("C:/Users/Administrator/Desktop/jar包/11.jpg"), true));
+			header.put("content", WordUtils.inputStream2ByteArray(new FileInputStream("D:/a.jpg"), true));
 			params.put("${header}",header);
 			Map<String,Object> header2 = new HashMap<String, Object>();
 			header2.put("width", 100);
 			header2.put("height", 150);
 			header2.put("type", "jpg");
-			header2.put("content", WordUtils.inputStream2ByteArray(new FileInputStream("C:/Users/Administrator/Desktop/jar包/22.jpg"), true));
+			header2.put("content", WordUtils.inputStream2ByteArray(new FileInputStream("D:/a.jpg"), true));
 			params.put("${header2}",header2);
 			List<String[]> testList = new ArrayList<String[]>();
 			testList.add(new String[]{"1","1AA","1BB","1CC"});
 			testList.add(new String[]{"2","2AA","2BB","2CC"});
 			testList.add(new String[]{"3","3AA","3BB","3CC"});
 			testList.add(new String[]{"4","4AA","4BB","4CC"});
-			String path="C:/Users/Administrator/Desktop/jar包/mobanFile.docx";  //模板文件位置
+			String path="demo.docx";  //模板文件位置
 			String fileName= new String("测试文档.docx".getBytes("UTF-8"),"iso-8859-1");    //生成word文件的文件名
-			wordUtil.getWord(path,params,testList,fileName,response);
+			// wordUtil.getWord(path,params,testList,fileName,response);
 
 		}catch(Exception e){
 			e.printStackTrace();
