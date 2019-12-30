@@ -108,7 +108,9 @@ public class NewsServiceImpl extends BaseServiceImple implements NewsService {
 		PageData resData = new PageData();//返回数据
 		try {
 			//根据时间类型 区分操作
-			pd.put("news_message",JSON.toJSONString(pd.get("news_message")));
+			if(StringUtil2.isNotEmpty(pd.get("news_message"))){
+				pd.put("news_message",JSON.toJSONString(pd.get("news_message")));
+			}
 			newsMapper.updateNews(pd);//消息修改
 
 			//存储附件

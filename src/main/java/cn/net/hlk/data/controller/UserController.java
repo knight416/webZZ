@@ -4,18 +4,12 @@ package cn.net.hlk.data.controller;
 
 
 
-import cn.afterturn.easypoi.excel.ExcelExportUtil;
-import cn.afterturn.easypoi.excel.ExcelImportUtil;
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.afterturn.easypoi.excel.entity.ImportParams;
-import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
-import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
-import cn.afterturn.easypoi.excel.export.styler.ExcelExportStylerColorImpl;
-import cn.afterturn.easypoi.exception.excel.ExcelImportException;
 import cn.net.hlk.data.annotation.SysLog;
 import cn.net.hlk.data.annotation.UserLoginToken;
 import cn.net.hlk.data.config.FileUploadProperteis;
+import cn.net.hlk.data.mapper.SystemMapper;
 import cn.net.hlk.data.mapper.UserMapper;
+import cn.net.hlk.data.poi.easypoi.easypoiUtil;
 import cn.net.hlk.data.poi.poi.WordUtils;
 import cn.net.hlk.data.pojo.Page;
 import cn.net.hlk.data.pojo.PageData;
@@ -36,6 +30,7 @@ import cn.net.hlk.util.JwtUtil;
 import cn.net.hlk.util.PoiExcelDownLoad;
 import cn.net.hlk.util.ResponseUtil;
 import cn.net.hlk.util.StringUtil;
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import io.jsonwebtoken.Claims;
@@ -117,6 +112,8 @@ public class UserController extends BaseController {
     private UserMapper userMapper;
 	@Autowired
 	public FileUploadProperteis fileUploadProperteis;
+	@Autowired
+	public SystemMapper systemMapper;
 	
 	/** 【描 述】：openfire开关 */
 	final static boolean OPENFIRE_SWITCH = "1".equals(CustomConfigUtil.getString("openfire.enable"));
@@ -459,64 +456,65 @@ public class UserController extends BaseController {
 			if(pd != null
 //						&& StringUtil2.isNotEmpty(pd.get("menu"))//用户资源
 					){
-				String fileName= new String("测试文档.docx");    //生成word文件的文件名
+				//根据用户id 获取信息
+				PageData user = userService.findById(pd);
+				String name = user.getString("name");
+				String photo = user.getString("photo");
+				String id_card = user.getString("id_card");
+				String contact = user.getString("contact");
+				String job_type = user.getString("job_type");
+				String system_id = user.getString("system_id");
+				PageData user_message = JSON.parseObject(JSON.toJSONString(user.get("user_message")),PageData.class);
+				PageData userinfo = JSON.parseObject(JSON.toJSONString(user.get("userinfo")),PageData.class);//个人信息
+				List<PageData> rap = JSON.parseArray(JSON.toJSONString(user_message.get("rap")),PageData.class);//在校工作情况
+				List<PageData> train = JSON.parseArray(JSON.toJSONString(user_message.get("train")),PageData.class);//培训
+				List<PageData> computer = JSON.parseArray(JSON.toJSONString(user_message.get("computer")),PageData.class);//计算机能力
+				List<PageData> language = JSON.parseArray(JSON.toJSONString(user_message.get("language")),PageData.class);//外语
+				List<PageData> education = JSON.parseArray(JSON.toJSONString(user_message.get("education")),PageData.class);//教育
+				List<PageData> certificate = JSON.parseArray(JSON.toJSONString(user_message.get("certificate")),PageData.class);//证书
+				List<PageData> workexperience = JSON.parseArray(JSON.toJSONString(user_message.get("workexperience")),PageData.class);//工作
+				List<PageData> jobIntention = JSON.parseArray(JSON.toJSONString(user_message.get("jobIntention")),PageData.class);//求职意向
+
+				String dicName = systemMapper.getNameByCode("");
+
+				String fileName= new String(name+"简历.docx");    //生成word文件的文件名
 				//虚拟路径存储
 				String realPath = fileUploadProperteis.getUploadFolder();
 				String filePath = realPath + File.separator+ "load"+ File.separator+fileName;
 				FileUtil.createDir(filePath);
 
 				//文件地址
-				OutputStream out = new FileOutputStream(filePath);
+				FileOutputStream fopts = new FileOutputStream(filePath);
+				// OutputStream out = new FileOutputStream(filePath);
 				String url = "/upload"+ File.separator+ "load"+File.separator+fileName;
 
 				WordUtils wordUtil=new WordUtils();
 				Map<String, Object> params = new HashMap<String, Object>();
-				params.put("${position}", "java开发");
-				params.put("${name}", "段然涛");
-				params.put("${sex}", "男");
-				params.put("${national}", "汉族");
-				params.put("${birthday}", "生日");
-				params.put("${address}", "许昌");
-				params.put("${height}", "165cm");
-				params.put("${biYeDate}", "1994-02-03");
-				params.put("${landscape}", "团员");
-				params.put("${zhuanYe}", "社会工作");
-				params.put("${xueLi}", "本科");
-				params.put("${school}", "江西科技师范大学");
-				params.put("${phone}", "177");
-				params.put("${eMail}", "157");
+
+				String jobIntentionStr = new String();
+				params.put("${jobIntention}", jobIntentionStr);
 
 				try{
+					//照片处理
 					Map<String,Object> header = new HashMap<String, Object>();
 					header.put("width", 100);
 					header.put("height", 150);
 					header.put("type", "jpg");
 					header.put("content", WordUtils.inputStream2ByteArray(new FileInputStream("D:/a.jpg"), true));
 					params.put("${header}",header);
-					Map<String,Object> header2 = new HashMap<String, Object>();
-					header2.put("width", 100);
-					header2.put("height", 150);
-					header2.put("type", "jpg");
-					header2.put("content", WordUtils.inputStream2ByteArray(new FileInputStream("D:/a.jpg"), true));
-					params.put("${header2}",header2);
 					List<String[]> testList = new ArrayList<String[]>();
-					testList.add(new String[]{"1","1AA","1BB","1CC"});
-					testList.add(new String[]{"2","2AA","2BB","2CC"});
-					testList.add(new String[]{"3","3AA","3BB","3CC"});
-					testList.add(new String[]{"4","4AA","4BB","4CC"});
-					String path="D:/demo.docx";  //模板文件位置
 
-					wordUtil.getWord(path,params,testList,fileName,response,out);
+					// testList.add(new String[]{"1","1AA","1BB","1CC"});
+					String path="/demo.docx";  //模板文件位置
 
-
+					wordUtil.getWord(path,params,testList,fileName,response,fopts);
+					resData.put("url",url);
+					responseBodyBean.setResult(resData);
 					//残留文件删除
 					FileUtil.delFileByTime(fileUploadProperteis.getUploadFolder()+ File.separator+ "QueryStatistics",(long)1000*60*60*24*5);
 				}catch(Exception e){
 					e.printStackTrace();
 				}
-
-
-
 				if(responseBodyBean.getReason() == null){
 					status = HttpStatus.OK.value();
 					response.setStatus(status);

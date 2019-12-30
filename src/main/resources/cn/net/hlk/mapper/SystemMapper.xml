@@ -142,5 +142,11 @@
 		SELECT id,<!-- parent_id as "parentId", -->code,name FROM t_sys_dict 
 		where visiable=1 and parent_id = (select id FROM t_sys_dict where visiable=1 and code=#{ code})
 	</select>
-	
+
+	<!--根据code获取名称-->
+	<select id="getNameByCode" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT name FROM t_sys_dict
+		where visiable=1 and  code=#{ code}
+	</select>
+
 </mapper>

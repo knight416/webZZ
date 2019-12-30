@@ -35,4 +35,14 @@ public interface SystemMapper {
 	List<PageData> queryNextDatas(Integer id);
 
 	List<PageData> queryByCode(PageData pd);
+
+	/**
+	 * @Title getNameByCode
+	 * @Description  根据code获取名称
+	 * @author 张泽恒
+	 * @date 2019/12/30 23:34
+	 * @param [s]
+	 * @return java.lang.String
+	 */
+	String getNameByCode(String s);
 }

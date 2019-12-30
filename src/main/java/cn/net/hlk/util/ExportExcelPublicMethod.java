@@ -1,14 +1,7 @@
 package cn.net.hlk.util;
 
-import java.net.URLEncoder;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import cn.net.hlk.data.pojo.PageData;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -16,8 +9,11 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.web.servlet.view.document.AbstractExcelView;
 
-import cn.net.hlk.data.pojo.PageData;
-
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -31,7 +27,7 @@ public class ExportExcelPublicMethod extends AbstractExcelView {
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void buildExcelDocument(Map<String, Object> model, HSSFWorkbook workbook, HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
+									  HttpServletResponse response) throws Exception {
 		Date date = new Date();
 		String filename = Tools.date2Str(date, "yyyyMMddHHmmss");
 		filename = filename+"监控日志";

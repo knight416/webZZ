@@ -1,12 +1,23 @@
 package cn.net.hlk.data.poi.poi;
 
-import org.apache.poi.xwpf.usermodel.*;
+
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.springframework.web.bind.annotation.RequestMapping;
-import scala.annotation.meta.param;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,18 +43,16 @@ public class WordUtils {
 	 * @param fileName 生成word文件的文件名
 	 * @param response
 	 */
-	public void getWord(String path, Map<String, Object> params, List<String[]> tableList, String fileName, HttpServletResponse response,OutputStream os) throws Exception {
+	public void getWord(String path, Map<String, Object> params, List<String[]> tableList, String fileName, HttpServletResponse response, FileOutputStream fopts) throws Exception {
 		try {
 			File file = new File(path);
 			InputStream is = new FileInputStream(file);
 			CustomXWPFDocument doc = new CustomXWPFDocument(is);
-			// this.replaceInPara(doc, params);    //替换文本里面的变量
-			// this.replaceInTable(doc, params, tableList); //替换表格里面的变量
-			// OutputStream os = response.getOutputStream();
-			// response.setHeader("Content-disposition", "attachment; filename=" + fileName);
+			this.replaceInPara(doc, params);    //替换文本里面的变量
+			this.replaceInTable(doc, params, tableList); //替换表格里面的变量
 
-			doc.write(os);
-			this.close(os);
+			doc.write(fopts);
+			this.close(fopts);
 			this.close(is);
 		}catch (Exception e){
 			e.printStackTrace();
@@ -151,7 +160,7 @@ public class WordUtils {
 						try {
 							//int ind = doc.addPicture(byteInputStream,picType);
 							//doc.createPicture(ind, width , height,para);
-							doc.addPictureData(byteInputStream, picType);
+							doc.addPicture(byteInputStream, picType);
 							doc.createPicture(doc.getAllPictures().size() - 1, width, height, para);
 							para.createRun().setText(str, 0);
 							break;
@@ -172,15 +181,16 @@ public class WordUtils {
 	 * @param tableList 插入数据集合
 	 */
 	private static void insertTable(XWPFTable table, List<String[]> tableList) {
-		//创建行,根据需要插入的数据添加新行，不处理表头
-		for (int i = 0; i < tableList.size(); i++) {
-			XWPFTableRow row = table.createRow();
-		}
 		//遍历表格插入数据
 		List<XWPFTableRow> rows = table.getRows();
 		int length = table.getRows().size();
-		for (int i = 1; i < length - 1; i++) {
-			XWPFTableRow newRow = table.getRow(i);
+		for (int i = 1; i < tableList.size()+1; i++) {
+			XWPFTableRow newRow = null;
+			if(i < length){
+				newRow = table.getRow(i);
+			}else{
+				newRow = table.createRow();
+			}
 			List<XWPFTableCell> cells = newRow.getTableCells();
 			for (int j = 0; j < cells.size(); j++) {
 				XWPFTableCell cell = cells.get(j);
