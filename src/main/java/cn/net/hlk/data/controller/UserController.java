@@ -9,6 +9,7 @@ import cn.net.hlk.data.annotation.UserLoginToken;
 import cn.net.hlk.data.config.FileUploadProperteis;
 import cn.net.hlk.data.mapper.SystemMapper;
 import cn.net.hlk.data.mapper.UserMapper;
+import cn.net.hlk.data.poi.byPoi.ExportWord;
 import cn.net.hlk.data.poi.easypoi.easypoiUtil;
 import cn.net.hlk.data.poi.poi.WordUtils;
 import cn.net.hlk.data.pojo.Page;
@@ -52,6 +53,7 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.HttpStatus;
@@ -454,7 +456,6 @@ public class UserController extends BaseController {
 		try{
 			List<PageData> pdList = new ArrayList<PageData>();
 			if(pd != null
-//						&& StringUtil2.isNotEmpty(pd.get("menu"))//用户资源
 					){
 				//根据用户id 获取信息
 				PageData user = userService.findById(pd);
@@ -488,33 +489,113 @@ public class UserController extends BaseController {
 				// OutputStream out = new FileOutputStream(filePath);
 				String url = "/upload"+ File.separator+ "load"+File.separator+fileName;
 
-				WordUtils wordUtil=new WordUtils();
-				Map<String, Object> params = new HashMap<String, Object>();
+				//模板导出
+				// WordUtils wordUtil=new WordUtils();
+				// Map<String, Object> params = new HashMap<String, Object>();
+				//
+				// params.put("${name}", name);
+				// params.put("${phone}", contact);
+				// params.put("${sex}", name);
+				// params.put("${workYear}", name);
+				// params.put("${birthday}", name);
+				// params.put("${school}", name);
+				// params.put("${xueli}", name);
+				// params.put("${address}", name);
+				// params.put("${email}", user_message.getString("email"));
+				//
+				// //求职意向
+				// String jobIntentionStr = new String();
+				// params.put("${jobIntention}", jobIntentionStr);
+				// //工作经历
+				// String workexperienceStr = new String();
+				// params.put("${workexperience}", workexperienceStr);
+				// //项目经验
+				// String projectStr = new String();
+				// params.put("${project}", projectStr);
+				// //教育经历
+				// String educationStr = new String();
+				// params.put("${education}", educationStr);
+				// //证书
+				// String certificateStr = new String();
+				// params.put("${certificate}", certificateStr);
+				// //语言能力
+				// String languageStr = new String();
+				// params.put("${language}", languageStr);
+				// //专业技能
+				// String computerStr = new String();
+				// params.put("${computer}", computerStr);
+				// //培训经历
+				// String trainStr = new String();
+				// params.put("${train}", trainStr);
+				//
+				// try{
+				// 	//照片处理
+				// 	Map<String,Object> header = new HashMap<String, Object>();
+				// 	header.put("width", 100);
+				// 	header.put("height", 150);
+				// 	header.put("type", "jpg");
+				// 	header.put("content", WordUtils.inputStream2ByteArray(new FileInputStream("D:/a.jpg"), true));
+				// 	params.put("${photo}",header);
+				// 	List<String[]> testList = new ArrayList<String[]>();
+				//
+				// 	// testList.add(new String[]{"1","1AA","1BB","1CC"});
+				// 	String path="/zldemo.docx";  //模板文件位置
+				//
+				// 	wordUtil.getWord(path,params,testList,fileName,response,fopts);
+				//
+				// }catch(Exception e){
+				// 	e.printStackTrace();
+				// }
 
-				String jobIntentionStr = new String();
-				params.put("${jobIntention}", jobIntentionStr);
+				/*XWPFDocument代表一个docx文档，其可以用来读docx文档，也可以用来写docx文档
+					XWPFParagraph代表文档、表格、标题等种的段落，由多个XWPFRun组成
+					XWPFRun代表具有同样风格的一段文本
+					XWPFTable代表一个表格
+					XWPFTableRow代表表格的一行
+					XWPFTableCell代表表格的一个单元格
+					XWPFChar 表示.docx文件中的图表
+					XWPFHyperlink 表示超链接
+					XWPFPicture 代表图片*/
 
-				try{
-					//照片处理
-					Map<String,Object> header = new HashMap<String, Object>();
-					header.put("width", 100);
-					header.put("height", 150);
-					header.put("type", "jpg");
-					header.put("content", WordUtils.inputStream2ByteArray(new FileInputStream("D:/a.jpg"), true));
-					params.put("${header}",header);
-					List<String[]> testList = new ArrayList<String[]>();
+				//创建表格
+				ExportWord ew = new ExportWord();
+				XWPFDocument document = ew.createXWPFDocument();
+				List<List<Object>> list = new ArrayList<List<Object>>();
 
-					// testList.add(new String[]{"1","1AA","1BB","1CC"});
-					String path="/demo.docx";  //模板文件位置
+				List<Object> tempList = new ArrayList<Object>();
+				tempList.add("姓名");
+				tempList.add("黄xx");
+				tempList.add("性别");
+				tempList.add("男");
+				tempList.add("出生日期");
+				tempList.add("2018-10-10");
+				list.add(tempList);
+				tempList = new ArrayList<Object>();
+				tempList.add("身份证号");
+				tempList.add("36073xxxxxxxxxxx");
+				list.add(tempList);
+				tempList = new ArrayList<Object>();
+				tempList.add("出生地");
+				tempList.add("江西");
+				tempList.add("名族");
+				tempList.add("汉");
+				tempList.add("婚否");
+				tempList.add("否");
+				list.add(tempList);
+				tempList = new ArrayList<Object>();
+				tempList.add("既往病史");
+				tempList.add("无");
+				list.add(tempList);
 
-					wordUtil.getWord(path,params,testList,fileName,response,fopts);
-					resData.put("url",url);
-					responseBodyBean.setResult(resData);
-					//残留文件删除
-					FileUtil.delFileByTime(fileUploadProperteis.getUploadFolder()+ File.separator+ "QueryStatistics",(long)1000*60*60*24*5);
-				}catch(Exception e){
-					e.printStackTrace();
-				}
+				Map<String, Object> dataList = new HashMap<String, Object>();
+				dataList.put("TITLE", "个人体检表");
+				dataList.put("TABLEDATA", list);
+				ew.exportCheckWord(dataList, document, "E:/expWordTest.docx");
+
+				resData.put("url",url);
+				responseBodyBean.setResult(resData);
+				//残留文件删除
+				FileUtil.delFileByTime(fileUploadProperteis.getUploadFolder()+ File.separator+ "QueryStatistics",(long)1000*60*60*24*5);
 				if(responseBodyBean.getReason() == null){
 					status = HttpStatus.OK.value();
 					response.setStatus(status);
