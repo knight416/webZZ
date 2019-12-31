@@ -166,8 +166,20 @@
 				</foreach>
 			</if>
 			<!-- 学历  -->
-			<if test="pd.xl !=null and pd.xl != '' ">
-				and news_message ->>'xl' > #{xl}
+			<if test="pd.minimumEducation !=null and pd.minimumEducation != '' ">
+				and news_message ->>'minimumEducation' > #{pd.minimumEducation}
+			</if>
+			<!-- 省份  -->
+			<if test="pd.province !=null and pd.province != '' ">
+				and news_message ->>'province' > #{pd.province}
+			</if>
+			<!-- 工作性质  -->
+			<if test="pd.workType !=null and pd.workType != '' ">
+				and news_message ->>'workType' > #{pd.workType}
+			</if>
+			<!-- 发布用户  -->
+			<if test="pd.name !=null and pd.name != '' ">
+				and writerid in (select uid from t_user where name like CONCAT(CONCAT('%',#{pd.name}),'%') )
 			</if>
 
 			<!-- 正文 -->

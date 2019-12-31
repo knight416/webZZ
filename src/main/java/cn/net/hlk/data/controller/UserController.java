@@ -9,7 +9,6 @@ import cn.net.hlk.data.annotation.UserLoginToken;
 import cn.net.hlk.data.config.FileUploadProperteis;
 import cn.net.hlk.data.mapper.SystemMapper;
 import cn.net.hlk.data.mapper.UserMapper;
-import cn.net.hlk.data.poi.byPoi.ExportWord;
 import cn.net.hlk.data.poi.easypoi.easypoiUtil;
 import cn.net.hlk.data.poi.poi.WordUtils;
 import cn.net.hlk.data.pojo.Page;
@@ -28,7 +27,6 @@ import cn.net.hlk.util.FileUpload;
 import cn.net.hlk.util.FileUtil;
 import cn.net.hlk.util.ImageAnd64Binary;
 import cn.net.hlk.util.JwtUtil;
-import cn.net.hlk.util.PoiExcelDownLoad;
 import cn.net.hlk.util.ResponseUtil;
 import cn.net.hlk.util.StringUtil;
 import com.alibaba.fastjson.JSON;
@@ -459,146 +457,110 @@ public class UserController extends BaseController {
 					){
 				//根据用户id 获取信息
 				PageData user = userService.findById(pd);
-				String name = user.getString("name");
-				String photo = user.getString("photo");
-				String id_card = user.getString("id_card");
-				String contact = user.getString("contact");
-				String job_type = user.getString("job_type");
-				String system_id = user.getString("system_id");
-				PageData user_message = JSON.parseObject(JSON.toJSONString(user.get("user_message")),PageData.class);
-				PageData userinfo = JSON.parseObject(JSON.toJSONString(user.get("userinfo")),PageData.class);//个人信息
-				List<PageData> rap = JSON.parseArray(JSON.toJSONString(user_message.get("rap")),PageData.class);//在校工作情况
-				List<PageData> train = JSON.parseArray(JSON.toJSONString(user_message.get("train")),PageData.class);//培训
-				List<PageData> computer = JSON.parseArray(JSON.toJSONString(user_message.get("computer")),PageData.class);//计算机能力
-				List<PageData> language = JSON.parseArray(JSON.toJSONString(user_message.get("language")),PageData.class);//外语
-				List<PageData> education = JSON.parseArray(JSON.toJSONString(user_message.get("education")),PageData.class);//教育
-				List<PageData> certificate = JSON.parseArray(JSON.toJSONString(user_message.get("certificate")),PageData.class);//证书
-				List<PageData> workexperience = JSON.parseArray(JSON.toJSONString(user_message.get("workexperience")),PageData.class);//工作
-				List<PageData> jobIntention = JSON.parseArray(JSON.toJSONString(user_message.get("jobIntention")),PageData.class);//求职意向
+				if(user != null){
+					String name = user.getString("name");
+					String photo = user.getString("photo");
+					String id_card = user.getString("id_card");
+					String contact = user.getString("contact");
+					String job_type = user.getString("job_type");
+					String system_id = user.getString("system_id");
+					PageData user_message = JSON.parseObject(JSON.toJSONString(user.get("user_message")),PageData.class);
+					PageData userinfo = JSON.parseObject(JSON.toJSONString(user.get("userinfo")),PageData.class);//个人信息
+					List<PageData> rap = JSON.parseArray(JSON.toJSONString(user_message.get("rap")),PageData.class);//在校工作情况
+					List<PageData> train = JSON.parseArray(JSON.toJSONString(user_message.get("train")),PageData.class);//培训
+					List<PageData> computer = JSON.parseArray(JSON.toJSONString(user_message.get("computer")),PageData.class);//计算机能力
+					List<PageData> language = JSON.parseArray(JSON.toJSONString(user_message.get("language")),PageData.class);//外语
+					List<PageData> education = JSON.parseArray(JSON.toJSONString(user_message.get("education")),PageData.class);//教育
+					List<PageData> certificate = JSON.parseArray(JSON.toJSONString(user_message.get("certificate")),PageData.class);//证书
+					List<PageData> workexperience = JSON.parseArray(JSON.toJSONString(user_message.get("workexperience")),PageData.class);//工作
+					List<PageData> jobIntention = JSON.parseArray(JSON.toJSONString(user_message.get("jobIntention")),PageData.class);//求职意向
 
-				String dicName = systemMapper.getNameByCode("");
+					String dicName = systemMapper.getNameByCode("");
 
-				String fileName= new String(name+"简历.docx");    //生成word文件的文件名
-				//虚拟路径存储
-				String realPath = fileUploadProperteis.getUploadFolder();
-				String filePath = realPath + File.separator+ "load"+ File.separator+fileName;
-				FileUtil.createDir(filePath);
+					String fileName= new String(name+"简历.doc");    //生成word文件的文件名
+					//虚拟路径存储
+					String realPath = fileUploadProperteis.getUploadFolder();
+					String filePath = realPath + File.separator+ "load"+ File.separator+fileName;
+					FileUtil.createDir(filePath);
 
-				//文件地址
-				FileOutputStream fopts = new FileOutputStream(filePath);
-				// OutputStream out = new FileOutputStream(filePath);
-				String url = "/upload"+ File.separator+ "load"+File.separator+fileName;
+					//文件地址
+					FileOutputStream fopts = new FileOutputStream(filePath);
+					// OutputStream out = new FileOutputStream(filePath);
+					String url = "/upload"+ File.separator+ "load"+File.separator+fileName;
 
-				//模板导出
-				// WordUtils wordUtil=new WordUtils();
-				// Map<String, Object> params = new HashMap<String, Object>();
-				//
-				// params.put("${name}", name);
-				// params.put("${phone}", contact);
-				// params.put("${sex}", name);
-				// params.put("${workYear}", name);
-				// params.put("${birthday}", name);
-				// params.put("${school}", name);
-				// params.put("${xueli}", name);
-				// params.put("${address}", name);
-				// params.put("${email}", user_message.getString("email"));
-				//
-				// //求职意向
-				// String jobIntentionStr = new String();
-				// params.put("${jobIntention}", jobIntentionStr);
-				// //工作经历
-				// String workexperienceStr = new String();
-				// params.put("${workexperience}", workexperienceStr);
-				// //项目经验
-				// String projectStr = new String();
-				// params.put("${project}", projectStr);
-				// //教育经历
-				// String educationStr = new String();
-				// params.put("${education}", educationStr);
-				// //证书
-				// String certificateStr = new String();
-				// params.put("${certificate}", certificateStr);
-				// //语言能力
-				// String languageStr = new String();
-				// params.put("${language}", languageStr);
-				// //专业技能
-				// String computerStr = new String();
-				// params.put("${computer}", computerStr);
-				// //培训经历
-				// String trainStr = new String();
-				// params.put("${train}", trainStr);
-				//
-				// try{
-				// 	//照片处理
-				// 	Map<String,Object> header = new HashMap<String, Object>();
-				// 	header.put("width", 100);
-				// 	header.put("height", 150);
-				// 	header.put("type", "jpg");
-				// 	header.put("content", WordUtils.inputStream2ByteArray(new FileInputStream("D:/a.jpg"), true));
-				// 	params.put("${photo}",header);
-				// 	List<String[]> testList = new ArrayList<String[]>();
-				//
-				// 	// testList.add(new String[]{"1","1AA","1BB","1CC"});
-				// 	String path="/zldemo.docx";  //模板文件位置
-				//
-				// 	wordUtil.getWord(path,params,testList,fileName,response,fopts);
-				//
-				// }catch(Exception e){
-				// 	e.printStackTrace();
-				// }
+					//模板导出
+					WordUtils wordUtil=new WordUtils();
+					Map<String, Object> params = new HashMap<String, Object>();
 
-				/*XWPFDocument代表一个docx文档，其可以用来读docx文档，也可以用来写docx文档
-					XWPFParagraph代表文档、表格、标题等种的段落，由多个XWPFRun组成
-					XWPFRun代表具有同样风格的一段文本
-					XWPFTable代表一个表格
-					XWPFTableRow代表表格的一行
-					XWPFTableCell代表表格的一个单元格
-					XWPFChar 表示.docx文件中的图表
-					XWPFHyperlink 表示超链接
-					XWPFPicture 代表图片*/
+					params.put("${name}", name);
+					params.put("${phone}", contact);
+					params.put("${sex}", name);
+					params.put("${workYear}", name);
+					params.put("${birthday}", name);
+					params.put("${school}", name);
+					params.put("${xueli}", name);
+					params.put("${address}", name);
+					params.put("${email}", user_message.getString("email"));
 
-				//创建表格
-				ExportWord ew = new ExportWord();
-				XWPFDocument document = ew.createXWPFDocument();
-				List<List<Object>> list = new ArrayList<List<Object>>();
+					//求职意向
+					String jobIntentionStr = new String();
+					params.put("${jobIntention}", jobIntentionStr);
+					//工作经历
+					String workexperienceStr = new String();
+					params.put("${workexperience}", workexperienceStr);
+					//项目经验
+					String projectStr = new String();
+					params.put("${project}", projectStr);
+					//教育经历
+					String educationStr = new String();
+					params.put("${education}", educationStr);
+					//证书
+					String certificateStr = new String();
+					params.put("${certificate}", certificateStr);
+					//语言能力
+					String languageStr = new String();
+					params.put("${language}", languageStr);
+					//专业技能
+					String computerStr = new String();
+					params.put("${computer}", computerStr);
+					//培训经历
+					String trainStr = new String();
+					params.put("${train}", trainStr);
 
-				List<Object> tempList = new ArrayList<Object>();
-				tempList.add("姓名");
-				tempList.add("黄xx");
-				tempList.add("性别");
-				tempList.add("男");
-				tempList.add("出生日期");
-				tempList.add("2018-10-10");
-				list.add(tempList);
-				tempList = new ArrayList<Object>();
-				tempList.add("身份证号");
-				tempList.add("36073xxxxxxxxxxx");
-				list.add(tempList);
-				tempList = new ArrayList<Object>();
-				tempList.add("出生地");
-				tempList.add("江西");
-				tempList.add("名族");
-				tempList.add("汉");
-				tempList.add("婚否");
-				tempList.add("否");
-				list.add(tempList);
-				tempList = new ArrayList<Object>();
-				tempList.add("既往病史");
-				tempList.add("无");
-				list.add(tempList);
+					try{
+						//照片处理
+						Map<String,Object> header = new HashMap<String, Object>();
+						header.put("width", 100);
+						header.put("height", 150);
+						header.put("type", "jpg");
+						header.put("content", WordUtils.inputStream2ByteArray(new FileInputStream("D:/a.jpg"), true));
+						params.put("${photo}",header);
+						List<String[]> testList = new ArrayList<String[]>();
 
-				Map<String, Object> dataList = new HashMap<String, Object>();
-				dataList.put("TITLE", "个人体检表");
-				dataList.put("TABLEDATA", list);
-				ew.exportCheckWord(dataList, document, "E:/expWordTest.docx");
+						// testList.add(new String[]{"1","1AA","1BB","1CC"});
+						String path=realPath + File.separator+ "demo"+ File.separator+"demo.docx";  //模板文件位置
 
-				resData.put("url",url);
-				responseBodyBean.setResult(resData);
-				//残留文件删除
-				FileUtil.delFileByTime(fileUploadProperteis.getUploadFolder()+ File.separator+ "QueryStatistics",(long)1000*60*60*24*5);
-				if(responseBodyBean.getReason() == null){
-					status = HttpStatus.OK.value();
+						wordUtil.getWord(path,params,testList,fileName,response,fopts);
+
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+
+
+					resData.put("url",url);
+					responseBodyBean.setResult(resData);
+					//残留文件删除
+					FileUtil.delFileByTime(fileUploadProperteis.getUploadFolder()+ File.separator+ "load",(long)1000*60*60*24*5);
+					if(responseBodyBean.getReason() == null){
+						status = HttpStatus.OK.value();
+						response.setStatus(status);
+					}
+				}else{
+					reasonBean.setCode("401");
+					reasonBean.setText("无数据");
+					status = HttpStatus.PRECONDITION_REQUIRED.value();
 					response.setStatus(status);
+					responseBodyBean.setReason(reasonBean);
 				}
 			}else{
 				reasonBean.setCode("400");
