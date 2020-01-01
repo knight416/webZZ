@@ -458,24 +458,45 @@ public class UserController extends BaseController {
 				//根据用户id 获取信息
 				PageData user = userService.findById(pd);
 				if(user != null){
-					String name = user.getString("name");
-					String photo = user.getString("photo");
-					String id_card = user.getString("id_card");
-					String contact = user.getString("contact");
-					String job_type = user.getString("job_type");
-					String system_id = user.getString("system_id");
+					String name = user.getString("name");//姓名
+					String photo = user.getString("photo");//照片
+					String email = user.getString("email");//emasil
 					PageData user_message = JSON.parseObject(JSON.toJSONString(user.get("user_message")),PageData.class);
-					PageData userinfo = JSON.parseObject(JSON.toJSONString(user.get("userinfo")),PageData.class);//个人信息
-					List<PageData> rap = JSON.parseArray(JSON.toJSONString(user_message.get("rap")),PageData.class);//在校工作情况
+					PageData userinfo = JSON.parseObject(JSON.toJSONString(user_message.get("userinfo")),PageData.class);//个人信息
+
+					String chat = userinfo.getString("chat");//线上聊天手机号码
+					String mall = userinfo.getString("mall");//个人邮编
+					String fmall = userinfo.getString("fmall");//家庭邮编
+					String hukou = userinfo.getString("hukou");//户口
+					hukou = systemMapper.getNameByCode(hukou);
+					String phone = userinfo.getString("phone");//大陆手机号码
+					String vision = userinfo.getString("vision");//近视
+					String address = userinfo.getString("address");//个人联系地址
+					String id_card = userinfo.getString("id_card");//身份证号
+					String married = userinfo.getString("married");//已婚
+					String workday = userinfo.getString("workday");//工作时间
+					String birthday = userinfo.getString("birthday");//生日
+					String jobtitle = userinfo.getString("jobtitle");//专业职称名称
+					String wanphone = userinfo.getString("wanphone");//台湾手机号码
+					String political = userinfo.getString("political");//中共党员
+					String residence = userinfo.getString("residence");//住址
+					residence = systemMapper.getNameByCode(residence);
+					String bodyheight = userinfo.getString("bodyheight");//身高
+					String workstatus = userinfo.getString("workstatus");//状态
+					String familyphone = userinfo.getString("familyphone");//家庭联系电话
+					String jobtitlelevel = userinfo.getString("jobtitlelevel");//对应职称等级
+
+
+
+
+					PageData rap = JSON.parseObject(JSON.toJSONString(user_message.get("rap")),PageData.class);//在校工作情况
 					List<PageData> train = JSON.parseArray(JSON.toJSONString(user_message.get("train")),PageData.class);//培训
 					List<PageData> computer = JSON.parseArray(JSON.toJSONString(user_message.get("computer")),PageData.class);//计算机能力
 					List<PageData> language = JSON.parseArray(JSON.toJSONString(user_message.get("language")),PageData.class);//外语
 					List<PageData> education = JSON.parseArray(JSON.toJSONString(user_message.get("education")),PageData.class);//教育
 					List<PageData> certificate = JSON.parseArray(JSON.toJSONString(user_message.get("certificate")),PageData.class);//证书
 					List<PageData> workexperience = JSON.parseArray(JSON.toJSONString(user_message.get("workexperience")),PageData.class);//工作
-					List<PageData> jobIntention = JSON.parseArray(JSON.toJSONString(user_message.get("jobIntention")),PageData.class);//求职意向
-
-					String dicName = systemMapper.getNameByCode("");
+					List<PageData> jobintention = JSON.parseArray(JSON.toJSONString(user_message.get("jobintention")),PageData.class);//求职意向
 
 					String fileName= new String(name+"简历.doc");    //生成word文件的文件名
 					//虚拟路径存储
@@ -492,40 +513,164 @@ public class UserController extends BaseController {
 					WordUtils wordUtil=new WordUtils();
 					Map<String, Object> params = new HashMap<String, Object>();
 
+
+
 					params.put("${name}", name);
-					params.put("${phone}", contact);
-					params.put("${sex}", name);
-					params.put("${workYear}", name);
-					params.put("${birthday}", name);
-					params.put("${school}", name);
-					params.put("${xueli}", name);
-					params.put("${address}", name);
-					params.put("${email}", user_message.getString("email"));
+					params.put("${workstatus}", workstatus);
+
+					String info1 = birthday+"|"+married+"|籍贯："+hukou+"|"+bodyheight+"|视力"+vision;
+					params.put("${info1}", info1);
+					String info2 = "目前所在地: "+residence+"\n";
+					params.put("${info2}", info2);
+					String info3 = "个人电话:" +phone+"\n"+
+							"台湾手机号码" +wanphone+"\n"+"\r"+
+							"电子邮箱:" +email +"\n"+
+							"线上聊天号码:"+chat+"\n";
+					params.put("${info3}", info3);
+					String info4 = "联系地址:" +address+"\n"+
+							"个人联系地址" +address+"\n"+"\r"+
+							"家庭电话:" +familyphone+"\n"+
+							"家庭联系电话"+familyphone+"\n";
+					params.put("${info4}", info4);
 
 					//求职意向
 					String jobIntentionStr = new String();
+					if(jobintention != null && jobintention.size() > 0){
+						for(PageData jobintentionpd : jobintention){
+							String JobIntention0 = jobintentionpd.getString("jobintention0");
+							String JobIntention1 = jobintentionpd.getString("jobintention1");
+							String JobIntention2 = jobintentionpd.get("jobintention2").toString();
+							String JobIntention3 = jobintentionpd.getString("jobintention3");
+							String JobIntention4 = jobintentionpd.getString("jobintention4");
+							JobIntention3 = systemMapper.getNameByCode(JobIntention3);
+							JobIntention1 = systemMapper.getNameByCode(JobIntention1);
+							jobIntentionStr = jobIntentionStr+"职务："+JobIntention0+"      月薪："+JobIntention2+"      工作方式："+JobIntention3+"      工作地："+JobIntention1+"\n"+"\r" ;
+						}
+					}
 					params.put("${jobIntention}", jobIntentionStr);
 					//工作经历
 					String workexperienceStr = new String();
+					if(workexperience != null && workexperience.size() > 0){
+						for(PageData workexperiencepd : workexperience){
+							String workexperience0 = workexperiencepd.getString("workexperience0");
+							String workexperience1 = workexperiencepd.getString("workexperience1");
+							String workexperience2 = workexperiencepd.getString("workexperience2");
+							String workexperience3 = workexperiencepd.getString("workexperience3");
+							String workexperience4 = workexperiencepd.getString("workexperience4");
+							String workexperience5 = workexperiencepd.getString("workexperience5");
+							String workexperience6 = workexperiencepd.get("workexperience6").toString();
+							String workexperience7 = workexperiencepd.getString("workexperience7");
+							String workexperience8 = workexperiencepd.getString("workexperience8");
+							String workexperience9 = workexperiencepd.getString("workexperience9");
+							workexperienceStr = workexperience0+"-"+workexperience1+" ｜ "+workexperience2+" ｜ "+workexperience4+"\n" +"\r"+
+									"薪资水平: "+workexperience6+"/月\n"+"\r"+
+									"工作职责: "+workexperience5+"\n" +"\r"+
+									"所在部门: "+workexperience3+""+"\r";
+						}
+					}
 					params.put("${workexperience}", workexperienceStr);
 					//项目经验
 					String projectStr = new String();
 					params.put("${project}", projectStr);
+
 					//教育经历
 					String educationStr = new String();
+					if(education != null && education.size() > 0){
+						for(PageData educationpd : education){
+							String education1 = educationpd.getString("education1");
+							String education2 = educationpd.getString("education2");
+							String education3 = educationpd.getString("education3");
+							String education4 = educationpd.getString("education4");
+							String education5 = educationpd.getString("education5");
+							String education6 = educationpd.get("education6").toString();
+							education5 = systemMapper.getNameByCode(education5);
+							educationStr = education1+"-"+education1+"\n" +
+									education3+"\n" +
+									education4+"\n" +
+									education5+"\n" +
+									education6+""+"\r";
+						}
+					}
 					params.put("${education}", educationStr);
+
 					//证书
 					String certificateStr = new String();
+					if(certificate != null && certificate.size() > 0){
+						for(PageData certificatepd : certificate){
+							String certificate0 = certificatepd.getString("certificate0");
+							String certificate1 = certificatepd.getString("certificate1");
+							String certificate2 = certificatepd.getString("certificate2");
+							String certificate3 = certificatepd.getString("certificate3");
+							certificateStr = certificate0+" |\n" +
+									certificate2+" |\n" +
+									certificate1+" |\n" +
+									certificate3+" |"+"\r";
+						}
+					}
 					params.put("${certificate}", certificateStr);
+
 					//语言能力
 					String languageStr = new String();
+					if(language != null && language.size() > 0){
+						for(PageData languageepd : language){
+							String language0 = languageepd.getString("language0");
+							String language1 = languageepd.getString("language1");
+							String language2 = languageepd.getString("language2");
+							String language3 = languageepd.getString("language3");
+							String language4 = languageepd.getString("language4");
+							languageStr = "语种: "+language0+" |\n" +
+									"听力: "+language1+" |\n" +
+									"口语: "+language2+" |\n" +
+									"写作: "+language3+" |\n" +
+									"等级或证书: "+language4+" |"+"\r";
+						}
+					}
 					params.put("${language}", languageStr);
+
 					//专业技能
 					String computerStr = new String();
+					if(computer != null && computer.size() > 0){
+						for(PageData computerpd : computer){
+							String computer0 = computerpd.getString("computer0");
+							String computer1 = computerpd.getString("computer1");
+							String computer2 = computerpd.get("computer2").toString();
+							String computer3 = computerpd.get("computer3").toString();
+							computer0 = systemMapper.getNameByCode(computer0);
+							computerStr = "类别: "+computer0+"|\n" +
+									"名称: "+computer1+" |\n" +
+									"使用时间(月): "+computer2+" |\n" +
+									"熟练程度: "+computer3+" |"+"\r";
+						}
+					}
 					params.put("${computer}", computerStr);
+
 					//培训经历
 					String trainStr = new String();
+					if(train != null && train.size() > 0){
+						for(PageData trainpd : train){
+							String train0 = trainpd.getString("train0");
+							String train1 = trainpd.getString("train1");
+							String train2 = trainpd.getString("train2");
+							String train3 = trainpd.getString("train3");
+							String train4 = trainpd.getString("train4");
+							String train5 = trainpd.getString("train5");
+							trainStr = train0+"-"+train1+" ｜ "+train2+"\n" +"\r"+
+									"培训机构: "+train4+"\n" +"\r"+
+									"培训内容: "+train3+"\n" +"\r"+
+									"培训效果: "+train5+""+"\r";
+						}
+					}
 					params.put("${train}", trainStr);
+
+					//在校工作情况
+					String rapStr = new String();
+					String  a = rap.getString("a");
+					String  b = rap.getString("b");
+					String 	c = rap.getString("c");
+					rapStr = "奖惩情况:"+a+"\n" +"\r"+
+							"工作职责:"+b+"\n" +"\r"+
+							"社会工作情况:"+b+"";
+					params.put("${rap}", rapStr);
 
 					try{
 						//照片处理
@@ -538,7 +683,7 @@ public class UserController extends BaseController {
 						List<String[]> testList = new ArrayList<String[]>();
 
 						// testList.add(new String[]{"1","1AA","1BB","1CC"});
-						String path=realPath + File.separator+ "demo"+ File.separator+"demo.docx";  //模板文件位置
+						String path=realPath + File.separator+ "demo"+ File.separator+"demo1.docx";  //模板文件位置
 
 						wordUtil.getWord(path,params,testList,fileName,response,fopts);
 

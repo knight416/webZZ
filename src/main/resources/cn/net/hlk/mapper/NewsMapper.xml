@@ -41,6 +41,7 @@
 		n.writer,
 		n.writerid,
 		n.news_message,
+		n.news_message ->>'operation_type' as operation_type,
 		n.news_type,
 		n.visiable,
 		n.system_id,
@@ -137,79 +138,81 @@
 	<!-- 消息条件查询 -->
 	<select id="searchNewsPgListPage" parameterType="page" resultType="pd">
 		SELECT 
-			row_number() over (ORDER BY updatetime DESC) as xh,
-			<include refid="field"></include>,
+			row_number() over (ORDER BY n.updatetime DESC) as xh,
+			<include refid="fieldd"></include>,
 			(select array_to_json(array_agg(row_to_json(t)))
 			from
-			(select * from t_enclosure de where xid = de.xid) t
-			) enclosure
-			from <include refid="tableName"></include>
+			(select * from t_enclosure de where n.xid = de.xid) t
+			) enclosure,
+			u.user_message ->> 'enterpriseScale' as "enterpriseScale"
+			from <include refid="tableName"></include> as n
+			left join t_user u on u.uid = n.writerid
 			where 1=1
 			<!-- 标题 -->
 			<if test="pd.title !=null and pd.title != '' ">
-				and title like CONCAT(CONCAT('%',#{pd.title}),'%')
+				and n.title like CONCAT(CONCAT('%',#{pd.title}),'%')
 			</if>
 			<!-- 内容简介 -->
 			<if test="pd.smalltext !=null and pd.smalltext != '' ">
-				and smalltext like CONCAT(CONCAT('%',#{pd.smalltext}),'%')
+				and n.smalltext like CONCAT(CONCAT('%',#{pd.smalltext}),'%')
 			</if>
 
 			<!-- 地区 -->
 			<if test="pd.dq !=null and pd.dq != '' ">
-				and news_message ->>'dq' = #{pd.dq}
+				and n.news_message ->>'dq' = #{pd.dq}
 			</if>
 			<!-- 工作性质 -->
 			<if test="pd.xz != null and pd.xz.size > 0 ">
-				and news_message ->>'xz' in
+				and n.news_message ->>'xz' in
 				<foreach item="item" index="index" collection="pd.xz" open="(" separator="," close=")">
 					#{pd.xz[${index}]}
 				</foreach>
 			</if>
 			<!-- 学历  -->
 			<if test="pd.minimumEducation !=null and pd.minimumEducation != '' ">
-				and news_message ->>'minimumEducation' > #{pd.minimumEducation}
+				and n.news_message ->>'minimumEducation' > #{pd.minimumEducation}
 			</if>
 			<!-- 省份  -->
 			<if test="pd.province !=null and pd.province != '' ">
-				and news_message ->>'province' > #{pd.province}
+				and n.news_message ->>'province' > #{pd.province}
 			</if>
 			<!-- 工作性质  -->
 			<if test="pd.workType !=null and pd.workType != '' ">
-				and news_message ->>'workType' > #{pd.workType}
+				and n.news_message ->>'workType' > #{pd.workType}
 			</if>
 			<!-- 发布用户  -->
 			<if test="pd.name !=null and pd.name != '' ">
-				and writerid in (select uid from t_user where name like CONCAT(CONCAT('%',#{pd.name}),'%') )
+				and u.name like CONCAT(CONCAT('%',#{pd.name}),'%')
 			</if>
 
 			<!-- 正文 -->
 			<if test="pd.newstext !=null and pd.newstext != '' ">
-				and newstext like CONCAT(CONCAT('%',#{pd.newstext}),'%')
+				and n.newstext like CONCAT(CONCAT('%',#{pd.newstext}),'%')
 			</if>
 			<!-- 创建人 -->
 			<if test="pd.writer !=null and pd.writer != '' ">
-				and writer like CONCAT(CONCAT('%',#{pd.writer}),'%')
+				and n.writer like CONCAT(CONCAT('%',#{pd.writer}),'%')
 			</if>
 			<!-- 创建id -->
 			<if test="pd.writerid !=null and pd.writerid != '' ">
-				and writerid = #{pd.writerid}
+				and n.writerid = #{pd.writerid}
 			</if>
 			<!-- 消息类型 -->
 			<if test="pd.news_type !=null and pd.news_type != '' ">
-				and news_type = #{pd.news_type}
+				and n.news_type = #{pd.news_type}
 			</if>
 			<!-- 系统id -->
 			<if test="pd.system_id !=null and pd.system_id != '' ">
-				and system_id = #{pd.system_id}
+				and n.system_id = #{pd.system_id}
 			</if>
 
 			<if test="pd.beginTime!=null and pd.beginTime!=''"><!-- 开始时间检索 -->
-				and newstime &gt;= concat(#{pd.beginTime},' 00:00:00')::TIMESTAMP
+				and n.newstime &gt;= concat(#{pd.beginTime},' 00:00:00')::TIMESTAMP
 			</if>
 			<if test="pd.endTime!=null and pd.endTime!=''"><!-- 结束时间检索 -->
-				and newstime &lt;= concat(#{pd.endTime},' 23:59:59')::TIMESTAMP
+				and n.newstime &lt;= concat(#{pd.endTime},' 23:59:59')::TIMESTAMP
 			</if>
-			and visiable = 1
+			and n.visiable = 1
 	</select>
 	
 
