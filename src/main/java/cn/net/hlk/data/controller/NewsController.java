@@ -97,7 +97,7 @@ public class NewsController extends BaseController{
 				PageData pdc = new PageData();
 				pdc.put("uid",uid);
 				userService.editUser(pdc);
-				if(StringUtil2.isEmpty(pd.get("writerid"))){
+				if(StringUtil2.isNotEmpty(pd.get("writerid"))){
 					pd.put("writerid", uid);
 					PageData user = userService.findById(pdc);
 					pd.put("writer", user.get("name"));

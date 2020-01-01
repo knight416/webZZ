@@ -170,15 +170,15 @@
 			</if>
 			<!-- 学历  -->
 			<if test="pd.minimumEducation !=null and pd.minimumEducation != '' ">
-				and n.news_message ->>'minimumEducation' > #{pd.minimumEducation}
+				and n.news_message ->>'minimumEducation' &gt; #{pd.minimumEducation}
 			</if>
 			<!-- 省份  -->
 			<if test="pd.province !=null and pd.province != '' ">
-				and n.news_message ->>'province' > #{pd.province}
+				and n.news_message ->>'province' = #{pd.province}
 			</if>
 			<!-- 工作性质  -->
 			<if test="pd.workType !=null and pd.workType != '' ">
-				and n.news_message ->>'workType' > #{pd.workType}
+				and n.news_message ->>'workType' = #{pd.workType}
 			</if>
 			<!-- 发布用户  -->
 			<if test="pd.name !=null and pd.name != '' ">
@@ -204,6 +204,10 @@
 			<!-- 系统id -->
 			<if test="pd.system_id !=null and pd.system_id != '' ">
 				and n.system_id = #{pd.system_id}
+			</if>
+			<!-- 薪资 -->
+			<if test="pd.salaryStart !=null and pd.salaryStart != '' and pd.salaryEnd !=null and pd.salaryEnd != ''">
+				and ( n.news_message ->>'salaryStart' &lt; #{pd.salaryEnd} and n.salaryEnd ->>'salaryStart' &gt; #{pd.salaryStart})
 			</if>
 
 			<if test="pd.beginTime!=null and pd.beginTime!=''"><!-- 开始时间检索 -->
