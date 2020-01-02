@@ -45,4 +45,13 @@ public interface NewsOperationMapper {
 	 */
 	PageData getNewsOperationById(PageData pd);
 
+	/**
+	 * @Title VerificationAdd
+	 * @Description 验证是否允许投递
+	 * @author 张泽恒
+	 * @date 2020/1/2 19:16
+	 * @param [pd]
+	 * @return int
+	 */
+	int VerificationAdd(PageData pd);
 }

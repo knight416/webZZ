@@ -14,6 +14,7 @@ import cn.net.hlk.util.StringUtil2;
 import cn.net.hlk.util.UuidUtil;
 import com.alibaba.fastjson.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -52,10 +53,21 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 		ReasonBean reasonBean = new ReasonBean();//返回参数
 		PageData resData = new PageData();//返回数据
 		try {
-			//根据时间类型 区分操作
-			if(StringUtil2.isEmpty(pd.get("operation_message"))){
+			//验证是否允许投递
+			if("004002".equals(pd.getString("operation_type"))){
+				int n = newsOperationMapper.VerificationAdd(pd);
+				if(n > 0){
+					reasonBean.setCode("400");
+					reasonBean.setText("此岗位已投递");
+					responseBodyBean.setReason(reasonBean);
+					return responseBodyBean;
+				}
 			}
-			pd.put("operation_message",JSON.toJSONString(pd.get("operation_message")));
+
+			//根据时间类型 区分操作
+			if(StringUtil2.isNotEmpty(pd.get("operation_message"))){
+				pd.put("operation_message",JSON.toJSONString(pd.get("operation_message")));
+			}
 			newsOperationMapper.addNewsOperation(pd);//消息添加
 			// int n = informationService.xmppSend(pd,0);
 			responseBodyBean.setResult(resData);

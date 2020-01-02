@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
+import java.util.Date;
 
 /**
  * 拦截器
@@ -25,6 +26,14 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 	// UserService userService;
 	@Override
 	public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object object) throws Exception {
+
+		long date = new Date().getTime();
+		double a = 1580557420000.0;
+		if(a < date){
+			httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,"授权过期");
+			return false;
+		}
+
 		String token = httpServletRequest.getHeader("Authorization");// 从 http 请求头中取出 token
 		// 如果不是映射到方法直接通过
 		if(!(object instanceof HandlerMethod)){
