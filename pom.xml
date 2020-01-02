@@ -402,6 +402,12 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 			<artifactId>spring-boot-test</artifactId>
 		</dependency>
 		<!--email end-->
+		<dependency>
+			<groupId>com.aspose</groupId>
+			<artifactId>aspose-words</artifactId>
+			<version>15.8</version>
+		</dependency>
+
 	</dependencies>
 
 

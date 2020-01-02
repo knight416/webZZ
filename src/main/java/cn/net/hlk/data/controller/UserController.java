@@ -10,6 +10,7 @@ import cn.net.hlk.data.config.FileUploadProperteis;
 import cn.net.hlk.data.mapper.SystemMapper;
 import cn.net.hlk.data.mapper.UserMapper;
 import cn.net.hlk.data.poi.easypoi.easypoiUtil;
+import cn.net.hlk.data.poi.poi.Doc2Pdf;
 import cn.net.hlk.data.poi.poi.WordUtils;
 import cn.net.hlk.data.pojo.Page;
 import cn.net.hlk.data.pojo.PageData;
@@ -498,7 +499,7 @@ public class UserController extends BaseController {
 					List<PageData> workexperience = JSON.parseArray(JSON.toJSONString(user_message.get("workexperience")),PageData.class);//工作
 					List<PageData> jobintention = JSON.parseArray(JSON.toJSONString(user_message.get("jobintention")),PageData.class);//求职意向
 
-					String fileName= new String(name+"简历.doc");    //生成word文件的文件名
+					String fileName= new String(name+"简历.docx");    //生成word文件的文件名
 					//虚拟路径存储
 					String realPath = fileUploadProperteis.getUploadFolder();
 					String filePath = realPath + File.separator+ "load"+ File.separator+fileName;
@@ -691,7 +692,14 @@ public class UserController extends BaseController {
 						e.printStackTrace();
 					}
 
-
+					//转成pdf
+					if("0".equals(pd.getString("loadtype"))){
+						String fileNamePDF= new String(name+"简历.pdf");    //生成word文件的文件名
+						String licensePath = realPath + File.separator+ "demo"+ File.separator+"license.xml";
+						String filePathPDF = realPath + File.separator+ "load"+ File.separator+fileNamePDF;
+						Doc2Pdf.doc2pdf(filePath,filePathPDF,licensePath);
+						url = "/upload"+ File.separator+ "load"+File.separator+fileNamePDF;
+					}
 					resData.put("url",url);
 					responseBodyBean.setResult(resData);
 					//残留文件删除
