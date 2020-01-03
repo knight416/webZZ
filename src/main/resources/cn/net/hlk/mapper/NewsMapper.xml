@@ -197,10 +197,15 @@
 			<if test="pd.writerid !=null and pd.writerid != '' ">
 				and n.writerid = #{pd.writerid}
 			</if>
+
 			<!-- 消息类型 -->
-			<if test="pd.news_type !=null and pd.news_type != '' ">
-				and n.news_type = #{pd.news_type}
+			<if test="pd.news_type !=null and pd.news_type.size > 0 ">
+				and n.news_type in
+				<foreach item="item" index="index" collection="pd.news_type" open="(" separator="," close=")">
+					#{pd.news_type[${index}]}
+				</foreach>
 			</if>
+
 			<!-- 系统id -->
 			<if test="pd.system_id !=null and pd.system_id != '' ">
 				and n.system_id = #{pd.system_id}

@@ -166,6 +166,8 @@
 	<select id="VerificationAdd"  resultType="java.lang.Integer" parameterType="pd">
 		SELECT count(0) from t_news_operation where 1=1
 		and updatetime > (SELECT updatetime from t_news where xid = #{xid} )
+		and uid = #{uid}
+		and xid = #{xid}
 		and visiable = 1
 	</select>
 
