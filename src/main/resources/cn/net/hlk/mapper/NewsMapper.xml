@@ -206,6 +206,13 @@
 				</foreach>
 			</if>
 
+			<!-- 化身  -->
+			<if test="pd.incarousel !=null and pd.incarousel != '' ">
+				and n.news_message ->>'incarousel' = #{pd.incarousel}::varchar
+			</if>
+
+
+
 			<!-- 系统id -->
 			<if test="pd.system_id !=null and pd.system_id != '' ">
 				and n.system_id = #{pd.system_id}

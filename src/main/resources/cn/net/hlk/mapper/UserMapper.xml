@@ -176,7 +176,7 @@
 			,
 			(select array_to_json(array_agg(row_to_json(t)))
 			from
-			(select title from t_news de where uid = de.writerid) t
+			(select title from t_news de where uid = de.writerid and visiable = 1) t
 			) news
 		</if>
 		from <include refid="tableName"></include>
@@ -200,6 +200,11 @@
 		<!-- 状态-->
 		<if test="pd.state !=null ">
 			and state  = #{pd.state}
+		</if>
+
+		<!-- 热度  -->
+		<if test="pd.hot !=null and pd.hot != '' ">
+			and user_message ->>'hot' = #{pd.hot}::varchar
 		</if>
 
 		<if test="pd.beginTime!=null and pd.beginTime!=''"><!-- 开始时间检索 -->

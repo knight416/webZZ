@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.net.hlk.data.mapper.OtherMapper">
+
+	 <!--表名 -->
+	<sql id="tableName">
+		t_other
+	</sql>
+	<!-- 字段 -->
+	<sql id="field">
+		id,
+		message,
+		text,
+		visiable
+
+ 	</sql>
+ 	
+ 	<!-- 关联查询字段 -->
+ 	<sql id="fieldd">
+		o.id,
+		o.message,
+		o.text,
+		o.visiable
+ 	</sql>
+	
+	<!-- 添加字段 -->
+ 	<sql id="insertfield">
+ 		id,
+		message,
+		text,
+		visiable
+ 	</sql>
+	
+	<sql id="insertvalue">
+		#{id},
+		#{message}::jsonb,
+		#{text},
+		1
+	</sql>
+	
+	<!-- 消息添加 -->
+	<insert id="addOther" parameterType="pd">
+		insert into 
+		<include refid="tableName"></include>
+			(
+		<include refid="insertfield"></include>
+			) values (
+		<include refid="insertvalue"></include>
+			)
+	</insert>
+	
+	<!-- 消息修改  -->
+	<update id="updateOther" parameterType="pd">
+		update 
+		<include refid="tableName"></include> 
+		<set>
+			<if test="text != null and text != '' ">
+				text=#{text},
+			</if>
+			<if test="message != null ">
+				message=#{message}::jsonb,
+			</if>
+			<if test="visiable != null">
+				visiable=#{visiable}::integer,
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<!-- 消息条件查询 -->
+	<select id="searchOtherPgListPage" parameterType="page" resultType="pd">
+		SELECT
+			<include refid="field"></include>
+			from <include refid="tableName"></include>
+			where 1=1
+			and visiable = 1
+	</select>
+	
+
+	<!-- 根据消息id 获取告警信息 -->
+	<select id="getOtherById"  resultType="pd" parameterType="pd">
+		SELECT 
+			<include refid="field"></include>
+			from <include refid="tableName"></include>
+			where 1=1 
+			and visiable = 1
+			and id = #{id}
+	</select>
+	
+</mapper>

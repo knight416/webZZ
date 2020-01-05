@@ -1,27 +1,36 @@
 package cn.net.hlk.data.service.serviceimpl;
 
+import cn.net.hlk.data.config.FileUploadProperteis;
+import cn.net.hlk.data.mapper.EnclosureMapper;
 import cn.net.hlk.data.mapper.NewsMapper;
-import cn.net.hlk.data.mapper.NewsOperationMapper;
+import cn.net.hlk.data.mapper.OtherMapper;
 import cn.net.hlk.data.pojo.Page;
 import cn.net.hlk.data.pojo.PageData;
 import cn.net.hlk.data.pojo.ReasonBean;
 import cn.net.hlk.data.pojo.ResponseBodyBean;
 import cn.net.hlk.data.service.AlarmService;
-import cn.net.hlk.data.service.NewsOperationService;
 import cn.net.hlk.data.service.NewsService;
+import cn.net.hlk.data.service.OtherService;
+import cn.net.hlk.util.CustomConfigUtil;
+import cn.net.hlk.util.FileUpload;
+import cn.net.hlk.util.FileUtil;
 import cn.net.hlk.util.ResponseUtil;
 import cn.net.hlk.util.StringUtil2;
 import cn.net.hlk.util.UuidUtil;
 import com.alibaba.fastjson.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @package: cn.net.hlk.data.service.serviceimpl   
@@ -32,10 +41,10 @@ import java.util.List;
  * @date 2018年9月30日 下午4:27:46
  */
 @Service
-public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOperationService {
+public class OtherServiceImpl extends BaseServiceImple implements OtherService {
 
 	@Autowired
-	private NewsOperationMapper newsOperationMapper;
+	private OtherMapper otherMapper;
 
 	/**
 	 * @Title: addAlarm
@@ -48,28 +57,16 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 	 */
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED,isolation = Isolation.DEFAULT,timeout=36000,rollbackFor=Exception.class)
-	public ResponseBodyBean addNewsOperation(PageData pd) {
+	public ResponseBodyBean addOther(PageData pd) {
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
 		ReasonBean reasonBean = new ReasonBean();//返回参数
 		PageData resData = new PageData();//返回数据
 		try {
-			//验证是否允许投递
-			if("004002".equals(pd.getString("operation_type"))){
-				int n = newsOperationMapper.VerificationAdd(pd);
-				if(n > 0){
-					reasonBean.setCode("400");
-					reasonBean.setText("此岗位已投递");
-					responseBodyBean.setReason(reasonBean);
-					return responseBodyBean;
-				}
-			}
-
 			//根据时间类型 区分操作
-			if(StringUtil2.isNotEmpty(pd.get("operation_message"))){
-				pd.put("operation_message",JSON.toJSONString(pd.get("operation_message")));
-			}
-			newsOperationMapper.addNewsOperation(pd);//消息添加
-			// int n = informationService.xmppSend(pd,0);
+			String xid = UuidUtil.get32UUID();
+			pd.put("id", xid);//主键生成
+			pd.put("message",JSON.toJSONString(pd.get("message")));
+			otherMapper.addOther(pd);//消息添加
 			responseBodyBean.setResult(resData);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -81,7 +78,7 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 
 	/**
 	 * @Title: updateAlarm
-	 * @discription 告警修改
+	 * @discription 消息修改
 	 * @author 张泽恒
 	 * @created 2018年10月8日 下午1:40:38
 	 * @param pd
@@ -89,16 +86,16 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 	 * @see AlarmService#updateAlarm(PageData)
 	 */
 	@Override
-	public ResponseBodyBean updateNewsOperation(PageData pd) {
+	public ResponseBodyBean updateOther(PageData pd) {
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
 		ReasonBean reasonBean = new ReasonBean();//返回参数
 		PageData resData = new PageData();//返回数据
 		try {
 			//根据时间类型 区分操作
-			if(StringUtil2.isNotEmpty(pd.get("operation_message"))){
-				pd.put("operation_message",JSON.toJSONString(pd.get("operation_message")));
+			if(StringUtil2.isNotEmpty(pd.get("message"))){
+				pd.put("message",JSON.toJSONString(pd.get("message")));
 			}
-			newsOperationMapper.updateNewsOperation(pd);//消息修改
+			otherMapper.updateOther(pd);//消息修改
 			responseBodyBean.setResult(resData);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -110,7 +107,7 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 
 	/**
 	 * @Title: searchAlarm
-	 * @discription 告警条件查询
+	 * @discription 消息条件查询
 	 * @author 张泽恒
 	 * @created 2018年10月10日 下午3:15:14
 	 * @param page
@@ -118,13 +115,13 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 	 * @see AlarmService#searchAlarm(Page)
 	 */
 	@Override
-	public ResponseBodyBean searchNewsOperation(Page page) {
+	public ResponseBodyBean searchOther(Page page) {
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
 		ReasonBean reasonBean = new ReasonBean();//返回参数
 		PageData resData = new PageData();//返回数据
 		try {
 			List<PageData> pdList = new ArrayList<PageData>();
-			pdList = newsOperationMapper.searchNewsOperationPgListPage(page);
+			pdList = otherMapper.searchOtherPgListPage(page);
 			resData.put("list", pdList);
 			resData.put("page", page);
 			responseBodyBean.setResult(resData);
@@ -139,7 +136,7 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 
 	/**
 	 * @Title: getAlarmInfomationById
-	 * @discription 根据告警id 获取告警信息
+	 * @discription 根据消息id 获取告警信息
 	 * @author 张泽恒
 	 * @created 2018年10月19日 上午8:57:14
 	 * @param pd
@@ -147,13 +144,13 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 	 * @see AlarmService#getAlarmInfomationById(PageData)
 	 */
 	@Override
-	public ResponseBodyBean getNewsOperationById(PageData pd) {
+	public ResponseBodyBean getOtherById(PageData pd) {
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
 		ReasonBean reasonBean = new ReasonBean();//返回参数
 		PageData resData = new PageData();//返回数据
 		try {
 			PageData data = new PageData();
-			data = newsOperationMapper.getNewsOperationById(pd);
+			data = otherMapper.getOtherById(pd);
 			resData.put("data", data);
 			responseBodyBean.setResult(resData);
 		} catch (Exception e) {
@@ -163,7 +160,30 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 		}
 		return responseBodyBean;
 	}
-	
-	
-	
+	/**
+	 * @Title delNews
+	 * @Description 消息删除
+	 * @author 张泽恒
+	 * @date 2019/12/25 18:04
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@Override
+	public ResponseBodyBean delOther(PageData pd) {
+		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
+		ReasonBean reasonBean = new ReasonBean();//返回参数
+		PageData resData = new PageData();//返回数据
+		try {
+			pd.put("visiable",0);
+			otherMapper.updateOther(pd);//消息修改
+			responseBodyBean.setResult(resData);
+		} catch (Exception e) {
+			e.printStackTrace();
+			reasonBean = ResponseUtil.getReasonBean("Exception", e.getClass().getSimpleName());
+			responseBodyBean.setReason(reasonBean);
+		}
+		return responseBodyBean;
+	}
+
+
 }
