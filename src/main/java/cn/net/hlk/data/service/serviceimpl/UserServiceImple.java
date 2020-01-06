@@ -143,7 +143,7 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 	public Integer ableUser(PageData pd) {
 		Integer disableUser = 0;
 		ResponseBodyBean responseBodyBean =new ResponseBodyBean();
-		pd.put("state",0);
+		pd.put("state",1);
 		disableUser = userMapper.editUser(pd);
 		return disableUser ;
 	}
@@ -163,7 +163,7 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 		/* 插入用户信息 */
 		pd.put("user_message",JSON.toJSONString(pd.get("user_message")));
 		if(StringUtil2.isNotEmpty(pd.get("state")) && "2".equals(pd.get("state").toString())){
-			PageData user_message = JSON.parseObject(JSON.toJSONString(pd.get("user_message")),PageData.class);
+			PageData user_message = JSON.parseObject(pd.get("user_message").toString(),PageData.class);
 			if(user_message != null && StringUtil2.isNotEmpty(user_message.get("email"))){
 				String email = user_message.get("email").toString();
 				String nonceStr = getNonce_str();
@@ -172,7 +172,7 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 					//邮件发送
 					Map<String, Object> params = new HashMap<>();
 					params.put("email", email);
-					String url = this.url+nonceStr;
+					String url = this.url+pd.get("uid")+"&pass="+nonceStr;
 					params.put("url", url);
 					Configuration configuration = new Configuration(Configuration.VERSION_2_3_23);
 					configuration.setClassForTemplateLoading(this.getClass(), "/");
@@ -187,6 +187,9 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 				check_code.put("passDate",new Date().getTime());
 				pd.put("check_code",JSON.toJSONString(check_code));
 			}
+		}
+		if(StringUtil2.isEmpty(pd.get("check_code"))){
+			pd.put("check_code",new PageData());
 		}
 		Integer addUser = userMapper.addUser(pd);
 		logger.info("addUser:"+addUser);

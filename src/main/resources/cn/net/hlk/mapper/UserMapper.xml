@@ -86,7 +86,8 @@
 		job_type,
 		user_message,
 		username,
-		system_id
+		system_id,
+		check_code
  	</sql>
 
 	<sql id="insertvalue">
@@ -106,7 +107,8 @@
 		#{job_type},
 		#{user_message}::jsonb,
 		#{username},
-		#{system_id}
+		#{system_id},
+		#{check_code}::jsonb
 	</sql>
 
 	<!-- 用户添加 -->

@@ -55,6 +55,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -68,6 +69,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -75,6 +77,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -119,6 +122,11 @@ public class UserController extends BaseController {
 	public SystemMapper systemMapper;
 	@Autowired
 	private LoginMapper loginMapper;
+
+	@Value("${spring.ok.url}")
+	private String okurl;
+	@Value("${spring.no.url}")
+	private String nourl;
 	
 	/** 【描 述】：openfire开关 */
 	final static boolean OPENFIRE_SWITCH = "1".equals(CustomConfigUtil.getString("openfire.enable"));
@@ -291,8 +299,8 @@ public class UserController extends BaseController {
 	@SuppressWarnings("unchecked")
 	@ApiOperation(value = "邮件验证", notes = "邮件验证")
 	@ApiImplicitParams({
-			@ApiImplicitParam(paramType = "query", name = "location_id", dataType = "String", required = false, value = "", defaultValue = "魏") ,
-			@ApiImplicitParam(paramType = "query", name = "police_unitcode", dataType = "String", required = false, value = "", defaultValue = "")
+			@ApiImplicitParam(paramType = "query", name = "uid", dataType = "String", required = false, value = "", defaultValue = "uid") ,
+			@ApiImplicitParam(paramType = "query", name = "pass", dataType = "String", required = false, value = "", defaultValue = "pass")
 	})
 	@ApiResponses({
 			@ApiResponse(code=200,message="指示客服端的请求已经成功收到，解析，接受"),
@@ -306,29 +314,35 @@ public class UserController extends BaseController {
 	})
 	@SysLog("邮件验证")
 	@RequestMapping(value="/emailVerification", method=RequestMethod.GET)
-	public  ModelAndView  emailVerification(String uid,String pass ) {
+	public  RedirectView  emailVerification(String uid,String pass ) {
 		//邮箱验证
 		PageData pd = new PageData();
 		pd.put("uid",uid);
 		PageData checkcode  = loginMapper.getCheck(pd);
-		String url = "";
+		String url = nourl;
 		if(checkcode == null || checkcode.get("check_code") == null){
-			url = "";
+			url = nourl;
 		} else {
 			PageData check_code = JSON.parseObject(JSON.toJSONString(checkcode.get("check_code")),PageData.class);
 			long passDate = Long.valueOf(check_code.get("passDate").toString());
 			if(pass.equals(pass)){
 				if(new Date().getTime() - passDate < 24*60*60*1000){
-					url = "";
+					url = okurl;
 					Integer ableUser = userService.ableUser(pd);
-				}else{
-					url = "";
 				}
-			}else{
-				url = "";
 			}
 		}
-		return new ModelAndView(url);
+		ModelAndView mv = new ModelAndView();
+		RedirectView redirectTarget = new RedirectView();
+		try {
+			//使用重定向，此时springmvc.xml配置文件中的视图解析器将会失效
+			mv.setViewName("redirect:"+url);
+			redirectTarget.setContextRelative(true);
+			redirectTarget.setUrl(url);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return redirectTarget;
 	}
 
 	@ApiOperation(value = "根据id查询用户", notes = "根据id查询用户方法")
