@@ -1,6 +1,7 @@
 package cn.net.hlk.data.service.serviceimpl;
 
 
+import cn.net.hlk.data.email.MailService;
 import cn.net.hlk.data.mapper.JWTMapper;
 import cn.net.hlk.data.mapper.LoginMapper;
 import cn.net.hlk.data.mapper.UserMapper;
@@ -14,6 +15,7 @@ import cn.net.hlk.data.pojo.user.FeatureEnum;
 import cn.net.hlk.data.pojo.user.FeatureMqtt;
 import cn.net.hlk.data.pojo.user.User;
 import cn.net.hlk.data.pojo.user.UserExcel;
+import cn.net.hlk.data.service.ILoginService;
 import cn.net.hlk.data.service.IUserService;
 import cn.net.hlk.util.MD5;
 import cn.net.hlk.util.StringUtil;
@@ -22,22 +24,29 @@ import cn.net.hlk.util.UuidUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+import freemarker.template.Configuration;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -57,12 +66,21 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 	private UserMapper userMapper;
 	@Autowired
 	private LoginMapper loginMapper;
-	
+	@Resource
+	MailService mailService;
 	@Autowired
 	private JWTMapper jwtMapper;
+	@Autowired
+	private ILoginService loginServiceImple;
+
+	@Value("${spring.mail.url}")
+	private String url;
+
+	private static final String SYMBOLS = "0123456789"; // 数字
+	private static final Random RANDOM = new SecureRandom();
 
 	Gson gson = new Gson();
-	
+
 	/**
 	 * 【描 述】：<查询用户方法>
 	 * @param page
@@ -144,6 +162,32 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 		pd.put("password",MD5.md5(pd.get("password").toString()));
 		/* 插入用户信息 */
 		pd.put("user_message",JSON.toJSONString(pd.get("user_message")));
+		if(StringUtil2.isNotEmpty(pd.get("state")) && "2".equals(pd.get("state").toString())){
+			PageData user_message = JSON.parseObject(JSON.toJSONString(pd.get("user_message")),PageData.class);
+			if(user_message != null && StringUtil2.isNotEmpty(user_message.get("email"))){
+				String email = user_message.get("email").toString();
+				String nonceStr = getNonce_str();
+
+				try {
+					//邮件发送
+					Map<String, Object> params = new HashMap<>();
+					params.put("email", email);
+					String url = this.url+nonceStr;
+					params.put("url", url);
+					Configuration configuration = new Configuration(Configuration.VERSION_2_3_23);
+					configuration.setClassForTemplateLoading(this.getClass(), "/");
+					String html = FreeMarkerTemplateUtils.processTemplateIntoString(configuration.getTemplate("signmail.ftl"), params);
+					mailService.sendHtmlMail(email,"注册验证",html);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				PageData check_code = new PageData();
+				check_code.put("pass",nonceStr);
+				check_code.put("passDate",new Date().getTime());
+				pd.put("check_code",JSON.toJSONString(check_code));
+			}
+		}
 		Integer addUser = userMapper.addUser(pd);
 		logger.info("addUser:"+addUser);
 		return addUser;
@@ -188,6 +232,22 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 		}
 		Integer editUser = userMapper.editUser(pd);
 		return editUser;
+	}
+
+	/**
+	 * 获取长度为 6 的随机数字
+	 * @return 随机数字
+	 * @date 修改日志：由 space 创建于 2018-8-2 下午2:43:51
+	 */
+	public static String getNonce_str() {
+
+		// 如果需要4位，那 new char[4] 即可，其他位数同理可得
+		char[] nonceChars = new char[6];
+
+		for (int index = 0; index < nonceChars.length; ++index) {
+			nonceChars[index] = SYMBOLS.charAt(RANDOM.nextInt(SYMBOLS.length()));
+		}
+		return new String(nonceChars);
 	}
 
 }

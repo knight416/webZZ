@@ -7,6 +7,7 @@ package cn.net.hlk.data.controller;
 import cn.net.hlk.data.annotation.SysLog;
 import cn.net.hlk.data.annotation.UserLoginToken;
 import cn.net.hlk.data.config.FileUploadProperteis;
+import cn.net.hlk.data.mapper.LoginMapper;
 import cn.net.hlk.data.mapper.SystemMapper;
 import cn.net.hlk.data.mapper.UserMapper;
 import cn.net.hlk.data.poi.easypoi.easypoiUtil;
@@ -66,6 +67,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -115,6 +117,8 @@ public class UserController extends BaseController {
 	public FileUploadProperteis fileUploadProperteis;
 	@Autowired
 	public SystemMapper systemMapper;
+	@Autowired
+	private LoginMapper loginMapper;
 	
 	/** 【描 述】：openfire开关 */
 	final static boolean OPENFIRE_SWITCH = "1".equals(CustomConfigUtil.getString("openfire.enable"));
@@ -283,7 +287,50 @@ public class UserController extends BaseController {
     		return responseBodyBean;	
 		}          	
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	@ApiOperation(value = "邮件验证", notes = "邮件验证")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "query", name = "location_id", dataType = "String", required = false, value = "", defaultValue = "魏") ,
+			@ApiImplicitParam(paramType = "query", name = "police_unitcode", dataType = "String", required = false, value = "", defaultValue = "")
+	})
+	@ApiResponses({
+			@ApiResponse(code=200,message="指示客服端的请求已经成功收到，解析，接受"),
+			@ApiResponse(code=201,message="资源已被创建"),
+			@ApiResponse(code=401,message="未授权"),
+			@ApiResponse(code=400,message="请求参数没填好"),
+			@ApiResponse(code=403,message="拒绝访问"),
+			@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对"),
+			@ApiResponse(code=406,message="不是指定的数据类型"),
+			@ApiResponse(code=500,message="服务器内部错误")
+	})
+	@SysLog("邮件验证")
+	@RequestMapping(value="/emailVerification", method=RequestMethod.GET)
+	public  ModelAndView  emailVerification(String uid,String pass ) {
+		//邮箱验证
+		PageData pd = new PageData();
+		pd.put("uid",uid);
+		PageData checkcode  = loginMapper.getCheck(pd);
+		String url = "";
+		if(checkcode == null || checkcode.get("check_code") == null){
+			url = "";
+		} else {
+			PageData check_code = JSON.parseObject(JSON.toJSONString(checkcode.get("check_code")),PageData.class);
+			long passDate = Long.valueOf(check_code.get("passDate").toString());
+			if(pass.equals(pass)){
+				if(new Date().getTime() - passDate < 24*60*60*1000){
+					url = "";
+					Integer ableUser = userService.ableUser(pd);
+				}else{
+					url = "";
+				}
+			}else{
+				url = "";
+			}
+		}
+		return new ModelAndView(url);
+	}
+
 	@ApiOperation(value = "根据id查询用户", notes = "根据id查询用户方法")
 	@ApiImplicitParams({
 		@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
