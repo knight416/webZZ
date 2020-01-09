@@ -189,7 +189,7 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 			}
 		}
 		if(StringUtil2.isEmpty(pd.get("check_code"))){
-			pd.put("check_code",new PageData());
+			pd.put("check_code",JSON.toJSONString(new PageData()));
 		}
 		Integer addUser = userMapper.addUser(pd);
 		logger.info("addUser:"+addUser);
