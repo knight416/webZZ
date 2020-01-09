@@ -54,6 +54,7 @@
  		from t_user
  		where visiable=1  and username = #{username}
 		and system_id = #{system_id}
+		LIMIT 1
  	</select>
 
  	<update id="updatePassword" parameterType="pd">
