@@ -12,7 +12,10 @@
 		id,
 		message,
 		text,
-		visiable
+		visiable,
+		othertype,
+		relation_id
+
 
  	</sql>
  	
@@ -21,7 +24,9 @@
 		o.id,
 		o.message,
 		o.text,
-		o.visiable
+		o.visiable,
+		o.othertype,
+		o.relation_id
  	</sql>
 	
 	<!-- 添加字段 -->
@@ -29,14 +34,18 @@
  		id,
 		message,
 		text,
-		visiable
+		visiable,
+		othertype,
+		relation_id
  	</sql>
 	
 	<sql id="insertvalue">
 		#{id},
 		#{message}::jsonb,
 		#{text},
-		1
+		1,
+		#{othertype},
+		#{relation_id}
 	</sql>
 	
 	<!-- 消息添加 -->
@@ -74,6 +83,12 @@
 			<include refid="field"></include>
 			from <include refid="tableName"></include>
 			where 1=1
+			<if test="pd.othertype !=null and pd.othertype != '' ">
+				and othertype = #{pd.othertype}
+			</if>
+			<if test="pd.relation_id !=null and pd.relation_id != '' ">
+			and relation_id = #{pd.relation_id}
+			</if>
 			and visiable = 1
 	</select>
 	
