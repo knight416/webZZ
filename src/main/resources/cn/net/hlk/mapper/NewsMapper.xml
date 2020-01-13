@@ -184,6 +184,10 @@
 			<if test="pd.name !=null and pd.name != '' ">
 				and u.name like CONCAT(CONCAT('%',#{pd.name}),'%')
 			</if>
+			<!-- 状态  -->
+			<if test="pd.state !=null and pd.state != '' ">
+				and n.news_message ->>'state' = #{pd.state}::varchar
+			</if>
 
 			<!-- 正文 -->
 			<if test="pd.newstext !=null and pd.newstext != '' ">
