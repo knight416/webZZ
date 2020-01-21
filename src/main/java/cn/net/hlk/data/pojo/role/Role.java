@@ -34,7 +34,7 @@ public class Role extends BaseBean implements IExcelModel {
     @Excel(name = "错误信息", orderNum = "4", width = 20)
     private String errorMsg;
     /** 警员身份证号 */
-    @Excel(name = "警员身份证号(关联数据不要修改)", orderNum = "99", isColumnHidden = true)
+    @Excel(name = "警员身份证号(关联数据不要修改)", orderNum = "99")
     private String idCard;
     
 }

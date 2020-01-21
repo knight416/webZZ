@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.net.hlk.data.mapper.PostMapper">
+
+	 <!--表名 -->
+	<sql id="tableName">
+		t_post
+	</sql>
+	<!-- 字段 -->
+	<sql id="field">
+		post_id,
+		xid,
+		uid,
+		post_type,
+		post_message,
+		post_state,
+		createuser,
+		createtime,
+		updateuser,
+		updatetime,
+		visiable,
+		state,
+		system_id,
+		unit_information
+
+ 	</sql>
+ 	
+ 	<!-- 关联查询字段 -->
+ 	<sql id="fieldd">
+		p.post_id,
+		p.xid,
+		p.uid,
+		p.post_type,
+		p.post_message,
+		p.post_state,
+		p.createuser,
+		p.createtime,
+		p.updateuser,
+		p.updatetime,
+		p.visiable,
+		p.state,
+		p.system_id,
+		p.unit_information
+ 	</sql>
+	
+	<!-- 添加字段 -->
+ 	<sql id="insertfield">
+ 		post_id,
+		xid,
+		uid,
+		post_type,
+		post_message,
+		post_state,
+		createuser,
+		createtime,
+		updateuser,
+		updatetime,
+		visiable,
+		state,
+		system_id,
+		unit_information
+ 	</sql>
+	
+	<sql id="insertvalue">
+		#{post_id},
+		#{xid},
+		#{uid},
+		#{post_type},
+		#{post_message}::jsonb,
+		#{post_state}::integer,
+		#{updateuser},
+		now(),
+		#{updateuser},
+		now(),
+		1,
+		#{state}::integer,
+		#{system_id},
+		#{unit_information}::jsonb
+	</sql>
+	
+	<!-- 岗位添加 -->
+	<insert id="addPost" parameterType="pd">
+		insert into 
+		<include refid="tableName"></include>
+			(
+		<include refid="insertfield"></include>
+			) values (
+		<include refid="insertvalue"></include>
+			)
+	</insert>
+	
+	<!-- 岗位修改  -->
+	<update id="updatePost" parameterType="pd">
+		update 
+		<include refid="tableName"></include> 
+		<set>
+			<if test="post_type != null and post_type != '' ">
+				post_type=#{post_type},
+			</if>
+			<if test="post_message != null ">
+				post_message=#{post_message}::jsonb,
+			</if>
+			<if test="post_state != null  ">
+				post_state=#{post_state},
+			</if>
+			<if test="state != null  ">
+				state=#{state},
+			</if>
+
+			<if test="updateuser != null and updateuser != '' ">
+				updateuser=#{updateuser},
+			</if>
+				updatetime=now(),
+			<if test="visiable != null">
+				visiable=#{visiable}::integer,
+			</if>
+		</set>
+		where post_id = #{post_id}
+	</update>
+	
+	<!-- 岗位条件查询 -->
+	<select id="searchPostPgListPage" parameterType="page" resultType="pd">
+		SELECT 
+			row_number() over (ORDER BY updatetime DESC) as xh,
+			(SELECT count(0) from t_news_operation where post_id = p.post_id) as count,
+			<include refid="fieldd"></include>
+			from <include refid="tableName"></include> as p
+			where 1=1
+			<!-- 岗位id -->
+			<if test="pd.post_id !=null and pd.post_id != '' ">
+				and p.post_id = #{pd.post_id}
+			</if>
+			<!-- 消息id -->
+			<if test="pd.xid !=null and pd.xid != '' ">
+				and p.xid = #{pd.xid}
+			</if>
+			<!-- 用户id -->
+			<if test="pd.uid !=null and pd.uid != '' ">
+				and p.uid = #{pd.uid}
+			</if>
+			<!-- 岗位类别 -->
+			<if test="pd.post_type !=null and pd.post_type != '' ">
+				and p.post_type = #{pd.post_type}
+			</if>
+			<!-- 岗位状态 -->
+			<if test="pd.post_state !=null  ">
+				and p.post_state = #{pd.post_state}
+			</if>
+			<!-- 状态 -->
+			<if test="pd.state !=null  ">
+				and p.state = #{pd.state}
+			</if>
+
+			<!-- 系统id -->
+			<if test="pd.system_id !=null and pd.system_id != '' ">
+				and p.system_id = #{pd.system_id}
+			</if>
+
+			<if test="pd.beginTime!=null and pd.beginTime!=''"><!-- 开始时间检索 -->
+				and p.updatetime &gt;= concat(#{pd.beginTime},' 00:00:00')::TIMESTAMP
+			</if>
+			<if test="pd.endTime!=null and pd.endTime!=''"><!-- 结束时间检索 -->
+				and p.updatetime &lt;= concat(#{pd.endTime},' 23:59:59')::TIMESTAMP
+			</if>
+			and p.visiable = 1
+	</select>
+	
+
+	<!-- 根据岗位id 获取岗位信息 -->
+	<select id="getPostById"  resultType="pd" parameterType="pd">
+		SELECT 
+			<include refid="fieldd"></include>
+			from <include refid="tableName"></include> as p
+			where 1=1 
+			and p.visiable = 1
+			and p.post_id = #{post_id}
+	</select>
+
+	<!--验证是否允许投递-->
+<!--	<select id="VerificationAdd"  resultType="java.lang.Integer" parameterType="pd">
+		SELECT count(0) from t_news_operation where 1=1
+		and updatetime > (SELECT updatetime from t_news where xid = #{xid} )
+		and uid = #{uid}
+		and xid = #{xid}
+		and visiable = 1
+	</select>-->
+
+	<!--报考岗位导出-->
+	<select id="applicationListExport"  resultType="cn.net.hlk.data.poi.easypoi.ScorePojo" parameterType="pd">
+		SELECT
+		(SELECT title from t_news where xid = p.xid) as title,
+		p.post_message ->> 'name' as postname,
+		u.name as name,
+		u.id_card as id_card,
+		u.user_message ->>'email' as email,
+		u.user_message ->>'phone' as phone,
+		u.user_message ->>'sex' as sex,
+		u.user_message ->>'address' as address,
+		u.user_message ->>'nation' as nation,
+		u.user_message ->>'adress' as adress,
+		to_char(no.updatetime,'YYYY-MM-DD HH24:MI:SS') as posttime,
+		p.post_state as pstate,
+		no.written_results as writtenresults,
+		no.interview_results as interviewresults,
+		u.uid
+		from t_news_operation as no,t_user as u,t_post as p
+		where
+		no.uid = u.uid
+		and p.post_id = no.post_id
+		and no.post_id = #{post_id}
+		and no.visiable = 1
+		and u.visiable = 1
+		and p.visiable = 1
+		<if test="xid !=null and xid != '' ">
+			and p.xid = #{xid}
+		</if>
+	</select>
+
+	<!--岗位导出-->
+	<select id="postExport"  resultType="cn.net.hlk.data.poi.easypoi.PostPojo" parameterType="pd">
+		SELECT
+		(SELECT title from t_news where xid = p.xid) as title,
+		p.post_message ->> 'name' as postname,
+		p.post_message ->> 'recruitmentunit' as recruitmentunit,
+		p.post_message ->> 'name' as numberofrecruits,
+		p.post_message ->> 'name' as academicrequirements,
+		p.post_message ->> 'name' as professionalrequirements,
+		p.post_message ->> 'name' as genderrequirements,
+		p.post_message ->> 'name' as maximumage,
+		p.post_message ->> 'name' as politicaloutlook,
+		p.post_message ->> 'name' as contactinformation,
+		p.post_message ->> 'name' as employmentnature,
+		p.post_message ->> 'name' as otherrequirements,
+		p.post_message ->> 'name' as remarks,
+		p.post_message ->> 'name' as examinationmethod,
+		p.post_type as posttype,
+		(SELECT count(0) from t_news_operation where post_id = p.post_id) as numberofenrolment
+		from t_post as p
+		where 1=1
+		and p.xid = #{xid}
+		and p.visiable = 1
+	</select>
+
+</mapper>

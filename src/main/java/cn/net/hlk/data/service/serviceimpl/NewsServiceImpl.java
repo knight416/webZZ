@@ -4,6 +4,10 @@ import cn.net.hlk.data.config.FileUploadProperteis;
 import cn.net.hlk.data.mapper.AlarmMapper;
 import cn.net.hlk.data.mapper.EnclosureMapper;
 import cn.net.hlk.data.mapper.NewsMapper;
+import cn.net.hlk.data.mapper.PostMapper;
+import cn.net.hlk.data.poi.easypoi.FileWithExcelUtil;
+import cn.net.hlk.data.poi.easypoi.PostPojo;
+import cn.net.hlk.data.poi.easypoi.ScorePojo;
 import cn.net.hlk.data.pojo.Page;
 import cn.net.hlk.data.pojo.PageData;
 import cn.net.hlk.data.pojo.ReasonBean;
@@ -48,6 +52,8 @@ public class NewsServiceImpl extends BaseServiceImple implements NewsService {
 	private FileUploadProperteis fileUploadProperteis;
 	@Autowired
 	private EnclosureMapper enclosureMapper;
+	@Autowired
+	private PostMapper postMapper;
 
 	/**
 	 * @Title: addAlarm
@@ -300,6 +306,45 @@ public class NewsServiceImpl extends BaseServiceImple implements NewsService {
 			responseBodyBean.setReason(reasonBean);
 		}
 		return responseBodyBean;
+	}
+
+	/**
+	 * @Title applicationListExport
+	 * @Description 报考导出
+	 * @author 张泽恒
+	 * @date 2020/1/21 15:42
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@Override
+	public List<ScorePojo> applicationListExport(PageData pd) {
+
+		List<ScorePojo> personList = new ArrayList<ScorePojo>();
+		try {
+			personList = postMapper.applicationListExport(pd);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return personList;
+	}
+
+	/**
+	 * @Title postExport
+	 * @Description 岗位导出
+	 * @author 张泽恒
+	 * @date 2020/1/21 20:24
+	 * @param [pd]
+	 * @return java.util.List<cn.net.hlk.data.poi.easypoi.ScorePojo>
+	 */
+	@Override
+	public List<PostPojo> postExport(PageData pd) {
+		List<PostPojo> personList = new ArrayList<PostPojo>();
+		try {
+			personList = postMapper.postExport(pd);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return personList;
 	}
 
 

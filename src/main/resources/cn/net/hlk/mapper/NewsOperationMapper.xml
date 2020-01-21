@@ -20,7 +20,11 @@
 		updatetime,
 		visiable,
 		state,
-		system_id
+		system_id,
+		post_id,
+		written_results,
+		interview_results
+
  	</sql>
  	
  	<!-- 关联查询字段 -->
@@ -36,7 +40,10 @@
 		o.updatetime,
 		o.visiable,
 		o.state,
-		o.system_id
+		o.system_id,
+		o.post_id,
+		o.written_results,
+		o.interview_results
  	</sql>
 	
 	<!-- 添加字段 -->
@@ -52,7 +59,10 @@
 		updatetime,
 		visiable,
 		state,
-		system_id
+		system_id,
+		post_id,
+		written_results,
+		interview_results
  	</sql>
 	
 	<sql id="insertvalue">
@@ -67,7 +77,10 @@
 		now(),
 		1,
 		#{state},
-		#{system_id}
+		#{system_id},
+		#{post_id},
+		#{written_results},
+		#{interview_results}
 	</sql>
 	
 	<!-- 消息添加 -->
@@ -91,6 +104,12 @@
 			</if>
 			<if test="operation_message != null ">
 				operation_message=#{operation_message}::jsonb,
+			</if>
+			<if test="written_results != null and written_results != '' ">
+				written_results=#{written_results},
+			</if>
+			<if test="interview_results != null and interview_results != '' ">
+				interview_results=#{interview_results},
 			</if>
 			<if test="updateuser != null and updateuser != '' ">
 				updateuser=#{updateuser},
@@ -118,6 +137,10 @@
 			<!-- 消息id -->
 			<if test="pd.xid !=null and pd.xid != '' ">
 				and xid = #{pd.xid}
+			</if>
+			<!-- 岗位id -->
+			<if test="pd.post_id !=null and pd.post_id != '' ">
+				and post_id = #{pd.post_id}
 			</if>
 			<!-- 用户id -->
 			<if test="pd.uid !=null and pd.uid != '' ">

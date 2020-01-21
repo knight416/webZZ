@@ -1,5 +1,7 @@
 package cn.net.hlk.data.service;
 
+import cn.net.hlk.data.poi.easypoi.PostPojo;
+import cn.net.hlk.data.poi.easypoi.ScorePojo;
 import cn.net.hlk.data.pojo.Page;
 import cn.net.hlk.data.pojo.PageData;
 import cn.net.hlk.data.pojo.ResponseBodyBean;
@@ -86,4 +88,24 @@ public interface NewsService {
 	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
 	 */
 	ResponseBodyBean delNews(PageData pd);
+
+	/**
+	 * @Title applicationListExport
+	 * @Description 报考导出
+	 * @author 张泽恒
+	 * @date 2020/1/21 15:40
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	List<ScorePojo> applicationListExport(PageData pd);
+
+	/**
+	 * @Title postExport
+	 * @Description 岗位导出
+	 * @author 张泽恒
+	 * @date 2020/1/21 20:23
+	 * @param [pd]
+	 * @return java.util.List<cn.net.hlk.data.poi.easypoi.ScorePojo>
+	 */
+	List<PostPojo> postExport(PageData pd);
 }

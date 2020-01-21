@@ -1,14 +1,22 @@
 package cn.net.hlk.data.controller;
 
+
+
 import cn.net.hlk.data.annotation.SysLog;
 import cn.net.hlk.data.annotation.UserLoginToken;
+import cn.net.hlk.data.config.FileUploadProperteis;
+import cn.net.hlk.data.poi.easypoi.FileWithExcelUtil;
+import cn.net.hlk.data.poi.easypoi.PostPojo;
+import cn.net.hlk.data.poi.easypoi.ScorePojo;
+import cn.net.hlk.data.poi.poi.ReadExcelUtil;
 import cn.net.hlk.data.pojo.Page;
 import cn.net.hlk.data.pojo.PageData;
 import cn.net.hlk.data.pojo.ReasonBean;
 import cn.net.hlk.data.pojo.ResponseBodyBean;
-import cn.net.hlk.data.service.AlarmService;
 import cn.net.hlk.data.service.IUserService;
 import cn.net.hlk.data.service.NewsService;
+import cn.net.hlk.data.service.PostService;
+import cn.net.hlk.util.FileUtil;
 import cn.net.hlk.util.JwtUtil;
 import cn.net.hlk.util.ResponseUtil;
 import cn.net.hlk.util.StringUtil2;
@@ -32,6 +40,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,6 +63,10 @@ public class NewsController extends BaseController{
 	private NewsService newsService;
 	@Autowired
 	private IUserService userService;
+	@Autowired
+	public FileUploadProperteis fileUploadProperteis;
+	@Autowired
+	private PostService postService;
 
 	/**
 	 * @Title: addAlarm
@@ -81,7 +95,8 @@ public class NewsController extends BaseController{
 	@SysLog("消息新增")
 	@UserLoginToken
 	@RequestMapping(value="/addNews", method=RequestMethod.POST)
-	public  @ResponseBody ResponseBodyBean addNews( @RequestBody PageData pd,  @RequestHeader String Authorization) {
+	public  @ResponseBody
+	ResponseBodyBean addNews(@RequestBody PageData pd, @RequestHeader String Authorization) {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();//状态码
 		response.setStatus(status);//状态码存入
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
@@ -275,7 +290,7 @@ public class NewsController extends BaseController{
         @ApiResponse(code=500,message="服务器内部错误")
      })
 	@RequestMapping(value="/searchNews", method=RequestMethod.POST)
-	public  @ResponseBody ResponseBodyBean searchNews( @RequestBody Page page,  @RequestHeader String Authorization) {
+	public  @ResponseBody ResponseBodyBean searchNews(@RequestBody Page page, @RequestHeader String Authorization) {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();//状态码
 		response.setStatus(status);//状态码存入
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
@@ -485,5 +500,243 @@ public class NewsController extends BaseController{
 			return responseBodyBean;
 		}
 	}
+
+	/**
+	 * @Title applicationListExport
+	 * @Description 报考导出
+	 * @author 张泽恒
+	 * @date 2020/1/21 15:34
+	 * @param [pd, Authorization]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@SuppressWarnings("all")
+	@ApiOperation(value = "报考导出", notes = "报考导出")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
+			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJlMzEzY2MxZi1iMWMyLTQ3YzEtYjNiYi0wNzA4OGZiNmEwNDIiLCJpYXQiOjE1Nzg5MjQ0MTQsInN1YiI6IjFmMzI5YWYxNjVmZDRhNDViMDY0MzA2NzEwZjhhOTNhIiwiaXNzIjoiU2VjdXJpdHkgQ2VudGVyIiwiaWQiOiIxZjMyOWFmMTY1ZmQ0YTQ1YjA2NDMwNjcxMGY4YTkzYSIsIm5hbWUiOiJxIiwiZXhwIjoxNTgwOTk4MDE0fQ.QvhblxEtnx_VTaZp4D5k7zW0wJ26k793vPE01x8OBKk")
+	})
+	@ApiResponses({
+			@ApiResponse(code=200,message="指示客服端的请求已经成功收到，解析，接受"),
+			@ApiResponse(code=201,message="资源已被创建"),
+			@ApiResponse(code=401,message="未授权"),
+			@ApiResponse(code=400,message="请求参数没填好"),
+			@ApiResponse(code=403,message="拒绝访问"),
+			@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对"),
+			@ApiResponse(code=406,message="不是指定的数据类型"),
+			@ApiResponse(code=500,message="服务器内部错误")
+	})
+	@RequestMapping(value="/applicationListExport", method=RequestMethod.POST)
+	public  @ResponseBody ResponseBodyBean applicationListExport( @RequestBody PageData pd,  @RequestHeader String Authorization) {
+		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();//状态码
+		response.setStatus(status);//状态码存入
+		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
+		ReasonBean reasonBean = new ReasonBean();//返回参数
+		PageData resData = new PageData();//返回数据
+		try{
+			if(pd != null
+					){
+				List<ScorePojo> personList = newsService.applicationListExport(pd);
+				if(personList != null && personList.size() > 0){
+					String fileName= new String(personList.get(0).getTitle()+"-"+personList.get(0).getPostname()+".xls");    //生成word文件的文件名
+					//虚拟路径存储
+					String realPath = fileUploadProperteis.getUploadFolder();
+					String filePath = realPath + File.separator+ "posto"+ File.separator+fileName;
+					FileUtil.createDir(filePath);
+
+					//文件地址
+					FileOutputStream fopts = new FileOutputStream(filePath);
+					// OutputStream out = new FileOutputStream(filePath);
+					String url = "/upload"+ File.separator+ "posto"+File.separator+fileName;
+
+					FileWithExcelUtil.exportExcel(personList,personList.get(0).getPostname(),personList.get(0).getPostname(),ScorePojo.class,personList.get(0).getTitle()+".xls",fopts);
+
+					resData.put("url",url);
+					responseBodyBean.setResult(resData);
+					//残留文件删除
+					FileUtil.delFileByTime(fileUploadProperteis.getUploadFolder()+ File.separator+ "posto",(long)1000*60*60*24*5);
+				}
+				status = HttpStatus.OK.value();
+				response.setStatus(status);
+			}else{
+				reasonBean.setCode("400");
+				reasonBean.setText("请求的参数不正确");
+				status = HttpStatus.PRECONDITION_REQUIRED.value();
+				response.setStatus(status);
+				responseBodyBean.setReason(reasonBean);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			reasonBean = ResponseUtil.getReasonBean("Exception", e.getClass().getSimpleName());
+			responseBodyBean.setReason(reasonBean);
+		}finally {
+			return responseBodyBean;
+		}
+	}
+
+	/**
+	 * @Title postExport
+	 * @Description 岗位导出
+	 * @author 张泽恒
+	 * @date 2020/1/21 20:20
+	 * @param [pd, Authorization]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@SuppressWarnings("all")
+	@ApiOperation(value = "岗位导出", notes = "岗位导出")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
+			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJlMzEzY2MxZi1iMWMyLTQ3YzEtYjNiYi0wNzA4OGZiNmEwNDIiLCJpYXQiOjE1Nzg5MjQ0MTQsInN1YiI6IjFmMzI5YWYxNjVmZDRhNDViMDY0MzA2NzEwZjhhOTNhIiwiaXNzIjoiU2VjdXJpdHkgQ2VudGVyIiwiaWQiOiIxZjMyOWFmMTY1ZmQ0YTQ1YjA2NDMwNjcxMGY4YTkzYSIsIm5hbWUiOiJxIiwiZXhwIjoxNTgwOTk4MDE0fQ.QvhblxEtnx_VTaZp4D5k7zW0wJ26k793vPE01x8OBKk")
+	})
+	@ApiResponses({
+			@ApiResponse(code=200,message="指示客服端的请求已经成功收到，解析，接受"),
+			@ApiResponse(code=201,message="资源已被创建"),
+			@ApiResponse(code=401,message="未授权"),
+			@ApiResponse(code=400,message="请求参数没填好"),
+			@ApiResponse(code=403,message="拒绝访问"),
+			@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对"),
+			@ApiResponse(code=406,message="不是指定的数据类型"),
+			@ApiResponse(code=500,message="服务器内部错误")
+	})
+	@RequestMapping(value="/postExport", method=RequestMethod.POST)
+	public  @ResponseBody ResponseBodyBean postExport( @RequestBody PageData pd,  @RequestHeader String Authorization) {
+		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();//状态码
+		response.setStatus(status);//状态码存入
+		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
+		ReasonBean reasonBean = new ReasonBean();//返回参数
+		PageData resData = new PageData();//返回数据
+		try{
+			if(pd != null
+					){
+				List<PostPojo> personList = newsService.postExport(pd);
+				if(personList != null && personList.size() > 0){
+					String fileName= new String(personList.get(0).getTitle()+".xls");    //生成word文件的文件名
+					//虚拟路径存储
+					String realPath = fileUploadProperteis.getUploadFolder();
+					String filePath = realPath + File.separator+ "post"+ File.separator+fileName;
+					FileUtil.createDir(filePath);
+
+					//文件地址
+					FileOutputStream fopts = new FileOutputStream(filePath);
+					// OutputStream out = new FileOutputStream(filePath);
+					String url = "/upload"+ File.separator+ "post"+File.separator+fileName;
+
+					FileWithExcelUtil.exportExcel(personList,personList.get(0).getPostname(),personList.get(0).getPostname(),PostPojo.class,personList.get(0).getTitle()+".xls",fopts);
+
+					resData.put("url",url);
+					responseBodyBean.setResult(resData);
+					//残留文件删除
+					FileUtil.delFileByTime(fileUploadProperteis.getUploadFolder()+ File.separator+ "post",(long)1000*60*60*24*5);
+				}
+				status = HttpStatus.OK.value();
+				response.setStatus(status);
+			}else{
+				reasonBean.setCode("400");
+				reasonBean.setText("请求的参数不正确");
+				status = HttpStatus.PRECONDITION_REQUIRED.value();
+				response.setStatus(status);
+				responseBodyBean.setReason(reasonBean);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			reasonBean = ResponseUtil.getReasonBean("Exception", e.getClass().getSimpleName());
+			responseBodyBean.setReason(reasonBean);
+		}finally {
+			return responseBodyBean;
+		}
+	}
+
+	/**
+	 * @Title postImport
+	 * @Description 岗位导入
+	 * @author 张泽恒
+	 * @date 2020/1/21 15:32
+	 * @param [file, Authorization]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@SuppressWarnings("finally")
+	@ApiOperation(value = "岗位导入", notes = "岗位导入")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJlMzEzY2MxZi1iMWMyLTQ3YzEtYjNiYi0wNzA4OGZiNmEwNDIiLCJpYXQiOjE1Nzg5MjQ0MTQsInN1YiI6IjFmMzI5YWYxNjVmZDRhNDViMDY0MzA2NzEwZjhhOTNhIiwiaXNzIjoiU2VjdXJpdHkgQ2VudGVyIiwiaWQiOiIxZjMyOWFmMTY1ZmQ0YTQ1YjA2NDMwNjcxMGY4YTkzYSIsIm5hbWUiOiJxIiwiZXhwIjoxNTgwOTk4MDE0fQ.QvhblxEtnx_VTaZp4D5k7zW0wJ26k793vPE01x8OBKk") })
+	@ApiResponses({ @ApiResponse(code = 200, message = "指示客服端的请求已经成功收到，解析，接受"),
+			@ApiResponse(code = 201, message = "资源已被创建"), @ApiResponse(code = 401, message = "未授权"),
+			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 403, message = "拒绝访问"),
+			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对"), @ApiResponse(code = 406, message = "不是指定的数据类型"),
+			@ApiResponse(code = 500, message = "服务器内部错误") })
+	@SysLog("岗位导入")
+	@UserLoginToken
+	@RequestMapping(value = "/postImport", method = RequestMethod.POST)
+	public @ResponseBody ResponseBodyBean postImport(@RequestParam(value ="file") MultipartFile file,
+													 @RequestParam String xid,@RequestParam String system_id,
+																  @RequestHeader String Authorization) {
+		ResponseBodyBean  responseBodyBean = new ResponseBodyBean();
+		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
+		ReasonBean reasonBean = null;
+		try {
+			Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
+			String optName = (String) parseJwt.getBody().get("name");
+			String uid = (String) parseJwt.getBody().get("id");
+
+			// List<PostPojo> personList = FileWithExcelUtil.importExcel(file, 1, 1, PostPojo.class);
+
+
+			List<PostPojo> personList = ReadExcelUtil.readExcelInfo(file,1, 1,PostPojo.class);
+			System.out.println(personList);
+			//也可以使用MultipartFile,使用 FileUtil.importExcel(MultipartFile file, Integer titleRows, Integer headerRows, Class<T> pojoClass)导入
+			System.out.println("导入数据一共【"+personList.size()+"】行");
+
+			postService.postImport((List<PostPojo>)personList,system_id,xid,uid,optName);
+			status = HttpStatus.OK.value();
+		} catch (Exception e) {
+			e.printStackTrace();
+			reasonBean = ResponseUtil.getReasonBean("Exception", e.getClass().getSimpleName());
+			responseBodyBean.setReason(reasonBean);
+		}finally {
+			response.setStatus(status);
+			return responseBodyBean;
+		}
+	}
+
+	/**
+	 * @Title applicationListExport
+	 * @Description 成绩导入
+	 * @author 张泽恒
+	 * @date 2020/1/21 15:32
+	 * @param [file, Authorization]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@SuppressWarnings("finally")
+	@ApiOperation(value = "成绩导入", notes = "成绩导入")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJlMzEzY2MxZi1iMWMyLTQ3YzEtYjNiYi0wNzA4OGZiNmEwNDIiLCJpYXQiOjE1Nzg5MjQ0MTQsInN1YiI6IjFmMzI5YWYxNjVmZDRhNDViMDY0MzA2NzEwZjhhOTNhIiwiaXNzIjoiU2VjdXJpdHkgQ2VudGVyIiwiaWQiOiIxZjMyOWFmMTY1ZmQ0YTQ1YjA2NDMwNjcxMGY4YTkzYSIsIm5hbWUiOiJxIiwiZXhwIjoxNTgwOTk4MDE0fQ.QvhblxEtnx_VTaZp4D5k7zW0wJ26k793vPE01x8OBKk") })
+	@ApiResponses({ @ApiResponse(code = 200, message = "指示客服端的请求已经成功收到，解析，接受"),
+			@ApiResponse(code = 201, message = "资源已被创建"), @ApiResponse(code = 401, message = "未授权"),
+			@ApiResponse(code = 400, message = "请求参数没填好"), @ApiResponse(code = 403, message = "拒绝访问"),
+			@ApiResponse(code = 404, message = "请求路径没有或页面跳转路径不对"), @ApiResponse(code = 406, message = "不是指定的数据类型"),
+			@ApiResponse(code = 500, message = "服务器内部错误") })
+	@SysLog("成绩导入")
+	@UserLoginToken
+	@RequestMapping(value = "/achievementIntroduction", method = RequestMethod.POST)
+	public @ResponseBody ResponseBodyBean achievementIntroduction(@RequestParam(value ="file") MultipartFile file,
+																  @RequestHeader String Authorization) {
+		ResponseBodyBean  responseBodyBean = new ResponseBodyBean();
+		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
+		ReasonBean reasonBean = null;
+		try {
+			Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
+			String optName = (String) parseJwt.getBody().get("name");
+			String uid = (String) parseJwt.getBody().get("id");
+			// PageData pd = newsService.achievementIntroduction(uid,file,optName);
+			// responseBodyBean.setResult(pd);
+			status = HttpStatus.OK.value();
+		} catch (Exception e) {
+			e.printStackTrace();
+			reasonBean = ResponseUtil.getReasonBean("Exception", e.getClass().getSimpleName());
+			responseBodyBean.setReason(reasonBean);
+		}finally {
+			response.setStatus(status);
+			return responseBodyBean;
+		}
+	}
+
 
 }
