@@ -70,4 +70,5 @@ public interface PostService {
 	 * @return void
 	 */
 	void postImport(List<PostPojo> personList, String system_id, String xid, String uid, String optName);
+
 }

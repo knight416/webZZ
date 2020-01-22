@@ -2,6 +2,8 @@ package cn.net.hlk.data.service.serviceimpl;
 
 import cn.net.hlk.data.mapper.NewsMapper;
 import cn.net.hlk.data.mapper.NewsOperationMapper;
+import cn.net.hlk.data.poi.easypoi.PostPojo;
+import cn.net.hlk.data.poi.easypoi.ScorePojo;
 import cn.net.hlk.data.pojo.Page;
 import cn.net.hlk.data.pojo.PageData;
 import cn.net.hlk.data.pojo.ReasonBean;
@@ -54,7 +56,7 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 		PageData resData = new PageData();//返回数据
 		try {
 			//验证是否允许投递
-			if("004002".equals(pd.getString("operation_type"))){
+			if("004002".equals(pd.getString("operation_type")) || "004001".equals(pd.getString("operation_type"))){
 				int n = newsOperationMapper.VerificationAdd(pd);
 				if(n > 0){
 					reasonBean.setCode("400");
@@ -163,7 +165,33 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 		}
 		return responseBodyBean;
 	}
-	
-	
-	
+
+	/**
+	 * @Title achievementIntroduction
+	 * @Description 成绩导入
+	 * @author 张泽恒
+	 * @date 2020/1/22 9:54
+	 * @param [personList, uid, optName]
+	 * @return void
+	 */
+	@Override
+	public void achievementIntroduction(List<ScorePojo> personList, String uid, String optName) {
+		try {
+			if(personList != null && personList.size() > 0){
+				for(ScorePojo person : personList){
+					PageData pd = new PageData();
+					pd.put("uid", uid);
+					pd.put("uid", person.getUid());
+					pd.put("post_id", person.getPost_id());
+					pd.put("written_results", person.getWrittenresults());
+					pd.put("interview_results", person.getInterviewresults());
+					newsOperationMapper.updateNewsOperation(pd);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+
 }

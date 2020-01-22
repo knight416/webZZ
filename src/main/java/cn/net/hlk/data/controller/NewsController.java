@@ -14,6 +14,7 @@ import cn.net.hlk.data.pojo.PageData;
 import cn.net.hlk.data.pojo.ReasonBean;
 import cn.net.hlk.data.pojo.ResponseBodyBean;
 import cn.net.hlk.data.service.IUserService;
+import cn.net.hlk.data.service.NewsOperationService;
 import cn.net.hlk.data.service.NewsService;
 import cn.net.hlk.data.service.PostService;
 import cn.net.hlk.util.FileUtil;
@@ -67,6 +68,7 @@ public class NewsController extends BaseController{
 	public FileUploadProperteis fileUploadProperteis;
 	@Autowired
 	private PostService postService;
+	@Autowired NewsOperationService newsOperationService;
 
 	/**
 	 * @Title: addAlarm
@@ -725,8 +727,12 @@ public class NewsController extends BaseController{
 			Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
 			String optName = (String) parseJwt.getBody().get("name");
 			String uid = (String) parseJwt.getBody().get("id");
-			// PageData pd = newsService.achievementIntroduction(uid,file,optName);
-			// responseBodyBean.setResult(pd);
+			List<ScorePojo> personList = ReadExcelUtil.readExcelInfo(file,1, 1,ScorePojo.class);
+			System.out.println(personList);
+			//也可以使用MultipartFile,使用 FileUtil.importExcel(MultipartFile file, Integer titleRows, Integer headerRows, Class<T> pojoClass)导入
+			System.out.println("导入数据一共【"+personList.size()+"】行");
+
+			newsOperationService.achievementIntroduction((List<ScorePojo>)personList,uid,optName);
 			status = HttpStatus.OK.value();
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -1,0 +1,106 @@
+package cn.net.hlk.data.payment.action;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.Map;
+import java.util.SortedMap;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import cn.net.hlk.data.payment.config.SwiftpassConfig;
+import cn.net.hlk.data.payment.util.SignUtil;
+import cn.net.hlk.data.payment.util.SignUtils;
+import cn.net.hlk.data.payment.util.XmlUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+
+
+/**
+ * <一句话功能简述>
+ * <功能详细描述>关闭订单
+ * 
+ * @author  Administrator
+ * @version  [版本号, 2018-2-01]
+ * @see  [相关类/方法]
+ * @since  [产品/模块版本]
+ */
+public class TestCloseServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doPost(req, resp);
+    }
+
+    
+	@SuppressWarnings({ "unchecked" })
+	@Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("utf-8");
+        resp.setCharacterEncoding("utf-8");
+       
+		SortedMap<String,String> map = XmlUtils.getParameterMap(req);
+        System.out.println(XmlUtils.toXml(map));
+        map.put("mch_id", SwiftpassConfig.mch_id);
+        String res = null;
+        String reqUrl = SwiftpassConfig.req_url;
+        map.put("nonce_str", String.valueOf(new Date().getTime()));
+        Map<String,String> params = SignUtils.paraFilter(map);
+        StringBuilder buf = new StringBuilder((params.size() +1) * 10);
+        SignUtils.buildPayParams(buf,params,false);
+        String preStr = buf.toString();
+        String sign_type = map.get("sign_type");
+        map.put("sign", SignUtil.getSign(sign_type, preStr));
+        
+        
+        System.out.println("reqUrl:" + reqUrl);
+        
+        CloseableHttpResponse response = null;
+        CloseableHttpClient client = null;
+        try {
+            HttpPost httpPost = new HttpPost(reqUrl);
+            StringEntity entityParams = new StringEntity(XmlUtils.parseXML(map),"utf-8");
+            httpPost.setEntity(entityParams);
+            httpPost.setHeader("Content-Type", "text/xml;charset=UTF-8");
+            client = HttpClients.createDefault();
+            response = client.execute(httpPost);
+            if(response != null && response.getEntity() != null){
+                Map<String,String> resultMap = XmlUtils.toMap(EntityUtils.toByteArray(response.getEntity()), "utf-8");
+                res = XmlUtils.toXml(resultMap);
+                
+                System.out.println("请求结果：" + res);
+                String reSign = resultMap.get("sign");
+                sign_type = resultMap.get("sign_type");
+                System.out.println("签名方式"+sign_type);
+                if(resultMap.containsKey("sign") && !SignUtil.verifySign(reSign, sign_type, resultMap)){
+                    res = "验证签名不通过";
+                }
+            }else{
+                res = "操作失败!";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            res = "操作失败";
+        } finally {
+            if(response != null){
+                response.close();
+            }
+            if(client != null){
+                client.close();
+            }
+        }
+        if(res.startsWith("<")){
+            resp.setHeader("Content-type", "text/xml;charset=UTF-8");
+        }else{
+            resp.setHeader("Content-type", "text/html;charset=UTF-8");
+        }
+        resp.getWriter().write(res);
+    }
+}

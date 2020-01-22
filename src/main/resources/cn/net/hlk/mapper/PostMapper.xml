@@ -203,7 +203,8 @@
 		p.post_state as pstate,
 		no.written_results as writtenresults,
 		no.interview_results as interviewresults,
-		u.uid
+		u.uid,
+		no.post_id
 		from t_news_operation as no,t_user as u,t_post as p
 		where
 		no.uid = u.uid

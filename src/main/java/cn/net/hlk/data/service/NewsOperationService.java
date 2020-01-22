@@ -1,8 +1,12 @@
 package cn.net.hlk.data.service;
 
+import cn.net.hlk.data.poi.easypoi.PostPojo;
+import cn.net.hlk.data.poi.easypoi.ScorePojo;
 import cn.net.hlk.data.pojo.Page;
 import cn.net.hlk.data.pojo.PageData;
 import cn.net.hlk.data.pojo.ResponseBodyBean;
+
+import java.util.List;
 
 /**
  * @package: cn.net.hlk.data.service   
@@ -54,4 +58,13 @@ public interface NewsOperationService {
 	 */
 	ResponseBodyBean getNewsOperationById(PageData pd);
 
+	/**
+	 * @Title achievementIntroduction
+	 * @Description 成绩导入
+	 * @author 张泽恒
+	 * @date 2020/1/22 9:53
+	 * @param [personList, uid, optName]
+	 * @return void
+	 */
+	void achievementIntroduction(List<ScorePojo> personList, String uid, String optName);
 }

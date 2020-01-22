@@ -43,6 +43,8 @@ public class ScorePojo {
 	private String interviewresults;
 	@Excel(name = "uid", orderNum = "14")
 	private String uid;
+	@Excel(name = "post_id", orderNum = "15")
+	private String post_id;
 
 
 }
