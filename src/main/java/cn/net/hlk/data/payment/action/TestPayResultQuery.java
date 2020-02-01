@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * <一句话功能简述>
  * <功能详细描述>本地查询订单支付状态
- * 
+ *
  * @author  Administrator
  * @version  [版本号, 2014-8-28]
  * @see  [相关类/方法]
@@ -30,13 +30,13 @@ public class TestPayResultQuery extends HttpServlet {
         resp.setCharacterEncoding("utf-8");
         //System.out.println("订单查询");
         String out_trade_no = req.getParameter("out_trade_no");
-        
+
         String res = null;//0表示未支付，1表示已支付
-        
+
         if(TestPayServlet.orderResult != null && TestPayServlet.orderResult.containsKey(out_trade_no)){
-        	
+
             res = TestPayServlet.orderResult.get(out_trade_no);
-            
+
         }else{
             res = "0";
         }

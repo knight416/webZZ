@@ -103,8 +103,21 @@ public class UserServiceImple extends BaseServiceImple implements IUserService {
 	@Override
 	public ResponseBodyBean deleteUser(PageData pd){
 		ResponseBodyBean responseBodyBean =new ResponseBodyBean();
+		ReasonBean reasonBean = new ReasonBean();//返回参数
 		Integer deleteUser = null;
-		pd.put("visibale",0);
+		pd.put("visiable",0);
+		PageData user = userMapper.findById(pd);
+		if(user != null && "002004".equals(user.getString("job_type"))){
+			//判断是否有报考
+			int n = userMapper.yanzheng(pd);
+			if(n > 0){
+				reasonBean.setCode("405");
+				reasonBean.setText("已有人报名，不允许删除");
+				responseBodyBean.setReason(reasonBean);
+				return responseBodyBean;
+			}
+		}
+
 		deleteUser = userMapper.editUser(pd);
 		if(deleteUser > 0){
 			responseBodyBean.setResult("success:删除"+deleteUser+"条");

@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.net.hlk.data.payment.config.SwiftpassConfig;
+import cn.net.hlk.data.config.SwiftpassConfig;
 import cn.net.hlk.data.payment.util.SignUtil;
 import cn.net.hlk.data.payment.util.SignUtils;
 import cn.net.hlk.data.payment.util.XmlUtils;
@@ -21,18 +21,22 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 /**
  * <一句话功能简述>
  * <功能详细描述>测试支付
- * 
+ *
  * @author  Administrator
  * @version  [版本号, 2018-2-01]
  * @see  [相关类/方法]
  * @since  [产品/模块版本]
  */
 public class TestPayServlet extends HttpServlet {
+    @Autowired
+    public SwiftpassConfig SwiftpassConfig;
+
     private static final long serialVersionUID = 1L;
     public static Map<String,String> orderResult; //用来存储订单的交易状态(key:订单号，value:状态(0:未支付，1：已支付))  ---- 这里可以根据需要存储在数据库中
     public static int orderStatus=0;
@@ -46,26 +50,26 @@ public class TestPayServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("utf-8");
         resp.setCharacterEncoding("utf-8");
-        
+
         SortedMap<String,String> map = XmlUtils.getParameterMap(req);
-        
+
         	map.put("mch_id", SwiftpassConfig.mch_id);
             map.put("notify_url", SwiftpassConfig.notify_url);
             map.put("nonce_str", String.valueOf(new Date().getTime()));
-            
+
             Map<String,String> params = SignUtils.paraFilter(map);
             System.out.println(params);
             StringBuilder buf = new StringBuilder((params.size() +1) * 10);
             SignUtils.buildPayParams(buf,params,false);
             String preStr = buf.toString();
             String sign_type = map.get("sign_type");
-            
+
             map.put("sign", SignUtil.getSign(sign_type, preStr));
-            
-            
+
+
             String reqUrl = SwiftpassConfig.req_url;
             System.out.println("reqUrl：" + reqUrl);
-            
+
             System.out.println("reqParams:" + XmlUtils.parseXML(map));
             CloseableHttpResponse response = null;
             CloseableHttpClient client = null;
@@ -78,9 +82,9 @@ public class TestPayServlet extends HttpServlet {
                 client = HttpClients.createDefault();
                 response = client.execute(httpPost);
                 if(response != null && response.getEntity() != null){
-                	
+
                     Map<String,String> resultMap = XmlUtils.toMap(EntityUtils.toByteArray(response.getEntity()), "utf-8");
-                    
+
                     reSign = resultMap.get("sign");
                     sign_type = resultMap.get("sign_type");
                     res = XmlUtils.toXml(resultMap);
@@ -93,7 +97,7 @@ public class TestPayServlet extends HttpServlet {
                                         orderResult = new HashMap<String,String>();
                                     }
                                     orderResult.put(map.get("out_trade_no"), "0");//初始状态
-                                    
+
                                     String code_img_url = resultMap.get("code_img_url");
                                     req.setAttribute("code_img_url", code_img_url);
                                     req.setAttribute("out_trade_no", map.get("out_trade_no"));
@@ -104,10 +108,10 @@ public class TestPayServlet extends HttpServlet {
                                     req.setAttribute("result", res);
                                 }
                             }
-                    	 
-                		
-                       
-                    } 
+
+
+
+                    }
                 }else{
                     res = "操作失败";
                 }
@@ -128,6 +132,6 @@ public class TestPayServlet extends HttpServlet {
                 resp.setHeader("Content-type", "text/html;charset=UTF-8");
             }
             resp.getWriter().write(res);
-        
+
     }
 }

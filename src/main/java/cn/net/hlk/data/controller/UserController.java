@@ -83,7 +83,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.SecureRandom;
@@ -734,13 +736,21 @@ public class UserController extends BaseController {
 							"社会工作情况:"+b+"";
 					params.put("${rap}", rapStr);
 
+					// 创建URL
+					URL photourl = new URL(photo);
+					// 创建链接
+					HttpURLConnection conn = (HttpURLConnection) photourl.openConnection();
+					conn.setRequestMethod("GET");
+					conn.setConnectTimeout(5 * 1000);
+					InputStream inStream = conn.getInputStream();
+
 					try{
 						//照片处理
 						Map<String,Object> header = new HashMap<String, Object>();
 						header.put("width", 100);
 						header.put("height", 150);
 						header.put("type", "jpg");
-						header.put("content", WordUtils.inputStream2ByteArray(new FileInputStream("D:/a.jpg"), true));
+						header.put("content", WordUtils.inputStream2ByteArray(inStream, true));
 						params.put("${photo}",header);
 						List<String[]> testList = new ArrayList<String[]>();
 

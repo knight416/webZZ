@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.net.hlk.data.payment.config.SwiftpassConfig;
+import cn.net.hlk.data.config.SwiftpassConfig;
 import cn.net.hlk.data.payment.util.SignUtil;
 import cn.net.hlk.data.payment.util.SignUtils;
 import cn.net.hlk.data.payment.util.XmlUtils;
@@ -25,7 +25,7 @@ import org.apache.http.util.EntityUtils;
 /**
  * <一句话功能简述>
  * <功能详细描述>退款查询
- * 
+ *
  * @author  Administrator
  * @version  [版本号, 2018-2-01]
  * @see  [相关类/方法]
@@ -43,7 +43,7 @@ public class TestRefundQueryServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("utf-8");
         resp.setCharacterEncoding("utf-8");
-        
+
         SortedMap<String,String> map = XmlUtils.getParameterMap(req);
         System.out.println(XmlUtils.toXml(map));
         String key = SwiftpassConfig.key;
@@ -51,16 +51,16 @@ public class TestRefundQueryServlet extends HttpServlet {
         String reqUrl = SwiftpassConfig.req_url;
         map.put("mch_id", SwiftpassConfig.mch_id);
         map.put("nonce_str", String.valueOf(new Date().getTime()));
-        
+
         Map<String,String> params = SignUtils.paraFilter(map);
         StringBuilder buf = new StringBuilder((params.size() +1) * 10);
         SignUtils.buildPayParams(buf,params,false);
         String preStr = buf.toString();
         String sign_type = map.get("sign_type");
         map.put("sign", SignUtil.getSign(sign_type, preStr));
-        
+
         System.out.println("reqUrl:" + reqUrl);
-        
+
         CloseableHttpResponse response = null;
         CloseableHttpClient client = null;
         try {

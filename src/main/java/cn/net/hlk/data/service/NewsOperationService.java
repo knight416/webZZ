@@ -67,4 +67,34 @@ public interface NewsOperationService {
 	 * @return void
 	 */
 	void achievementIntroduction(List<ScorePojo> personList, String uid, String optName);
+
+	/**
+	 * @Title postPerformance
+	 * @Description 岗位成绩前三获取
+	 * @author 张泽恒
+	 * @date 2020/1/29 21:22
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	ResponseBodyBean postPerformance(PageData pd);
+
+	/**  
+	 * @Title updateInterviewPermit
+	 * @Description 修改面试准考证
+	 * @author 张泽恒
+	 * @date 2020/1/29 22:26  
+	 * @param [pd]  
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean  
+	 */  
+	ResponseBodyBean updateInterviewPermit(PageData pd);
+
+	/**
+	 * @Title findicket
+	 * @Description 获取准考证信息
+	 * @author 张泽恒
+	 * @date 2020/1/29 22:55
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.PageData
+	 */
+	PageData findicket(PageData pd);
 }

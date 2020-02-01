@@ -43,9 +43,19 @@ public class PostPojo {
 	private String remarks;
 	@Excel(name = "考试方式", orderNum = "13")
 	private String examinationmethod;
-	@Excel(name = "报名人数", orderNum = "14")
+	@Excel(name = "考点名称", orderNum = "14")
+	private String examinationname;
+	@Excel(name = "考试地点", orderNum = "15")
+	private String examinationplace;
+	@Excel(name = "考试时间", orderNum = "16")
+	private String examinationtime;
+	@Excel(name = "考试房间", orderNum = "17")
+	private String examinationroom;
+	@Excel(name = "考试须知", orderNum = "18")
+	private String examinationnotes;
+	@Excel(name = "报名人数", orderNum = "19")
 	private String numberofenrolment;
-	@Excel(name = "岗位类型", orderNum = "15")
+	@Excel(name = "岗位类型", orderNum = "20")
 	private String posttype;
 
 

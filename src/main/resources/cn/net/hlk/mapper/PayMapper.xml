@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.net.hlk.data.mapper.PayMapper">
+
+	 <!--表名 -->
+	<sql id="tableName">
+		t_pay
+	</sql>
+	<!-- 字段 -->
+	<sql id="field">
+		payid,
+		uid,
+		post_id,
+		out_trade_no,
+		body,
+		attach,
+		total_fee,
+		mch_create_ip,
+		sign_type,
+		payxml,
+		requestxml,
+		pay_message,
+		trade_state,
+		isrefund,
+		refund_message,
+		selectcount,
+		createuser,
+		createtime,
+		updateuser,
+		updatetime,
+		visiable,
+		state,
+		system_id
+
+ 	</sql>
+ 	
+ 	<!-- 关联查询字段 -->
+ 	<sql id="fieldd">
+		p.payid,
+		p.uid,
+		p.post_id,
+		p.out_trade_no,
+		p.body,
+		p.attach,
+		p.total_fee,
+		p.mch_create_ip,
+		p.sign_type,
+		p.payxml,
+		p.requestxml,
+		p.pay_message,
+		p.trade_state,
+		p.isrefund,
+		p.refund_message,
+		p.selectcount,
+		p.createuser,
+		p.createtime,
+		p.updateuser,
+		p.updatetime,
+		p.visiable,
+		p.state,
+		p.system_id
+ 	</sql>
+	
+	<!-- 添加字段 -->
+ 	<sql id="insertfield">
+ 		payid,
+		uid,
+		post_id,
+		out_trade_no,
+		body,
+		attach,
+		total_fee,
+		mch_create_ip,
+		sign_type,
+		payxml,
+		requestxml,
+		pay_message,
+		trade_state,
+		isrefund,
+		refund_message,
+		selectcount,
+		createuser,
+		createtime,
+		updateuser,
+		updatetime,
+		visiable,
+		state,
+		system_id
+ 	</sql>
+	
+	<sql id="insertvalue">
+		#{payid},
+		#{uid},
+		#{post_id},
+		#{out_trade_no},
+		#{body},
+		#{attach},
+		#{total_fee},
+		#{mch_create_ip},
+		#{sign_type},
+		#{payxml},
+		#{requestxml},
+		#{pay_message},
+		2,
+		1,
+		#{refund_message},
+		0,
+		#{updateuser},
+		now(),
+		#{updateuser},
+		now(),
+		1,
+		#{state}::integer,
+		#{system_id}
+	</sql>
+	
+	<!-- 支付添加 -->
+	<insert id="addPay" parameterType="pd">
+		insert into 
+		<include refid="tableName"></include>
+			(
+		<include refid="insertfield"></include>
+			) values (
+		<include refid="insertvalue"></include>
+			)
+	</insert>
+	
+	<!-- 支付修改  -->
+	<update id="updatePay" parameterType="pd">
+		update 
+		<include refid="tableName"></include> 
+		<set>
+			<if test="pay_message != null ">
+				pay_message=#{pay_message}::jsonb,
+			</if>
+			<if test="trade_state != null and trade_state != ''">
+				trade_state=#{trade_state},
+			</if>
+			<if test="isrefund != null  ">
+				isrefund=#{isrefund},
+			</if>
+			<if test="refund_message != null ">
+				refund_message=#{refund_message}::jsonb,
+			</if>
+			<if test="selectcount != null  ">
+				selectcount=#{selectcount},
+			</if>
+			<if test="state != null  ">
+				state=#{state},
+			</if>
+
+			<if test="updateuser != null and updateuser != '' ">
+				updateuser=#{updateuser},
+			</if>
+				updatetime=now(),
+			<if test="visiable != null">
+				visiable=#{visiable}::integer,
+			</if>
+		</set>
+		where payid = #{payid}
+	</update>
+	
+	<!-- 支付条件查询 -->
+	<select id="searchPayPgListPage" parameterType="page" resultType="pd">
+		SELECT 
+			row_number() over (ORDER BY updatetime DESC) as xh,
+			<include refid="fieldd"></include>
+			from <include refid="tableName"></include> as p
+			where 1=1
+			<!-- 支付id -->
+			<if test="pd.payid !=null and pd.payid != '' ">
+				and p.payid = #{pd.payid}
+			</if>
+			<!-- 用户id -->
+			<if test="pd.uid !=null and pd.uid != '' ">
+				and p.uid = #{pd.uid}
+			</if>
+			<!-- 岗位id -->
+			<if test="pd.post_id !=null and pd.post_id != '' ">
+				and p.post_id = #{pd.post_id}
+			</if>
+			<!-- 订单号 -->
+			<if test="pd.out_trade_no !=null and pd.out_trade_no != '' ">
+				and p.out_trade_no = #{pd.out_trade_no}
+			</if>
+			<!-- 交易状态 -->
+			<if test="pd.trade_state !=null and pd.trade_state != '' ">
+				and p.trade_state = #{pd.trade_state}
+			</if>
+			<!-- 是否退款 -->
+			<if test="pd.isrefund !=null  ">
+				and p.isrefund = #{pd.isrefund}
+			</if>
+			<!-- 状态 -->
+			<if test="pd.state !=null  ">
+				and p.state = #{pd.state}
+			</if>
+
+			<!-- 系统id -->
+			<if test="pd.system_id !=null and pd.system_id != '' ">
+				and p.system_id = #{pd.system_id}
+			</if>
+
+			<if test="pd.beginTime!=null and pd.beginTime!=''"><!-- 开始时间检索 -->
+				and p.updatetime &gt;= concat(#{pd.beginTime},' 00:00:00')::TIMESTAMP
+			</if>
+			<if test="pd.endTime!=null and pd.endTime!=''"><!-- 结束时间检索 -->
+				and p.updatetime &lt;= concat(#{pd.endTime},' 23:59:59')::TIMESTAMP
+			</if>
+			and p.visiable = 1
+	</select>
+	
+
+	<!-- 根据支付id 获取支付信息 -->
+	<select id="getPayById"  resultType="pd" parameterType="pd">
+		SELECT 
+			<include refid="fieldd"></include>
+			from <include refid="tableName"></include> as p
+			where 1=1 
+			and p.visiable = 1
+			and p.payid = #{payid}
+	</select>
+
+	<!-- 其他支付关闭 -->
+	<update id="closeOtherPay" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		<set>
+			updatetime=now(),
+			<if test="visiable != null">
+				visiable=#{visiable}::integer,
+			</if>
+		</set>
+		where 1=1
+		<if test="uid !=null and uid != '' ">
+			and uid = #{uid}
+		</if>
+		<if test="post_id !=null and post_id != '' ">
+			and post_id = #{post_id}
+		</if>
+
+	</update>
+
+</mapper>

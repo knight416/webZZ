@@ -64,6 +64,7 @@
 		u.visiable,
 		u.job_type,
 		u.user_message,
+		u.user_message ->> 'email' as email,
 		u.username,
 		u.system_id
 	</sql>
@@ -173,7 +174,9 @@
 	<select id="findAllUserPgListPage" parameterType="page" resultType="pd">
 		SELECT
 		row_number() over (ORDER BY updatetime DESC) as xh,
-		<include refid="fields"></include>
+		(SELECT to_char(updatetime,'YYYY-MM-DD HH24:MI:SS') AS nupdatetime
+		from t_news where writerid = u.uid LIMIT 1) as nupdatetime,
+		<include refid="fieldd"></include>
 		<if test="pd.job_type !=null and pd.job_type != '' ">
 			,
 			(select array_to_json(array_agg(row_to_json(t)))
@@ -181,41 +184,46 @@
 			(select title from t_news de where uid = de.writerid and visiable = 1) t
 			) news
 		</if>
-		from <include refid="tableName"></include>
+		from <include refid="tableName"></include> as u
 		where 1=1
 		<!-- 所属机构 -->
 		<if test="pd.department !=null and pd.department != '' ">
-			and department like CONCAT(CONCAT('%',#{pd.department}),'%')
+			and u.department like CONCAT(CONCAT('%',#{pd.department}),'%')
 		</if>
 		<!-- 姓名-->
 		<if test="pd.name !=null and pd.name != '' ">
-			and name like CONCAT(CONCAT('%',#{pd.name}),'%')
+			and u.name like CONCAT(CONCAT('%',#{pd.name}),'%')
 		</if>
 		<!-- 系统id-->
 		<if test="pd.system_id !=null and pd.system_id != '' ">
-			and system_id = #{pd.system_id}
+			and u.system_id = #{pd.system_id}
 		</if>
 		<!-- 用户身份-->
 		<if test="pd.job_type !=null and pd.job_type != '' ">
-			and job_type = #{pd.job_type}
+			and u.job_type = #{pd.job_type}
 		</if>
 		<!-- 状态-->
 		<if test="pd.state !=null ">
-			and state  = #{pd.state}
+			and u.state  = #{pd.state}
 		</if>
 
 		<!-- 热度  -->
 		<if test="pd.hot !=null and pd.hot != '' ">
-			and user_message ->>'hot' = #{pd.hot}::varchar
+			and u.user_message ->>'hot' = #{pd.hot}::varchar
+		</if>
+
+		<!-- 单位性质  -->
+		<if test="pd.enterprise_type !=null and pd.enterprise_type != '' ">
+			and u.user_message ->>'enterprise_type' = #{pd.enterprise_type}::varchar
 		</if>
 
 		<if test="pd.beginTime!=null and pd.beginTime!=''"><!-- 开始时间检索 -->
-			and createtime &gt;= concat(#{pd.beginTime},' 00:00:00')::TIMESTAMP
+			and u.createtime &gt;= concat(#{pd.beginTime},' 00:00:00')::TIMESTAMP
 		</if>
 		<if test="pd.endTime!=null and pd.endTime!=''"><!-- 结束时间检索 -->
-			and createtime &lt;= concat(#{pd.endTime},' 23:59:59')::TIMESTAMP
+			and u.createtime &lt;= concat(#{pd.endTime},' 23:59:59')::TIMESTAMP
 		</if>
-		and visiable = 1
+		and u.visiable = 1
 	</select>
 
 	<!-- 根据用户id 获取用户信息 -->
@@ -236,6 +244,15 @@
 		where 1=1
 		and visiable = 1
 		and uid = #{uid}
+	</select>
+
+	<!--验证是否允许删除-->
+	<select id="yanzheng"  resultType="java.lang.Integer" parameterType="pd">
+		SELECT count(0) from t_news_operation
+		where post_id in (
+		SELECT post_id from t_post where xid in
+		(SELECT xid from t_news
+		where uid = #{uid}))
 	</select>
 
 </mapper>

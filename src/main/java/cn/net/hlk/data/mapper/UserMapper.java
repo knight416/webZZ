@@ -32,4 +32,14 @@ public interface UserMapper {
 	Integer editUser(PageData pd);
 /*获取用户其他信息*/
 	PageData getuserOtherMessage(String uid);
+
+	/**
+	 * @Title yanzheng
+	 * @Description 验证是否允许删除
+	 * @author 张泽恒
+	 * @date 2020/2/1 17:30
+	 * @param [pd]
+	 * @return int
+	 */
+	int yanzheng(PageData pd);
 }

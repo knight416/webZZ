@@ -152,6 +152,15 @@
 				and p.state = #{pd.state}
 			</if>
 
+			<!-- 岗位名称 -->
+			<if test="pd.postname !=null and pd.postname != '' ">
+				and p.post_message ->>'name' like CONCAT(CONCAT('%',#{pd.postname}),'%')
+			</if>
+			<!-- 单位名称 -->
+			<if test="pd.unitname !=null and pd.unitname != '' ">
+				and p.unit_information ->>'name' like CONCAT(CONCAT('%',#{pd.unitname}),'%')
+			</if>
+
 			<!-- 系统id -->
 			<if test="pd.system_id !=null and pd.system_id != '' ">
 				and p.system_id = #{pd.system_id}
@@ -223,18 +232,23 @@
 		SELECT
 		(SELECT title from t_news where xid = p.xid) as title,
 		p.post_message ->> 'name' as postname,
-		p.post_message ->> 'recruitmentunit' as recruitmentunit,
-		p.post_message ->> 'name' as numberofrecruits,
-		p.post_message ->> 'name' as academicrequirements,
-		p.post_message ->> 'name' as professionalrequirements,
-		p.post_message ->> 'name' as genderrequirements,
-		p.post_message ->> 'name' as maximumage,
-		p.post_message ->> 'name' as politicaloutlook,
-		p.post_message ->> 'name' as contactinformation,
-		p.post_message ->> 'name' as employmentnature,
-		p.post_message ->> 'name' as otherrequirements,
-		p.post_message ->> 'name' as remarks,
-		p.post_message ->> 'name' as examinationmethod,
+		p.unit_information ->> 'name' as recruitmentunit,
+		p.post_message ->> 'numberofrecruits' as numberofrecruits,
+		p.post_message ->> 'academicrequirements' as academicrequirements,
+		p.post_message ->> 'professionalrequirements' as professionalrequirements,
+		p.post_message ->> 'genderrequirements' as genderrequirements,
+		p.post_message ->> 'maximumage' as maximumage,
+		p.post_message ->> 'politicaloutlook' as politicaloutlook,
+		p.post_message ->> 'contactinformation' as contactinformation,
+		p.post_message ->> 'employmentnature' as employmentnature,
+		p.post_message ->> 'otherrequirements' as otherrequirements,
+		p.post_message ->> 'remarks' as remarks,
+		p.post_message ->> 'examinationmethod' as examinationmethod,
+		p.post_message ->> 'examinationname' as examinationname,
+		p.post_message ->> 'examinationplace' as examinationplace,
+		p.post_message ->> 'examinationtime' as examinationtime,
+		p.post_message ->> 'examinationroom' as examinationroom,
+		p.post_message ->> 'examinationnotes' as examinationnotes,
 		p.post_type as posttype,
 		(SELECT count(0) from t_news_operation where post_id = p.post_id) as numberofenrolment
 		from t_post as p

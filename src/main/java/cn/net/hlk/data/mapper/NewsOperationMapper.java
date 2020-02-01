@@ -54,4 +54,34 @@ public interface NewsOperationMapper {
 	 * @return int
 	 */
 	int VerificationAdd(PageData pd);
+
+	/**
+	 * @Title postPerformance
+	 * @Description 岗位成绩前三获取
+	 * @author 张泽恒
+	 * @date 2020/1/29 21:26
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.PageData
+	 */
+	PageData postPerformance(PageData pd);
+
+	/**
+	 * @Title updatePostPerformance
+	 * @Description 前三状态修改
+	 * @author 张泽恒
+	 * @date 2020/1/29 21:59
+	 * @param []
+	 * @return void
+	 */
+	void updatePostPerformance(PageData pd);
+
+	/**
+	 * @Title findicket
+	 * @Description 准考证信息获取
+	 * @author 张泽恒
+	 * @date 2020/1/29 22:57
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.PageData
+	 */
+	PageData findicket(PageData pd);
 }

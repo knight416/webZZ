@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.net.hlk.data.payment.config.SwiftpassConfig;
+import cn.net.hlk.data.config.SwiftpassConfig;
 import cn.net.hlk.data.payment.util.SignUtil;
 import cn.net.hlk.data.payment.util.SignUtils;
 import cn.net.hlk.data.payment.util.XmlUtils;
@@ -25,7 +25,7 @@ import org.apache.http.util.EntityUtils;
 /**
  * <一句话功能简述>
  * <功能详细描述>关闭订单
- * 
+ *
  * @author  Administrator
  * @version  [版本号, 2018-2-01]
  * @see  [相关类/方法]
@@ -39,13 +39,13 @@ public class TestCloseServlet extends HttpServlet {
         doPost(req, resp);
     }
 
-    
+
 	@SuppressWarnings({ "unchecked" })
 	@Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("utf-8");
         resp.setCharacterEncoding("utf-8");
-       
+
 		SortedMap<String,String> map = XmlUtils.getParameterMap(req);
         System.out.println(XmlUtils.toXml(map));
         map.put("mch_id", SwiftpassConfig.mch_id);
@@ -58,10 +58,10 @@ public class TestCloseServlet extends HttpServlet {
         String preStr = buf.toString();
         String sign_type = map.get("sign_type");
         map.put("sign", SignUtil.getSign(sign_type, preStr));
-        
-        
+
+
         System.out.println("reqUrl:" + reqUrl);
-        
+
         CloseableHttpResponse response = null;
         CloseableHttpClient client = null;
         try {
@@ -74,7 +74,7 @@ public class TestCloseServlet extends HttpServlet {
             if(response != null && response.getEntity() != null){
                 Map<String,String> resultMap = XmlUtils.toMap(EntityUtils.toByteArray(response.getEntity()), "utf-8");
                 res = XmlUtils.toXml(resultMap);
-                
+
                 System.out.println("请求结果：" + res);
                 String reSign = resultMap.get("sign");
                 sign_type = resultMap.get("sign_type");

@@ -7,6 +7,8 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import org.apache.commons.lang.StringUtils;
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
-import cn.afterturn.easypoi.excel.ExcelExportUtil;
+
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
@@ -38,7 +40,12 @@ public class FileWithExcelUtil {
 	}
 
 	private static void defaultExport(List<?> list, Class<?> pojoClass, String fileName, FileOutputStream fopts, ExportParams exportParams) {
-		Workbook workbook = ExcelExportUtil.exportExcel(exportParams,pojoClass,list);
+		Workbook workbook = null;
+		try {
+			workbook = ExcelExportUtil.exportExcel(exportParams,pojoClass,list);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		if (workbook != null);
 		downLoadExcel(fileName, fopts, workbook);
 	}

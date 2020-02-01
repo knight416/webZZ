@@ -29,6 +29,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Info;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.HttpStatus;
@@ -544,13 +545,12 @@ public class NewsController extends BaseController{
 					String realPath = fileUploadProperteis.getUploadFolder();
 					String filePath = realPath + File.separator+ "posto"+ File.separator+fileName;
 					FileUtil.createDir(filePath);
-
 					//文件地址
 					FileOutputStream fopts = new FileOutputStream(filePath);
 					// OutputStream out = new FileOutputStream(filePath);
 					String url = "/upload"+ File.separator+ "posto"+File.separator+fileName;
 
-					FileWithExcelUtil.exportExcel(personList,personList.get(0).getPostname(),personList.get(0).getPostname(),ScorePojo.class,personList.get(0).getTitle()+".xls",fopts);
+					FileWithExcelUtil.exportExcel(personList,personList.get(0).getPostname(),"sheet",ScorePojo.class,personList.get(0).getTitle()+"-"+personList.get(0).getPostname()+".xls",fopts);
 
 					resData.put("url",url);
 					responseBodyBean.setResult(resData);

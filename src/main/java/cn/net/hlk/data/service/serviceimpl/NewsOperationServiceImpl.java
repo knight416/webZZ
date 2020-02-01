@@ -2,6 +2,7 @@ package cn.net.hlk.data.service.serviceimpl;
 
 import cn.net.hlk.data.mapper.NewsMapper;
 import cn.net.hlk.data.mapper.NewsOperationMapper;
+import cn.net.hlk.data.mapper.UserMapper;
 import cn.net.hlk.data.poi.easypoi.PostPojo;
 import cn.net.hlk.data.poi.easypoi.ScorePojo;
 import cn.net.hlk.data.pojo.Page;
@@ -22,7 +23,9 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,6 +41,10 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 
 	@Autowired
 	private NewsOperationMapper newsOperationMapper;
+	@Autowired
+	private UserMapper userMapper;
+	@Autowired
+	private NewsMapper newsMapper;
 
 	/**
 	 * @Title: addAlarm
@@ -64,12 +71,65 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 					responseBodyBean.setReason(reasonBean);
 					return responseBodyBean;
 				}
+
+
+				if("004001".equals(pd.getString("operation_type")) ){
+					PageData user = userMapper.findById(pd);
+					String photo = "";
+					if(user != null){
+						photo = user.getString("photo");
+					}
+					if(StringUtil2.isEmpty(photo) || "null".equals(photo)){
+						reasonBean.setCode("400");
+						reasonBean.setText("照片未上传");
+						responseBodyBean.setReason(reasonBean);
+						return responseBodyBean;
+					}
+
+					PageData news = newsMapper.getNewsById(pd);
+					if(news != null){
+						PageData newsMessage = JSON.parseObject(JSON.toJSONString(news.get("news_message")),PageData.class);
+						if(newsMessage != null){
+
+							PageData pdd = new PageData();
+							pdd.put("xid",pd.get("xid"));
+							pdd.put("operation_type","004001");
+							int nn = newsOperationMapper.VerificationAdd(pdd);
+
+							List<String> registrationTime = JSON.parseArray(JSON.toJSONString(newsMessage.get("registrationTime")),String.class);
+							if(registrationTime != null && registrationTime.size() > 1){
+								String registrationTimes = registrationTime.get(0);
+								String registrationTimee = registrationTime.get(1);
+
+								Date dates = null;
+								Date datee = null;
+								registrationTimes = registrationTimes.replace("Z", " UTC");
+								registrationTimee = registrationTimee.replace("Z", " UTC");
+								SimpleDateFormat formatter=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
+								dates = formatter.parse(registrationTimes);
+								datee = formatter.parse(registrationTimee);
+								Date now =new Date();
+								if(dates.getTime() > now.getTime() || datee.getTime() < now.getTime()){
+									reasonBean.setCode("400");
+									reasonBean.setText("报名时间未匹配");
+									responseBodyBean.setReason(reasonBean);
+									return responseBodyBean;
+								}
+							}
+						}
+					}
+				}
 			}
 
 			//根据时间类型 区分操作
 			if(StringUtil2.isNotEmpty(pd.get("operation_message"))){
 				pd.put("operation_message",JSON.toJSONString(pd.get("operation_message")));
 			}
+			PageData interview_message = new PageData();
+			String ticketNumber = UuidUtil.get32UUID();
+			interview_message.put("ticketnumber",ticketNumber);
+			pd.put("interview_message",JSON.toJSONString(interview_message));
+
 			newsOperationMapper.addNewsOperation(pd);//消息添加
 			// int n = informationService.xmppSend(pd,0);
 			responseBodyBean.setResult(resData);
@@ -191,6 +251,84 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	/*
+	 * @Title postPerformance
+	 * @Description 岗位成绩前三获取
+	 * @author 张泽恒
+	 * @date 2020/1/29 21:23
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@Override
+	public ResponseBodyBean postPerformance(PageData pd) {
+		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
+		ReasonBean reasonBean = new ReasonBean();//返回参数
+		PageData resData = new PageData();//返回数据
+		try {
+			PageData data = new PageData();
+			//生成前三成绩
+			data = newsOperationMapper.postPerformance(pd);
+			//修改前三成绩状态
+			pd.put("isinterview",1);
+			newsOperationMapper.updateNewsOperation(pd);
+			newsOperationMapper.updatePostPerformance(pd);
+			resData.put("data", data);
+			responseBodyBean.setResult(resData);
+		} catch (Exception e) {
+			e.printStackTrace();
+			reasonBean = ResponseUtil.getReasonBean("Exception", e.getClass().getSimpleName());
+			responseBodyBean.setReason(reasonBean);
+		}
+		return responseBodyBean;
+	}
+
+	/**
+	 * @Title updateInterviewPermit
+	 * @Description 修改面试准考证
+	 * @author 张泽恒
+	 * @date 2020/1/29 22:27
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@Override
+	public ResponseBodyBean updateInterviewPermit(PageData pd) {
+		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
+		ReasonBean reasonBean = new ReasonBean();//返回参数
+		PageData resData = new PageData();//返回数据
+		try {
+			PageData data = new PageData();
+			List<PageData> newsInterviewMessageList = JSON.parseArray(JSON.toJSONString(pd.get("interviewMessageList")),PageData.class);
+			if(newsInterviewMessageList != null && newsInterviewMessageList.size() > 0){
+				for(PageData newsInterviewMessage : newsInterviewMessageList){
+					if(StringUtil2.isNotEmpty(newsInterviewMessage.get("interview_message"))){
+						newsInterviewMessage.put("interview_message",JSON.toJSONString(newsInterviewMessage.get("interview_message")));
+					}
+					newsOperationMapper.updatePostPerformance(newsInterviewMessage);
+				}
+			}
+			resData.put("data", data);
+			responseBodyBean.setResult(resData);
+		} catch (Exception e) {
+			e.printStackTrace();
+			reasonBean = ResponseUtil.getReasonBean("Exception", e.getClass().getSimpleName());
+			responseBodyBean.setReason(reasonBean);
+		}
+		return responseBodyBean;
+	}
+
+	/**
+	 * @Title findicket
+	 * @Description 获取准考证信息
+	 * @author 张泽恒
+	 * @date 2020/1/29 22:56
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.PageData
+	 */
+	@Override
+	public PageData findicket(PageData pd) {
+		return newsOperationMapper.findicket(pd);
 	}
 
 

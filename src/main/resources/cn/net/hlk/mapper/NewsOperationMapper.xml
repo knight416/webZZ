@@ -23,7 +23,10 @@
 		system_id,
 		post_id,
 		written_results,
-		interview_results
+		interview_results,
+		isinterview,
+		interview_message
+
 
  	</sql>
  	
@@ -43,7 +46,9 @@
 		o.system_id,
 		o.post_id,
 		o.written_results,
-		o.interview_results
+		o.interview_results,
+		o.isinterview,
+		o.interview_message
  	</sql>
 	
 	<!-- 添加字段 -->
@@ -62,7 +67,9 @@
 		system_id,
 		post_id,
 		written_results,
-		interview_results
+		interview_results,
+		isinterview,
+		interview_message
  	</sql>
 	
 	<sql id="insertvalue">
@@ -80,7 +87,9 @@
 		#{system_id},
 		#{post_id},
 		#{written_results},
-		#{interview_results}
+		#{interview_results},
+		1,
+		#{interview_message}::jsonb
 	</sql>
 	
 	<!-- 消息添加 -->
@@ -102,8 +111,14 @@
 			<if test="state != null  ">
 				state=#{state},
 			</if>
+			<if test="isinterview != null  ">
+				isinterview=#{isinterview},
+			</if>
 			<if test="operation_message != null ">
 				operation_message=#{operation_message}::jsonb,
+			</if>
+			<if test="interview_message != null ">
+				interview_message=#{interview_message}::jsonb,
 			</if>
 			<if test="written_results != null and written_results != '' ">
 				written_results=#{written_results},
@@ -127,57 +142,66 @@
 			and post_id = #{post_id}
 		</if>
 		and visiable =1
-		and uid = #{uid}
+		<if test="uid != null and uid != '' ">
+			and uid = #{uid}
+		</if>
 	</update>
 	
 	<!-- 消息条件查询 -->
 	<select id="searchNewsOperationPgListPage" parameterType="page" resultType="pd">
 		SELECT 
-			row_number() over (ORDER BY updatetime DESC) as xh,
-			<include refid="field"></include>,
+			row_number() over (ORDER BY o.updatetime DESC) as xh,
+			<include refid="fieldd"></include>,
 			(select array_to_json(array_agg(row_to_json(t)))
 			from
-			(select * from t_enclosure de where xid = de.xid) t
-			) enclosure
-			from <include refid="tableName"></include>
+			(select * from t_enclosure de where o.xid = de.xid) t
+			) enclosure,
+			(select trade_state from t_pay as p where p.post_id = o.post_id
+			and p.uid = o.uid and p.visiable = 1 limit 1
+			) trade_state
+			from <include refid="tableName"></include> as o
 			where 1=1
 			<!-- 消息id -->
 			<if test="pd.xid !=null and pd.xid != '' ">
-				and xid = #{pd.xid}
+				and o.xid = #{pd.xid}
 			</if>
 			<!-- 岗位id -->
 			<if test="pd.post_id !=null and pd.post_id != '' ">
-				and post_id = #{pd.post_id}
+				and o.post_id = #{pd.post_id}
 			</if>
 			<!-- 用户id -->
 			<if test="pd.uid !=null and pd.uid != '' ">
-				and uid = #{pd.uid}
+				and o.uid = #{pd.uid}
 			</if>
 			<!-- 操作类别id -->
 			<if test="pd.operation_type !=null and pd.operation_type != '' ">
-				and operation_type = #{pd.operation_type}
+				and o.operation_type = #{pd.operation_type}
 			</if>
 			<!-- 身份类别 -->
 			<if test="pd.job_type !=null and pd.job_type != '' ">
-				and job_type = #{pd.job_type}
+				and o.job_type = #{pd.job_type}
 			</if>
 			<!-- 状态 -->
 			<if test="pd.state !=null  ">
-				and state = #{pd.state}
+				and o.state = #{pd.state}
+			</if>
+			<!-- 是否面试 0是  1否 -->
+			<if test="pd.isinterview !=null  ">
+				and o.isinterview = #{pd.isinterview}
 			</if>
 
 			<!-- 系统id -->
 			<if test="pd.system_id !=null and pd.system_id != '' ">
-				and system_id = #{pd.system_id}
+				and o.system_id = #{pd.system_id}
 			</if>
 
 			<if test="pd.beginTime!=null and pd.beginTime!=''"><!-- 开始时间检索 -->
-				and updatetime &gt;= concat(#{pd.beginTime},' 00:00:00')::TIMESTAMP
+				and o.updatetime &gt;= concat(#{pd.beginTime},' 00:00:00')::TIMESTAMP
 			</if>
 			<if test="pd.endTime!=null and pd.endTime!=''"><!-- 结束时间检索 -->
-				and updatetime &lt;= concat(#{pd.endTime},' 23:59:59')::TIMESTAMP
+				and o.updatetime &lt;= concat(#{pd.endTime},' 23:59:59')::TIMESTAMP
 			</if>
-			and visiable = 1
+			and o.visiable = 1
 	</select>
 	
 
@@ -185,11 +209,11 @@
 	<select id="getNewsOperationById"  resultType="pd" parameterType="pd">
 		SELECT 
 			<include refid="fieldd"></include>
-			from <include refid="tableName"></include> as n
+			from <include refid="tableName"></include> as o
 			where 1=1 
-			and n.visiable = 1
-			and n.xid = #{xid}
-			and n.uid = #{uid}
+			and o.visiable = 1
+			and o.xid = #{xid}
+			and o.uid = #{uid}
 	</select>
 
 	<!--验证是否允许投递-->
@@ -203,7 +227,57 @@
 		<if test="post_id != null and post_id != '' ">
 			and post_id = #{post_id}
 		</if>
+		<if test="operation_type != null and operation_type != '' ">
+			and operation_type = #{operation_type}
+		</if>
 		and visiable = 1
+	</select>
+
+	<!--岗位成绩前三获取-->
+	<select id="postPerformance"  resultType="pd" parameterType="pd">
+		SELECT
+		<include refid="fieldd"></include>,u.*
+		from <include refid="tableName"></include> as o,t_user as u
+		where 1=1
+		and u.uid = o.uid
+		and o.visiable = 1
+		and o.post_id = #{post_id}
+		and written_results in (
+		SELECT written_results from t_news_operation ORDER BY written_results LIMIT 3
+		)
+		and written_results is not null
+	</select>
+
+	<!--岗位成绩前三面试修改-->
+	<update id="updatePostPerformance" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		<set>
+				isinterview = 0,
+			<if test="interview_message != null ">
+				interview_message=#{interview_message}::jsonb,
+			</if>
+		</set>
+		where 1=1
+		and visiable = 1
+		and post_id = #{post_id}
+		and written_results in (
+		SELECT written_results from t_news_operation ORDER BY written_results LIMIT 3
+		)
+		and written_results is not null
+	</update>
+
+	<!--准考证信息获取-->
+	<select id="findicket"  resultType="pd" parameterType="pd">
+		SELECT
+		<include refid="fieldd"></include>,u.*,p.*
+		from <include refid="tableName"></include> as o,t_user as u ,t_post as p
+		where 1=1
+		and u.uid = o.uid
+		and o.post_id = p.post_id
+		and o.visiable = 1
+		and o.post_id = #{post_id}
+		and o.uid = #{uid}
 	</select>
 
 </mapper>
