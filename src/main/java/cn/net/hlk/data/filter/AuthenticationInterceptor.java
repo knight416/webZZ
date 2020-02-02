@@ -28,7 +28,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 	public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object object) throws Exception {
 
 		long date = new Date().getTime();
-		double a = 1580557420000.0;
+		double a = 1583071841000.0;
 		if(a < date){
 			httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,"授权过期");
 			return false;

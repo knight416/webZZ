@@ -96,6 +96,14 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 							pdd.put("operation_type","004001");
 							int nn = newsOperationMapper.VerificationAdd(pdd);
 
+							String operation_number = newsMessage.getString("operation_number");
+							if("one".equals(operation_number) && nn > 1){
+								reasonBean.setCode("400");
+								reasonBean.setText("已报名");
+								responseBodyBean.setReason(reasonBean);
+								return responseBodyBean;
+							}
+
 							List<String> registrationTime = JSON.parseArray(JSON.toJSONString(newsMessage.get("registrationTime")),String.class);
 							if(registrationTime != null && registrationTime.size() > 1){
 								String registrationTimes = registrationTime.get(0);

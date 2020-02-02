@@ -209,7 +209,10 @@
 
 		<!-- 热度  -->
 		<if test="pd.hot !=null and pd.hot != '' ">
-			and u.user_message ->>'hot' = #{pd.hot}::varchar
+		and u.user_message ->>'hot' = #{pd.hot}::varchar
+		</if>
+		<if test="pd.fileurl !=null and pd.fileurl != '' ">
+			and u.user_message ->>'fileurl' like CONCAT(CONCAT('%',#{pd.fileurl}),'%')
 		</if>
 
 		<!-- 单位性质  -->

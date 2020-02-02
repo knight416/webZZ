@@ -1,6 +1,7 @@
 package cn.net.hlk.data.service.serviceimpl;
 
 import cn.net.hlk.data.mapper.PostMapper;
+import cn.net.hlk.data.mapper.UserMapper;
 import cn.net.hlk.data.poi.easypoi.PostPojo;
 import cn.net.hlk.data.pojo.Page;
 import cn.net.hlk.data.pojo.PageData;
@@ -34,6 +35,8 @@ public class PostServiceImpl extends BaseServiceImple implements PostService {
 
 	@Autowired
 	private PostMapper postMapper;
+	@Autowired
+	private UserMapper userMapper;
 
 	/**
 	 * @Title: addAlarm
@@ -221,8 +224,10 @@ public class PostServiceImpl extends BaseServiceImple implements PostService {
 					PageData unit_information = new PageData();
 					unit_information.put("name",person.getRecruitmentunit());
 
+					PageData user = userMapper.findById(pd);
+
 					pd.put("post_message",JSON.toJSONString(post_message));
-					pd.put("unit_information",JSON.toJSONString(unit_information));
+					pd.put("unit_information",JSON.toJSONString(user));
 					postMapper.addPost(pd);//消息添加
 				}
 			}

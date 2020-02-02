@@ -113,13 +113,19 @@ public class NewsController extends BaseController{
 				String uid = (String) parseJwt.getBody().get("id");
 				pd.put("updateuser", optName);
 				PageData pdc = new PageData();
+				pd.put("uid",uid);
+
 				pdc.put("uid",uid);
 				userService.editUser(pdc);
 				if(StringUtil2.isNotEmpty(pd.get("writerid"))){
-					pd.put("writerid", uid);
-					PageData user = userService.findById(pdc);
+					pd.put("uid", pd.get("writerid"));
+					PageData user = userService.findById(pd);
 					pd.put("writer", user.get("name"));
+				}else{
+					pd.put("writerid", uid);
+					pd.put("writer", optName);
 				}
+
 				responseBodyBean = newsService.addNews(pd);
 				if(responseBodyBean.getReason() == null){
 					status = HttpStatus.OK.value();
@@ -668,7 +674,7 @@ public class NewsController extends BaseController{
 	@UserLoginToken
 	@RequestMapping(value = "/postImport", method = RequestMethod.POST)
 	public @ResponseBody ResponseBodyBean postImport(@RequestParam(value ="file") MultipartFile file,
-													 @RequestParam String xid,@RequestParam String system_id,
+													 @RequestParam String xid,@RequestParam String uid,@RequestParam String system_id,
 																  @RequestHeader String Authorization) {
 		ResponseBodyBean  responseBodyBean = new ResponseBodyBean();
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
@@ -676,8 +682,7 @@ public class NewsController extends BaseController{
 		try {
 			Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
 			String optName = (String) parseJwt.getBody().get("name");
-			String uid = (String) parseJwt.getBody().get("id");
-
+			// String uid = (String) parseJwt.getBody().get("id");
 			// List<PostPojo> personList = FileWithExcelUtil.importExcel(file, 1, 1, PostPojo.class);
 
 
