@@ -63,7 +63,7 @@ public interface NewsOperationMapper {
 	 * @param [pd]
 	 * @return cn.net.hlk.data.pojo.PageData
 	 */
-	PageData postPerformance(PageData pd);
+	List<PageData> postPerformance(PageData pd);
 
 	/**
 	 * @Title updatePostPerformance

@@ -2,6 +2,7 @@ package cn.net.hlk.data.service.serviceimpl;
 
 import cn.net.hlk.data.mapper.NewsMapper;
 import cn.net.hlk.data.mapper.NewsOperationMapper;
+import cn.net.hlk.data.mapper.PostMapper;
 import cn.net.hlk.data.mapper.UserMapper;
 import cn.net.hlk.data.poi.easypoi.PostPojo;
 import cn.net.hlk.data.poi.easypoi.ScorePojo;
@@ -45,6 +46,8 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 	private UserMapper userMapper;
 	@Autowired
 	private NewsMapper newsMapper;
+	@Autowired
+	private PostMapper postMapper;
 
 	/**
 	 * @Title: addAlarm
@@ -275,9 +278,9 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 		ReasonBean reasonBean = new ReasonBean();//返回参数
 		PageData resData = new PageData();//返回数据
 		try {
-			PageData data = new PageData();
+			// PageData data = new PageData();
 			//生成前三成绩
-			data = newsOperationMapper.postPerformance(pd);
+			List<PageData> data = newsOperationMapper.postPerformance(pd);
 			//修改前三成绩状态
 			pd.put("isinterview",1);
 			newsOperationMapper.updateNewsOperation(pd);
@@ -316,6 +319,10 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 					newsOperationMapper.updatePostPerformance(newsInterviewMessage);
 				}
 			}
+			PageData pdd = new PageData();
+			pdd.put("post_id",pd.get("post_id"));
+			pdd.put("post_state",2);
+			postMapper.updatePost(pdd);
 			resData.put("data", data);
 			responseBodyBean.setResult(resData);
 		} catch (Exception e) {

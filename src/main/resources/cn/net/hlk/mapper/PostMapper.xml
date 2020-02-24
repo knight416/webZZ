@@ -124,6 +124,7 @@
 		SELECT 
 			row_number() over (ORDER BY updatetime DESC) as xh,
 			(SELECT count(0) from t_news_operation where post_id = p.post_id) as count,
+			(SELECT count(0) from t_news_operation where post_id = p.post_id and state in (1,4,5)) as count1,
 			<include refid="fieldd"></include>
 			from <include refid="tableName"></include> as p
 			where 1=1
@@ -149,7 +150,7 @@
 			</if>
 			<!-- 状态 -->
 			<if test="pd.state !=null  ">
-				and p.state = #{pd.state}
+				and p.state = #{pd.state}::integer
 			</if>
 
 			<!-- 岗位名称 -->
@@ -224,6 +225,12 @@
 		and p.visiable = 1
 		<if test="xid !=null and xid != '' ">
 			and p.xid = #{xid}
+		</if>
+		<if test="state !=null and state.size > 0">
+			and no.state in
+			<foreach item="item" index="index" collection="state" open="(" separator="," close=")">
+				#{state[${index}]}
+			</foreach>
 		</if>
 	</select>
 

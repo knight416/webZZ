@@ -1,5 +1,6 @@
 package cn.net.hlk.data.service.serviceimpl;
 
+import cn.net.hlk.data.mapper.NewsMapper;
 import cn.net.hlk.data.mapper.PostMapper;
 import cn.net.hlk.data.mapper.UserMapper;
 import cn.net.hlk.data.poi.easypoi.PostPojo;
@@ -13,13 +14,16 @@ import cn.net.hlk.util.ResponseUtil;
 import cn.net.hlk.util.StringUtil2;
 import cn.net.hlk.util.UuidUtil;
 import com.alibaba.fastjson.JSON;
+import jdk.nashorn.internal.ir.ContinueNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,6 +41,8 @@ public class PostServiceImpl extends BaseServiceImple implements PostService {
 	private PostMapper postMapper;
 	@Autowired
 	private UserMapper userMapper;
+	@Autowired
+	private NewsMapper newsMapper;
 
 	/**
 	 * @Title: addAlarm
@@ -70,6 +76,22 @@ public class PostServiceImpl extends BaseServiceImple implements PostService {
 
 			//根据时间类型 区分操作
 			if(StringUtil2.isNotEmpty(pd.get("post_message"))){
+				PageData post_message = JSON.parseObject(JSON.toJSONString(pd.get("post_message")),PageData.class);
+
+				PageData news = newsMapper.getNewsById(pd);
+				if(news != null && news.get("news_message") != null){
+					PageData newsMessage = JSON.parseObject(JSON.toJSONString(news.get("news_message")),PageData.class);
+					if(newsMessage != null){
+						String examinationTime = JSON.parseObject(JSON.toJSONString(newsMessage.get("examinationTime")),String.class);
+						Date dates = null;
+						examinationTime = examinationTime.replace("Z", " UTC");
+						SimpleDateFormat formatter=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
+						dates = formatter.parse(examinationTime);
+						SimpleDateFormat formatter2=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+						post_message.put("examinationtime",formatter2.format(dates));
+					}
+				}
+				pd.put("post_message",post_message);
 				pd.put("post_message",JSON.toJSONString(pd.get("post_message")));
 			}
 			if(StringUtil2.isNotEmpty(pd.get("unit_information"))){
@@ -203,6 +225,9 @@ public class PostServiceImpl extends BaseServiceImple implements PostService {
 					pd.put("updateuser", optName);
 
 					PageData post_message = new PageData();
+					if(StringUtil2.isEmpty(person.getPostname())){
+						continue;
+					}
 					post_message.put("name",person.getPostname());
 					post_message.put("examinationmethod",person.getExaminationmethod());
 					post_message.put("numberofrecruits",person.getNumberofrecruits());
@@ -217,7 +242,24 @@ public class PostServiceImpl extends BaseServiceImple implements PostService {
 					post_message.put("remarks",person.getRemarks());
 					post_message.put("examinationname",person.getExaminationname());
 					post_message.put("examinationplace",person.getExaminationplace());
-					post_message.put("examinationtime",person.getExaminationtime());
+					// post_message.put("examinationtime",person.getExaminationtime());
+
+					PageData news = newsMapper.getNewsById(pd);
+					if(news != null){
+						PageData newsMessage = JSON.parseObject(JSON.toJSONString(news.get("news_message")),PageData.class);
+						if(newsMessage != null){
+							String examinationTime = JSON.parseObject(JSON.toJSONString(newsMessage.get("examinationTime")),String.class);
+							Date dates = null;
+							if(StringUtil2.isNotEmpty(examinationTime)){
+								examinationTime = examinationTime.replace("Z", " UTC");
+								SimpleDateFormat formatter=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
+								dates = formatter.parse(examinationTime);
+								SimpleDateFormat formatter2=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+								post_message.put("examinationtime",formatter2.format(dates));
+							}
+						}
+					}
+
 					post_message.put("examinationroom",person.getExaminationroom());
 					post_message.put("examinationnotes",person.getExaminationnotes());
 

@@ -165,6 +165,18 @@
 			<if test="pd.xid !=null and pd.xid != '' ">
 				and o.xid = #{pd.xid}
 			</if>
+			<!-- 公告名称 -->
+			<if test="pd.title !=null and pd.title != '' ">
+				and o.xid in(select xid from t_news where title like CONCAT(CONCAT('%',#{pd.title}),'%') )
+			</if>
+			<!-- 岗位名称 -->
+			<if test="pd.postname !=null and pd.postname != '' ">
+				and o.post_id in(select post_id from t_post where post_message ->>'name' like CONCAT(CONCAT('%',#{pd.postname}),'%') )
+			</if>
+			<!-- 工作名称 -->
+			<if test="pd.jobname !=null and pd.jobname != '' ">
+				and o.operation_message ->>'jobname' like CONCAT(CONCAT('%',#{pd.jobname}),'%')
+			</if>
 			<!-- 岗位id -->
 			<if test="pd.post_id !=null and pd.post_id != '' ">
 				and o.post_id = #{pd.post_id}

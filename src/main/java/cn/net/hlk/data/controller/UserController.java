@@ -31,6 +31,7 @@ import cn.net.hlk.util.ImageAnd64Binary;
 import cn.net.hlk.util.JwtUtil;
 import cn.net.hlk.util.ResponseUtil;
 import cn.net.hlk.util.StringUtil;
+import cn.net.hlk.util.StringUtil2;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -153,6 +154,16 @@ public class UserController extends BaseController {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();
 		PageData pdPageData = new PageData();
+		if(page.getPd() != null && "1000".equals(page.getPd().getString("system_id"))){
+			Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
+			String optName = (String) parseJwt.getBody().get("name");
+			if(!"admin".equals(optName)){
+				PageData pd = page.getPd();
+				pd.put("system_id","0000");
+				page.setPd(pd);
+			}
+		}
+
 		List<PageData> findAllUser = userService.findAllUserlistPage(page);
 		pdPageData.put("list", findAllUser);
 		pdPageData.put("page", page);
@@ -186,6 +197,18 @@ public class UserController extends BaseController {
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();
 		Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
 		String optName = (String) parseJwt.getBody().get("name");
+
+		if("1000".equals(pd.getString("system_id"))){
+			if(!"admin".equals(optName)){
+				ReasonBean reasonBean = new ReasonBean();//返回参数
+				reasonBean.setCode("400");
+				reasonBean.setText("权限不足");
+				status = HttpStatus.PRECONDITION_REQUIRED.value();
+				response.setStatus(status);
+				responseBodyBean.setReason(reasonBean);
+			}
+		}
+
 		pd.put("updateuser", optName);
 		responseBodyBean = userService.deleteUser(pd);
 		status = HttpStatus.OK.value();
@@ -274,6 +297,21 @@ public class UserController extends BaseController {
 	public  @ResponseBody ResponseBodyBean addUser(@RequestBody PageData pd ) {
 		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();
+
+		if(StringUtil2.isNotEmpty(pd.get("token")) && "1000".equals(pd.getString("system_id"))){
+			String Authorization = pd.get("token").toString();
+			Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
+			String optName = (String) parseJwt.getBody().get("name");
+			if(!"admin".equals(optName)){
+				ReasonBean reasonBean = new ReasonBean();//返回参数
+				reasonBean.setCode("400");
+				reasonBean.setText("权限不足");
+				status = HttpStatus.PRECONDITION_REQUIRED.value();
+				response.setStatus(status);
+				responseBodyBean.setReason(reasonBean);
+			}
+		}
+
 		ReasonBean reason = failresult(pd);
 		if(!("200").equals(reason.getCode())){
 			responseBodyBean.setReason(reason);
@@ -397,6 +435,17 @@ public class UserController extends BaseController {
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();
 		Jws<Claims> parseJwt = JwtUtil.parseJwt(Authorization);
 		String optName = (String) parseJwt.getBody().get("name");
+		if("1000".equals(pd.getString("system_id"))){
+			if(!"admin".equals(optName)){
+				ReasonBean reasonBean = new ReasonBean();//返回参数
+				reasonBean.setCode("400");
+				reasonBean.setText("权限不足");
+				status = HttpStatus.PRECONDITION_REQUIRED.value();
+				response.setStatus(status);
+				responseBodyBean.setReason(reasonBean);
+			}
+		}
+
 		pd.put("updateuser", optName);
 		Integer editUser;
 		if("admin".equals(pd.getString("name"))){
@@ -431,7 +480,7 @@ public class UserController extends BaseController {
 			reason.setCode("fail");
         	reason.setText("姓名不能为空");
         }else{
-        	if(pd.getString("name").length()>10){
+        	if(pd.getString("name").length()>100){
         		reason.setCode("fail");
             	reason.setText("姓名超长");
         	}

@@ -53,17 +53,6 @@ public class PayServiceImpl extends BaseServiceImple implements PayService {
 		ReasonBean reasonBean = new ReasonBean();//返回参数
 		PageData resData = new PageData();//返回数据
 		try {
-
-			String post_id = UuidUtil.get32UUID();
-			pd.put("post_id", post_id);//主键生成
-
-			//根据时间类型 区分操作
-			if(StringUtil2.isNotEmpty(pd.get("post_message"))){
-				pd.put("post_message",JSON.toJSONString(pd.get("post_message")));
-			}
-			if(StringUtil2.isNotEmpty(pd.get("unit_information"))){
-				pd.put("unit_information",JSON.toJSONString(pd.get("unit_information")));
-			}
 			payMapper.addPay(pd);//消息添加
 			// int n = informationService.xmppSend(pd,0);
 			responseBodyBean.setResult(resData);
@@ -90,13 +79,6 @@ public class PayServiceImpl extends BaseServiceImple implements PayService {
 		ReasonBean reasonBean = new ReasonBean();//返回参数
 		PageData resData = new PageData();//返回数据
 		try {
-			//根据时间类型 区分操作
-			if(StringUtil2.isNotEmpty(pd.get("post_message"))){
-				pd.put("post_message",JSON.toJSONString(pd.get("post_message")));
-			}
-			if(StringUtil2.isNotEmpty(pd.get("unit_information"))){
-				pd.put("unit_information",JSON.toJSONString(pd.get("unit_information")));
-			}
 			payMapper.updatePay(pd);//消息修改
 			responseBodyBean.setResult(resData);
 		} catch (Exception e) {

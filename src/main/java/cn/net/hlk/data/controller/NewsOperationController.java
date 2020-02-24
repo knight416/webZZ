@@ -3,6 +3,7 @@ package cn.net.hlk.data.controller;
 import cn.net.hlk.data.annotation.SysLog;
 import cn.net.hlk.data.annotation.UserLoginToken;
 import cn.net.hlk.data.config.FileUploadProperteis;
+import cn.net.hlk.data.mapper.NewsMapper;
 import cn.net.hlk.data.mapper.SystemMapper;
 import cn.net.hlk.data.poi.poi.Doc2Pdf;
 import cn.net.hlk.data.poi.poi.WordUtils;
@@ -69,6 +70,8 @@ public class NewsOperationController extends BaseController{
 	public FileUploadProperteis fileUploadProperteis;
 	@Autowired
 	public SystemMapper systemMapper;
+	@Autowired
+	private NewsMapper newsMapper;
 
 	/**
 	 * @Title: addAlarm
@@ -492,6 +495,7 @@ public class NewsOperationController extends BaseController{
 				String uid = (String) parseJwt.getBody().get("id");
 				pd.put("updateuser", optName);
 				pd.put("uid", uid);
+				Map<String, Object> params = new HashMap<String, Object>();
 				//根据用户id 获取信息
 				PageData newsOperation = newsOperationService.findicket(pd);
 				if(newsOperation != null){
@@ -503,6 +507,9 @@ public class NewsOperationController extends BaseController{
 					PageData interview_message = JSON.parseObject(JSON.toJSONString(newsOperation.get("interview_message")),PageData.class);
 					if(userinfo != null){
 						String id_card = userinfo.getString("id_card");//身份证号
+						String sex = userinfo.getString("sex");//身份证号
+						params.put("${id_card}", id_card);
+						params.put("${sex}", sex);
 					}
 
 					String fileName= new String(name+"准考证.docx");    //生成word文件的文件名
@@ -518,7 +525,7 @@ public class NewsOperationController extends BaseController{
 
 					//模板导出
 					WordUtils wordUtil=new WordUtils();
-					Map<String, Object> params = new HashMap<String, Object>();
+
 
 					String ticketnumber = interview_message.getString("ticketnumber");
 					String postname = post_message.getString("name");
@@ -540,7 +547,23 @@ public class NewsOperationController extends BaseController{
 						if(post_message != null){
 							examinationname = post_message.getString("examinationname");
 							examinationplace = post_message.getString("examinationplace");
-							examinationtime = post_message.getString("examinationtime");
+
+							PageData news = newsMapper.getNewsById(pd);
+							if(news != null){
+								PageData newsMessage = JSON.parseObject(JSON.toJSONString(news.get("news_message")),PageData.class);
+								if(newsMessage != null){
+									String examinationTime = JSON.parseObject(JSON.toJSONString(newsMessage.get("examinationTime")),String.class);
+									Date dates = null;
+									if(StringUtil2.isNotEmpty(examinationTime)){
+										examinationTime = examinationTime.replace("Z", " UTC");
+										SimpleDateFormat formatter=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
+										dates = formatter.parse(examinationTime);
+										SimpleDateFormat formatter2=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+										examinationtime = formatter2.format(dates);
+									}
+								}
+							}
+							// examinationtime = post_message.getString("examinationtime");
 							examinationroom = post_message.getString("examinationroom");
 							examinationnotes = post_message.getString("examinationnotes");
 						}
