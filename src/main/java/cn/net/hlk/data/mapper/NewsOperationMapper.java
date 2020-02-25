@@ -84,4 +84,14 @@ public interface NewsOperationMapper {
 	 * @return cn.net.hlk.data.pojo.PageData
 	 */
 	PageData findicket(PageData pd);
+
+	/**
+	 * @Title 3
+	 * @Description 获取数量
+	 * @author 张泽恒
+	 * @date 2020/2/25 15:44
+	 * @param [pdn]
+	 * @return int
+	 */
+	int getCount(PageData pdn);
 }

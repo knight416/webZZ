@@ -262,6 +262,9 @@ public class PostServiceImpl extends BaseServiceImple implements PostService {
 
 					post_message.put("examinationroom",person.getExaminationroom());
 					post_message.put("examinationnotes",person.getExaminationnotes());
+					post_message.put("postnumber",person.getPostnumber());
+					post_message.put("recruitmentconditions",person.getRecruitmentconditions());
+					post_message.put("salaryrange",person.getSalaryrange());
 
 					PageData unit_information = new PageData();
 					unit_information.put("name",person.getRecruitmentunit());

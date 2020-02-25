@@ -57,6 +57,12 @@ public class PostPojo {
 	private String numberofenrolment;
 	@Excel(name = "岗位类型", orderNum = "20")
 	private String posttype;
+	@Excel(name = "岗位编号", orderNum = "21")
+	private String postnumber;
+	@Excel(name = "招聘条件", orderNum = "22")
+	private String recruitmentconditions;
+	@Excel(name = "薪酬范围", orderNum = "23")
+	private String salaryrange;
 
 
 }

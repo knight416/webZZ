@@ -167,6 +167,29 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 		ReasonBean reasonBean = new ReasonBean();//返回参数
 		PageData resData = new PageData();//返回数据
 		try {
+			//state为1时 判断是否考试同意
+			if(Integer.valueOf(pd.get("state").toString()) == 1){
+				PageData pdd = new PageData();
+				pdd.put("xid",pd.get("xid"));
+				pdd.put("post_id",pd.get("post_id"));
+				pdd.put("uid",pd.get("uid"));
+				pdd.put("operation_type","004001");
+				PageData newsOperation = newsOperationMapper.getNewsOperationById(pdd);
+				if(newsOperation != null){
+					//处理准考证号
+					PageData interview_message = JSON.parseObject(JSON.toJSONString(newsOperation.get("interview_message")),PageData.class);
+
+					PageData pdn = new PageData();
+					pdn.put("state",1);
+					pdd.put("operation_type","004001");
+					int n = newsOperationMapper.getCount(pdn);
+
+					String ticketNumber = "3501"+(2000000+n+1);
+					interview_message.put("ticketnumber",ticketNumber);
+					pd.put("interview_message",JSON.toJSONString(interview_message));
+				}
+			}
+
 			//根据时间类型 区分操作
 			if(StringUtil2.isNotEmpty(pd.get("operation_message"))){
 				pd.put("operation_message",JSON.toJSONString(pd.get("operation_message")));

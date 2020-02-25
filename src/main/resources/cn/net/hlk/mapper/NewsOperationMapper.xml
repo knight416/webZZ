@@ -224,8 +224,19 @@
 			from <include refid="tableName"></include> as o
 			where 1=1 
 			and o.visiable = 1
-			and o.xid = #{xid}
-			and o.uid = #{uid}
+			<if test="xid != null and xid != '' ">
+				and o.xid = #{xid}
+			</if>
+			<if test="post_id != null and post_id != '' ">
+				and o.post_id = #{post_id}
+			</if>
+			<if test="uid != null and uid != '' ">
+				and o.uid = #{uid}
+			</if>
+			<if test="operation_type != null and operation_type != '' ">
+				and o.operation_type = #{operation_type}
+			</if>
+			limit 1
 	</select>
 
 	<!--验证是否允许投递-->
@@ -290,6 +301,17 @@
 		and o.visiable = 1
 		and o.post_id = #{post_id}
 		and o.uid = #{uid}
+	</select>
+
+	<!--获取数量-->
+	<select id="getCount"  resultType="java.lang.Integer" parameterType="pd">
+		SELECT
+		count(0)
+		from <include refid="tableName"></include> as o
+		where 1=1
+		and o.visiable = 1
+		and o.state = #{state}
+		and o.operation_type = #{operation_type}
 	</select>
 
 </mapper>
