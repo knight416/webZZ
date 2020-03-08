@@ -125,6 +125,8 @@
 			row_number() over (ORDER BY updatetime DESC) as xh,
 			(SELECT count(0) from t_news_operation where post_id = p.post_id) as count,
 			(SELECT count(0) from t_news_operation where post_id = p.post_id and state in (1,4,5)) as count1,
+			(select row_to_json(t) from (SELECT * from t_user where uid = p.uid) t) as "user",
+			(select row_to_json(t) from (SELECT * from t_news where xid = p.xid) t) as news,
 			<include refid="fieldd"></include>
 			from <include refid="tableName"></include> as p
 			where 1=1
@@ -202,13 +204,13 @@
 		(SELECT title from t_news where xid = p.xid) as title,
 		p.post_message ->> 'name' as postname,
 		u.name as name,
-		u.id_card as id_card,
+		u.user_message #> '{userinfo,id_card}' as id_card,
 		u.user_message ->>'email' as email,
-		u.user_message ->>'phone' as phone,
-		u.user_message ->>'sex' as sex,
-		u.user_message ->>'address' as address,
-		u.user_message ->>'nation' as nation,
-		u.user_message ->>'adress' as adress,
+		u.user_message #> '{userinfo,phone}' as phone,
+		u.user_message #> '{userinfo,sex}' as sex,
+		u.user_message #> '{userinfo,nativePlace}' as address,
+		u.user_message #> '{userinfo,nation}' as nation,
+		u.user_message #> '{userinfo,shengyuandi}' as adress,
 		to_char(no.updatetime,'YYYY-MM-DD HH24:MI:SS') as posttime,
 		p.post_state as pstate,
 		no.written_results as writtenresults,

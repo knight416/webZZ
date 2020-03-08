@@ -144,7 +144,8 @@
 			from
 			(select * from t_enclosure de where n.xid = de.xid) t
 			) enclosure,
-			u.user_message ->> 'enterpriseScale' as "enterpriseScale"
+			u.user_message ->> 'enterpriseScale' as "enterpriseScale",
+			(select row_to_json(t) from (SELECT * from t_user where uid = n.writerid) t) as "user"
 			from <include refid="tableName"></include> as n
 			left join t_user u on u.uid = n.writerid
 			where 1=1

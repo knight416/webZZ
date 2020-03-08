@@ -67,12 +67,14 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 		try {
 			//验证是否允许投递
 			if("004002".equals(pd.getString("operation_type")) || "004001".equals(pd.getString("operation_type"))){
-				int n = newsOperationMapper.VerificationAdd(pd);
-				if(n > 0){
-					reasonBean.setCode("400");
-					reasonBean.setText("此岗位已投递");
-					responseBodyBean.setReason(reasonBean);
-					return responseBodyBean;
+				if("004002".equals(pd.getString("operation_type")) ){
+					int n = newsOperationMapper.VerificationAdd(pd);
+					if(n > 0){
+						reasonBean.setCode("400");
+						reasonBean.setText("此岗位已投递");
+						responseBodyBean.setReason(reasonBean);
+						return responseBodyBean;
+					}
 				}
 
 
@@ -96,16 +98,32 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 
 							PageData pdd = new PageData();
 							pdd.put("xid",pd.get("xid"));
+							pdd.put("uid",pd.get("uid"));
 							pdd.put("operation_type","004001");
 							int nn = newsOperationMapper.VerificationAdd(pdd);
 
 							String operation_number = newsMessage.getString("operation_number");
-							if("one".equals(operation_number) && nn > 1){
+							if("one".equals(operation_number) && nn > 0){
 								reasonBean.setCode("400");
-								reasonBean.setText("已报名");
+								reasonBean.setText("公告报考次数已达上限");
 								responseBodyBean.setReason(reasonBean);
 								return responseBodyBean;
 							}
+
+							PageData pddd = new PageData();
+							pddd.put("xid",pd.get("xid"));
+							pddd.put("uid",pd.get("uid"));
+							pddd.put("operation_type","004001");
+							pddd.put("post_id1",pd.get("post_id"));
+							int nnn = newsOperationMapper.VerificationAdd(pddd);
+
+							if(nnn > 0){
+								reasonBean.setCode("400");
+								reasonBean.setText("已报考");
+								responseBodyBean.setReason(reasonBean);
+								return responseBodyBean;
+							}
+
 
 							List<String> registrationTime = JSON.parseArray(JSON.toJSONString(newsMessage.get("registrationTime")),String.class);
 							if(registrationTime != null && registrationTime.size() > 1){
@@ -181,7 +199,7 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 
 					PageData pdn = new PageData();
 					pdn.put("state",1);
-					pdd.put("operation_type","004001");
+					pdn.put("operation_type","004001");
 					int n = newsOperationMapper.getCount(pdn);
 
 					String ticketNumber = "3501"+(2000000+n+1);

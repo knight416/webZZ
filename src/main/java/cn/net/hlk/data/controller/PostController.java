@@ -90,7 +90,7 @@ public class PostController extends BaseController{
 				String uid = (String) parseJwt.getBody().get("id");
 				pd.put("updateuser", optName);
 				pd.put("writer", optName);
-				pd.put("uid", uid);
+				// pd.put("uid", uid);
 				responseBodyBean = postService.addPost(pd);
 				if(responseBodyBean.getReason() == null){
 					status = HttpStatus.OK.value();

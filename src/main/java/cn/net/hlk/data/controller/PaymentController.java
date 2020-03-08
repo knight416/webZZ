@@ -817,9 +817,10 @@ public class PaymentController extends BaseController{
 					){
 				responseBodyBean = payService.getPayById(pd);
 				resData =  (PageData)responseBodyBean.getResult();
-				String trade_state = resData.getString("trade_state");
+				PageData data = JSON.parseObject(JSON.toJSONString(resData.get("data")),PageData.class);
+				String trade_state = data.getString("trade_state");
 				PageData pdd = new PageData();
-				pdd.put("out_trade_no",resData.getString("out_trade_no"));
+				pdd.put("out_trade_no",data.getString("out_trade_no"));
 				if("1".equals(trade_state)){
 					payRefundQuery(pdd,Authorization);
 					responseBodyBean = payService.getPayById(pd);

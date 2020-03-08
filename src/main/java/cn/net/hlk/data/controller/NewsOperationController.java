@@ -43,6 +43,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -563,6 +564,7 @@ public class NewsOperationController extends BaseController{
 									}
 								}
 							}
+							examinationtime = interview_message.getString("examinationtimepost");
 							// examinationtime = post_message.getString("examinationtime");
 							examinationroom = post_message.getString("examinationroom");
 							examinationnotes = post_message.getString("examinationnotes");
@@ -593,7 +595,7 @@ public class NewsOperationController extends BaseController{
 
 					try{
 						if(photo != null){
-							URL photourl = new URL(photo);
+							URL photourl = new URL(photo.replace(photo.substring(photo.lastIndexOf(File.separator)+1,photo.lastIndexOf(".")),URLEncoder.encode(photo.substring(photo.lastIndexOf(File.separator)+1,photo.lastIndexOf(".")))));
 							// 创建链接
 							HttpURLConnection conn = (HttpURLConnection) photourl.openConnection();
 							conn.setRequestMethod("GET");

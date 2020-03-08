@@ -158,9 +158,21 @@
 			) enclosure,
 			(select trade_state from t_pay as p where p.post_id = o.post_id
 			and p.uid = o.uid and p.visiable = 1 limit 1
-			) trade_state
+			) trade_state,
+			(select row_to_json(t) from (SELECT * from t_user where uid = o.uid) t) as "user",
+			(select row_to_json(t) from (SELECT * from t_news where xid = o.xid) t) as news,
+			(select row_to_json(t) from (SELECT * from t_post where post_id = o.post_id) t) as post
 			from <include refid="tableName"></include> as o
 			where 1=1
+			<!-- 考号-->
+			<if test="pd.ticketnumber !=null and pd.ticketnumber != '' ">
+				and o.interview_message ->>'ticketnumber' = #{pd.ticketnumber}
+			</if>
+		<!-- 身份证号-->
+			<if test="pd.id_card !=null and pd.id_card != '' ">
+				and o.operation_message ->>'id_card' = #{pd.id_card}
+			</if>
+
 			<!-- 消息id -->
 			<if test="pd.xid !=null and pd.xid != '' ">
 				and o.xid = #{pd.xid}
@@ -247,8 +259,8 @@
 		<if test="xid != null and xid != '' ">
 			and xid = #{xid}
 		</if>
-		<if test="post_id != null and post_id != '' ">
-			and post_id = #{post_id}
+		<if test="post_id1 != null and post_id1 != '' ">
+			and post_id = #{post_id1}
 		</if>
 		<if test="operation_type != null and operation_type != '' ">
 			and operation_type = #{operation_type}
@@ -266,7 +278,8 @@
 		and o.visiable = 1
 		and o.post_id = #{post_id}
 		and written_results in (
-		SELECT written_results from t_news_operation ORDER BY written_results LIMIT 3
+		SELECT written_results from t_news_operation
+		where post_id = #{post_id} ORDER BY written_results LIMIT 3
 		)
 		and written_results is not null
 	</select>
@@ -285,7 +298,8 @@
 		and visiable = 1
 		and post_id = #{post_id}
 		and written_results in (
-		SELECT written_results from t_news_operation ORDER BY written_results LIMIT 3
+		SELECT written_results from t_news_operation
+		where post_id = #{post_id} ORDER BY written_results LIMIT 3
 		)
 		and written_results is not null
 	</update>

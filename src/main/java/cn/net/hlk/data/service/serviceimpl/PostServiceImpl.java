@@ -84,19 +84,23 @@ public class PostServiceImpl extends BaseServiceImple implements PostService {
 					if(newsMessage != null){
 						String examinationTime = JSON.parseObject(JSON.toJSONString(newsMessage.get("examinationTime")),String.class);
 						Date dates = null;
-						examinationTime = examinationTime.replace("Z", " UTC");
-						SimpleDateFormat formatter=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
-						dates = formatter.parse(examinationTime);
-						SimpleDateFormat formatter2=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-						post_message.put("examinationtime",formatter2.format(dates));
+						if(StringUtil2.isNotEmpty(examinationTime)){
+							examinationTime = examinationTime.replace("Z", " UTC");
+							SimpleDateFormat formatter=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
+							dates = formatter.parse(examinationTime);
+							SimpleDateFormat formatter2=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+							post_message.put("examinationtime",formatter2.format(dates));
+						}
 					}
 				}
 				pd.put("post_message",post_message);
 				pd.put("post_message",JSON.toJSONString(pd.get("post_message")));
 			}
-			if(StringUtil2.isNotEmpty(pd.get("unit_information"))){
-				pd.put("unit_information",JSON.toJSONString(pd.get("unit_information")));
-			}
+			PageData user = userMapper.findById(pd);
+			pd.put("unit_information",JSON.toJSONString(user));
+			// if(StringUtil2.isNotEmpty(pd.get("unit_information"))){
+			// 	pd.put("unit_information",JSON.toJSONString(pd.get("unit_information")));
+			// }
 			postMapper.addPost(pd);//消息添加
 			// int n = informationService.xmppSend(pd,0);
 			responseBodyBean.setResult(resData);
@@ -213,6 +217,12 @@ public class PostServiceImpl extends BaseServiceImple implements PostService {
 		try {
 			if(personList != null && personList.size() > 0){
 				for(PostPojo person : personList){
+					if(StringUtil2.isEmpty(person.getPostname()) || StringUtil2.isEmpty(person.getProfessionalrequirements())
+					|| StringUtil2.isEmpty(person.getContactinformation()) || StringUtil2.isEmpty(person.getNumberofrecruits())
+							|| StringUtil2.isEmpty(person.getRecruitmentconditions())
+							){
+						continue;
+					}
 					PageData pd = new PageData();
 					String post_id = UuidUtil.get32UUID();
 					pd.put("post_id", post_id);
@@ -261,6 +271,7 @@ public class PostServiceImpl extends BaseServiceImple implements PostService {
 					}
 
 					post_message.put("examinationroom",person.getExaminationroom());
+					post_message.put("examinationtimepost",person.getExaminationtime());
 					post_message.put("examinationnotes",person.getExaminationnotes());
 					post_message.put("postnumber",person.getPostnumber());
 					post_message.put("recruitmentconditions",person.getRecruitmentconditions());
