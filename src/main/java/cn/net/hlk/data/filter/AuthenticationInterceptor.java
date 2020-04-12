@@ -30,10 +30,10 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 		long date = new Date().getTime();
 		// double a = 1583071841000.0;
 		double a = 1585739723000.0;
-		if(a < date){
-			httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,"授权过期");
-			return false;
-		}
+		// if(a < date){
+		// 	httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,"授权过期");
+		// 	return false;
+		// }
 
 		String token = httpServletRequest.getHeader("Authorization");// 从 http 请求头中取出 token
 		// 如果不是映射到方法直接通过

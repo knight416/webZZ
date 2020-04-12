@@ -564,7 +564,7 @@ public class NewsOperationController extends BaseController{
 									}
 								}
 							}
-							examinationtime = interview_message.getString("examinationtimepost");
+							examinationtime = post_message.getString("examinationtimepost");
 							// examinationtime = post_message.getString("examinationtime");
 							examinationroom = post_message.getString("examinationroom");
 							examinationnotes = post_message.getString("examinationnotes");
