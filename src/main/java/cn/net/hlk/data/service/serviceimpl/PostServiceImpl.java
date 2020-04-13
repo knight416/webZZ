@@ -322,7 +322,7 @@ public class PostServiceImpl extends BaseServiceImple implements PostService {
 					int n = newsOperationMapper.getZWCount(pdc);
 					if(n <= 0){
 						//删除关联岗位
-						postMapper.delPostByXid(pdc);
+						postMapper.updatePost(pdc);
 					}else{
 						errorList.add(postid);
 					}

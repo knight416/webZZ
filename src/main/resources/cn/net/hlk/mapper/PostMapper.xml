@@ -270,7 +270,7 @@
 	</select>
 
 	<!--岗位根据消息id删除-->
-	<update id="updatePost" parameterType="pd">
+	<update id="delPostByXid" parameterType="pd">
 		update
 		<include refid="tableName"></include>
 		<set>
