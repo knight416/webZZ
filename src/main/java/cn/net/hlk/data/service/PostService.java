@@ -71,4 +71,13 @@ public interface PostService {
 	 */
 	void postImport(List<PostPojo> personList, String system_id, String xid, String uid, String optName);
 
+	/**
+	 * @Title delPost
+	 * @Description 岗位删除
+	 * @author 张泽恒
+	 * @date 2020/4/13 15:37
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	ResponseBodyBean delPost(PageData pd);
 }

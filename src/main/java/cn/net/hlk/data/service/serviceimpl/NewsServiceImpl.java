@@ -4,6 +4,7 @@ import cn.net.hlk.data.config.FileUploadProperteis;
 import cn.net.hlk.data.mapper.AlarmMapper;
 import cn.net.hlk.data.mapper.EnclosureMapper;
 import cn.net.hlk.data.mapper.NewsMapper;
+import cn.net.hlk.data.mapper.NewsOperationMapper;
 import cn.net.hlk.data.mapper.PostMapper;
 import cn.net.hlk.data.poi.easypoi.FileWithExcelUtil;
 import cn.net.hlk.data.poi.easypoi.PostPojo;
@@ -54,6 +55,8 @@ public class NewsServiceImpl extends BaseServiceImple implements NewsService {
 	private EnclosureMapper enclosureMapper;
 	@Autowired
 	private PostMapper postMapper;
+	@Autowired
+	private NewsOperationMapper newsOperationMapper;
 
 	/**
 	 * @Title: addAlarm
@@ -281,23 +284,39 @@ public class NewsServiceImpl extends BaseServiceImple implements NewsService {
 		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
 		ReasonBean reasonBean = new ReasonBean();//返回参数
 		PageData resData = new PageData();//返回数据
-		try {
+		List<String> errorList = new ArrayList<String>();
+ 		try {
 			List<String> xidList = JSON.parseArray(JSON.toJSONString(pd.get("xidList")),String.class);
 			if(xidList != null && xidList.size() > 0){
 				for(String xid : xidList){
+					//验证是否存在报考信息
 					PageData pdc = new PageData();
 					pdc.put("xid",xid);
 					pdc.put("visiable",0);
-					newsMapper.updateNews(pdc);//消息修改
+					int n = newsOperationMapper.getZWCount(pdc);
+					if(n <= 0){
+						//删除关联岗位
+						postMapper.delPostByXid(pdc);
 
-					//附件删除 根据消息id 获取附件列表
-					List<PageData> enclosureList = enclosureMapper.getListByXid(pdc);
-					if(enclosureList != null && enclosureList.size() > 0){
-						for(PageData enclosure : enclosureList){
-							delFile(enclosure);
+						newsMapper.updateNews(pdc);//消息修改
+
+						//附件删除 根据消息id 获取附件列表
+						List<PageData> enclosureList = enclosureMapper.getListByXid(pdc);
+						if(enclosureList != null && enclosureList.size() > 0){
+							for(PageData enclosure : enclosureList){
+								delFile(enclosure);
+							}
 						}
+					}else{
+						errorList.add(xid);
 					}
 				}
+			}
+			resData.put("errorList",errorList);
+			if(errorList.size() > 0){
+				resData.put("message","无法删除");
+			}else{
+				resData.put("message","全部删除");
 			}
 			responseBodyBean.setResult(resData);
 		} catch (Exception e) {

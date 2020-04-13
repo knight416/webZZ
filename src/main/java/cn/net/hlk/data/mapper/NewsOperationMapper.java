@@ -94,4 +94,14 @@ public interface NewsOperationMapper {
 	 * @return int
 	 */
 	int getCount(PageData pdn);
+
+	/**
+	 * @Title getZWCount
+	 * @Description 获取作为号
+	 * @author 张泽恒
+	 * @date 2020/4/13 14:43
+	 * @param [pdn]
+	 * @return int
+	 */
+	int getZWCount(PageData pdn);
 }

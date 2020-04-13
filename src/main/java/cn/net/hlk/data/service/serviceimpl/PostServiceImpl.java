@@ -1,6 +1,7 @@
 package cn.net.hlk.data.service.serviceimpl;
 
 import cn.net.hlk.data.mapper.NewsMapper;
+import cn.net.hlk.data.mapper.NewsOperationMapper;
 import cn.net.hlk.data.mapper.PostMapper;
 import cn.net.hlk.data.mapper.UserMapper;
 import cn.net.hlk.data.poi.easypoi.PostPojo;
@@ -43,6 +44,8 @@ public class PostServiceImpl extends BaseServiceImple implements PostService {
 	private UserMapper userMapper;
 	@Autowired
 	private NewsMapper newsMapper;
+	@Autowired
+	private NewsOperationMapper newsOperationMapper;
 
 	/**
 	 * @Title: addAlarm
@@ -252,6 +255,8 @@ public class PostServiceImpl extends BaseServiceImple implements PostService {
 					post_message.put("remarks",person.getRemarks());
 					post_message.put("examinationname",person.getExaminationname());
 					post_message.put("examinationplace",person.getExaminationplace());
+					post_message.put("examinationitems",person.getExaminationitems());
+					post_message.put("examinationsubjects",person.getExaminationsubjects());
 					// post_message.put("examinationtime",person.getExaminationtime());
 
 					PageData news = newsMapper.getNewsById(pd);
@@ -290,6 +295,52 @@ public class PostServiceImpl extends BaseServiceImple implements PostService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * @Title delPost
+	 * @Description 岗位删除
+	 * @author 张泽恒
+	 * @date 2020/4/13 15:38
+	 * @param [pd]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@Override
+	public ResponseBodyBean delPost(PageData pd) {
+		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
+		ReasonBean reasonBean = new ReasonBean();//返回参数
+		PageData resData = new PageData();//返回数据
+		List<String> errorList = new ArrayList<String>();
+		try {
+			List<String> postidList = JSON.parseArray(JSON.toJSONString(pd.get("postidList")),String.class);
+			if(postidList != null && postidList.size() > 0){
+				for(String postid : postidList){
+					//验证是否存在报考信息
+					PageData pdc = new PageData();
+					pdc.put("post_id",postid);
+					pdc.put("visiable",0);
+					int n = newsOperationMapper.getZWCount(pdc);
+					if(n <= 0){
+						//删除关联岗位
+						postMapper.delPostByXid(pdc);
+					}else{
+						errorList.add(postid);
+					}
+				}
+			}
+			resData.put("errorList",errorList);
+			if(errorList.size() > 0){
+				resData.put("message","无法删除");
+			}else{
+				resData.put("message","全部删除");
+			}
+			responseBodyBean.setResult(resData);
+		} catch (Exception e) {
+			e.printStackTrace();
+			reasonBean = ResponseUtil.getReasonBean("Exception", e.getClass().getSimpleName());
+			responseBodyBean.setReason(reasonBean);
+		}
+		return responseBodyBean;
 	}
 
 

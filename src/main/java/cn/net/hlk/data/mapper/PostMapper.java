@@ -68,6 +68,16 @@ public interface PostMapper {
 	List<PostPojo> postExport(PageData pd);
 
 	/**
+	 * @Title delPostByXid
+	 * @Description 删除岗位根据消息id
+	 * @author 张泽恒
+	 * @date 2020/4/13 15:25
+	 * @param [pdc]
+	 * @return void
+	 */
+	void delPostByXid(PageData pdc);
+
+	/**
 	 * @Title VerificationAdd
 	 * @Description 验证是否允许投递
 	 * @author 张泽恒

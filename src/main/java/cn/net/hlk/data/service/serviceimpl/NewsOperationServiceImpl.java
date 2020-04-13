@@ -204,6 +204,15 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 
 					String ticketNumber = "3501"+(2000000+n+1);
 					interview_message.put("ticketnumber",ticketNumber);
+
+					//获取座位号
+					PageData pdz = new PageData();
+					pdz.put("xid",pd.get("xid"));
+					pdz.put("post_id",pd.get("post_id"));
+					pdz.put("state",1);
+					int nz = newsOperationMapper.getZWCount(pdz);
+					interview_message.put("seatnumber",nz+1);
+
 					pd.put("interview_message",JSON.toJSONString(interview_message));
 				}
 			}

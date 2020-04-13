@@ -215,6 +215,7 @@
 		p.post_state as pstate,
 		no.written_results as writtenresults,
 		no.interview_results as interviewresults,
+		no.interview_message ->> 'seatnumber' as seatnumber,
 		u.uid,
 		no.post_id
 		from t_news_operation as no,t_user as u,t_post as p
@@ -258,6 +259,8 @@
 		p.post_message ->> 'examinationtime' as examinationtime,
 		p.post_message ->> 'examinationroom' as examinationroom,
 		p.post_message ->> 'examinationnotes' as examinationnotes,
+		p.post_message ->> 'examinationitems' as examinationitems,
+		p.post_message ->> 'examinationsubjects' as examinationsubjects,
 		p.post_type as posttype,
 		(SELECT count(0) from t_news_operation where post_id = p.post_id) as numberofenrolment
 		from t_post as p
@@ -265,5 +268,18 @@
 		and p.xid = #{xid}
 		and p.visiable = 1
 	</select>
+
+	<!--岗位根据消息id删除-->
+	<update id="updatePost" parameterType="pd">
+		update
+		<include refid="tableName"></include>
+		<set>
+			updatetime=now(),
+			<if test="visiable != null">
+				visiable=#{visiable}::integer,
+			</if>
+		</set>
+		where xid = #{xid}
+	</update>
 
 </mapper>

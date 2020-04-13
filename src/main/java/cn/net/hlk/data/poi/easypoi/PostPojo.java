@@ -63,6 +63,10 @@ public class PostPojo {
 	private String recruitmentconditions;
 	@Excel(name = "薪酬范围", orderNum = "23")
 	private String salaryrange;
+	@Excel(name = "考试项目", orderNum = "24")
+	private String examinationitems;
+	@Excel(name = "考试科目", orderNum = "25")
+	private String examinationsubjects;
 
 
 }

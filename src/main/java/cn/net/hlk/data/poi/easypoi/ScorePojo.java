@@ -41,9 +41,11 @@ public class ScorePojo {
 	private String writtenresults;
 	@Excel(name = "面试成绩", orderNum = "13")
 	private String interviewresults;
-	@Excel(name = "uid", orderNum = "14")
+	@Excel(name = "座位号", orderNum = "14")
+	private String seatnumber;
+	@Excel(name = "uid", orderNum = "15")
 	private String uid;
-	@Excel(name = "post_id", orderNum = "15")
+	@Excel(name = "post_id", orderNum = "16")
 	private String post_id;
 
 

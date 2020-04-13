@@ -543,6 +543,8 @@ public class NewsOperationController extends BaseController{
 					String examinationroom = "";
 					String examinationnotes = "";
 
+					String demoName = "demo2.docx";
+
 					//0笔试 1面试
 					if(ticketype == 0){
 						if(post_message != null){
@@ -568,7 +570,12 @@ public class NewsOperationController extends BaseController{
 							// examinationtime = post_message.getString("examinationtime");
 							examinationroom = post_message.getString("examinationroom");
 							examinationnotes = post_message.getString("examinationnotes");
+
+							params.put("${examinationitems}", post_message.getString("examinationitems"));
+							params.put("${examinationsubjects}", post_message.getString("examinationsubjects"));
+							params.put("${seatnumber}", interview_message.getString("seatnumber"));
 						}
+						demoName = "demo3.docx";
 					}else{
 						if(interview_message != null){
 							examinationname = interview_message.getString("examinationname");
@@ -612,7 +619,7 @@ public class NewsOperationController extends BaseController{
 						List<String[]> testList = new ArrayList<String[]>();
 
 						// testList.add(new String[]{"1","1AA","1BB","1CC"});
-						String path=realPath + File.separator+ "demo"+ File.separator+"demo2.docx";  //模板文件位置
+						String path=realPath + File.separator+ "demo"+ File.separator+demoName;  //模板文件位置
 
 						wordUtil.getWord(path,params,testList,fileName,response,fopts);
 
