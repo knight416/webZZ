@@ -186,40 +186,45 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 		PageData resData = new PageData();//返回数据
 		try {
 			//state为1时 判断是否考试同意
-			if(Integer.valueOf(pd.get("state").toString()) == 1){
-				PageData pdd = new PageData();
-				pdd.put("xid",pd.get("xid"));
-				pdd.put("post_id",pd.get("post_id"));
-				pdd.put("uid",pd.get("uid"));
-				pdd.put("operation_type","004001");
-				PageData newsOperation = newsOperationMapper.getNewsOperationById(pdd);
-				if(newsOperation != null){
-					//处理准考证号
-					PageData interview_message = JSON.parseObject(JSON.toJSONString(newsOperation.get("interview_message")),PageData.class);
+			if(StringUtil2.isNotEmpty(pd.get("state"))){
+				if(Integer.valueOf(pd.get("state").toString()) == 1){
+					PageData pdd = new PageData();
+					pdd.put("xid",pd.get("xid"));
+					pdd.put("post_id",pd.get("post_id"));
+					pdd.put("uid",pd.get("uid"));
+					pdd.put("operation_type","004001");
+					PageData newsOperation = newsOperationMapper.getNewsOperationById(pdd);
+					if(newsOperation != null){
+						//处理准考证号
+						PageData interview_message = JSON.parseObject(JSON.toJSONString(newsOperation.get("interview_message")),PageData.class);
 
-					PageData pdn = new PageData();
-					pdn.put("state",1);
-					pdn.put("operation_type","004001");
-					int n = newsOperationMapper.getCount(pdn);
+						PageData pdn = new PageData();
+						pdn.put("state",1);
+						pdn.put("operation_type","004001");
+						int n = newsOperationMapper.getCount(pdn);
 
-					String ticketNumber = "3501"+(2000000+n+1);
-					interview_message.put("ticketnumber",ticketNumber);
+						String ticketNumber = "3501"+(2000000+n+1);
+						interview_message.put("ticketnumber",ticketNumber);
 
-					//获取座位号
-					PageData pdz = new PageData();
-					pdz.put("xid",pd.get("xid"));
-					pdz.put("post_id",pd.get("post_id"));
-					pdz.put("state",1);
-					int nz = newsOperationMapper.getZWCount(pdz);
-					interview_message.put("seatnumber",nz+1);
+						//获取座位号
+						PageData pdz = new PageData();
+						pdz.put("xid",pd.get("xid"));
+						pdz.put("post_id",pd.get("post_id"));
+						pdz.put("state",1);
+						int nz = newsOperationMapper.getZWCount(pdz);
+						interview_message.put("seatnumber",nz+1);
 
-					pd.put("interview_message",JSON.toJSONString(interview_message));
+						pd.put("interview_message",JSON.toJSONString(interview_message));
+					}
 				}
 			}
 
 			//根据时间类型 区分操作
 			if(StringUtil2.isNotEmpty(pd.get("operation_message"))){
 				pd.put("operation_message",JSON.toJSONString(pd.get("operation_message")));
+			}
+			if(StringUtil2.isNotEmpty(pd.get("interview_message"))){
+				pd.put("interview_message",JSON.toJSONString(pd.get("interview_message")));
 			}
 			newsOperationMapper.updateNewsOperation(pd);//消息修改
 			responseBodyBean.setResult(resData);
