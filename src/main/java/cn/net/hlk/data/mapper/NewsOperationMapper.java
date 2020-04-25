@@ -1,5 +1,6 @@
 package cn.net.hlk.data.mapper;
 
+import cn.net.hlk.data.poi.easypoi.OperationPojo;
 import cn.net.hlk.data.pojo.Page;
 import cn.net.hlk.data.pojo.PageData;
 
@@ -104,4 +105,14 @@ public interface NewsOperationMapper {
 	 * @return int
 	 */
 	int getZWCount(PageData pdn);
+
+	/**
+	 * @Title operationListExport
+	 * @Description 报考导出
+	 * @author 张泽恒
+	 * @date 2020/4/25 16:30
+	 * @param [pd]
+	 * @return java.util.List<cn.net.hlk.data.poi.easypoi.OperationPojo>
+	 */
+	List<OperationPojo> operationListExport(PageData pd);
 }

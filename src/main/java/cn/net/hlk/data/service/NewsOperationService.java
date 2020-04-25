@@ -1,5 +1,6 @@
 package cn.net.hlk.data.service;
 
+import cn.net.hlk.data.poi.easypoi.OperationPojo;
 import cn.net.hlk.data.poi.easypoi.PostPojo;
 import cn.net.hlk.data.poi.easypoi.ScorePojo;
 import cn.net.hlk.data.pojo.Page;
@@ -97,4 +98,14 @@ public interface NewsOperationService {
 	 * @return cn.net.hlk.data.pojo.PageData
 	 */
 	PageData findicket(PageData pd);
+
+	/**  
+	 * @Title operationListExport
+	 * @Description 报考导出
+	 * @author 张泽恒
+	 * @date 2020/4/25 16:25  
+	 * @param [pd]  
+	 * @return java.util.List<cn.net.hlk.data.poi.easypoi.OperationPojo>  
+	 */  
+	List<OperationPojo> operationListExport(PageData pd);
 }

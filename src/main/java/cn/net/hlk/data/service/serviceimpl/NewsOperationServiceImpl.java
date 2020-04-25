@@ -4,6 +4,7 @@ import cn.net.hlk.data.mapper.NewsMapper;
 import cn.net.hlk.data.mapper.NewsOperationMapper;
 import cn.net.hlk.data.mapper.PostMapper;
 import cn.net.hlk.data.mapper.UserMapper;
+import cn.net.hlk.data.poi.easypoi.OperationPojo;
 import cn.net.hlk.data.poi.easypoi.PostPojo;
 import cn.net.hlk.data.poi.easypoi.ScorePojo;
 import cn.net.hlk.data.pojo.Page;
@@ -399,6 +400,26 @@ public class NewsOperationServiceImpl extends BaseServiceImple implements NewsOp
 	@Override
 	public PageData findicket(PageData pd) {
 		return newsOperationMapper.findicket(pd);
+	}
+
+	/**
+	 * @Title operationListExport
+	 * @Description 报考导出
+	 * @author 张泽恒
+	 * @date 2020/4/25 16:27
+	 * @param [pd]
+	 * @return java.util.List<cn.net.hlk.data.poi.easypoi.OperationPojo>
+	 */
+	@Override
+	public List<OperationPojo> operationListExport(PageData pd) {
+
+		List<OperationPojo> personList = new ArrayList<OperationPojo>();
+		try {
+			personList = newsOperationMapper.operationListExport(pd);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return personList;
 	}
 
 

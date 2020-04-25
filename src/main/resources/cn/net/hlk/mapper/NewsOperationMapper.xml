@@ -157,8 +157,11 @@
 			(select * from t_enclosure de where o.xid = de.xid) t
 			) enclosure,
 			(select trade_state from t_pay as p where p.post_id = o.post_id
-			and p.uid = o.uid and p.visiable = 1 limit 1
+			and p.uid = o.uid and p.visiable = 1 order by createtime desc limit 1
 			) trade_state,
+			(select payid from t_pay as p where p.post_id = o.post_id
+			and p.uid = o.uid and p.visiable = 1 order by createtime desc limit 1
+			) payid,
 			(select row_to_json(t) from (SELECT * from t_user where uid = o.uid) t) as "user",
 			(select row_to_json(t) from (SELECT * from t_news where xid = o.xid) t) as news,
 			(select row_to_json(t) from (SELECT * from t_post where post_id = o.post_id) t) as post
@@ -204,6 +207,10 @@
 			<!-- 身份类别 -->
 			<if test="pd.job_type !=null and pd.job_type != '' ">
 				and o.job_type = #{pd.job_type}
+			</if>
+			<!-- 创建姓名 -->
+			<if test="pd.createuser !=null and pd.createuser != '' ">
+				and o.createuser = #{pd.createuser}
 			</if>
 			<!-- 状态 -->
 			<if test="pd.state !=null  ">
@@ -345,6 +352,62 @@
 		and o.state = #{state}
 		</if>
 		and o.operation_type = '004001'
+	</select>
+
+	<!--报考导出-->
+	<select id="operationListExport"  resultType="cn.net.hlk.data.poi.easypoi.OperationPojo" parameterType="pd">
+		SELECT
+		u.uid,
+		p.post_message ->> 'name' as postname,
+		no.createuser,
+		u.user_message #> '{userinfo,sex}' as sex,
+		u.user_message #> '{userinfo,id_card}' as id_card,
+		u.user_message ->>'email' as email,
+		u.user_message #> '{userinfo,phone}' as phone,
+		u.user_message #> '{userinfo,school}' as school,
+		u.user_message #> '{userinfo,major}' as major,
+		u.user_message #> '{userinfo,heightEducation}' as heightEducation,
+		u.user_message #> '{userinfo,degreeType}' as degreeType,
+		u.user_message #> '{userinfo,political}' as political,
+		no.interview_message ->> 'ticketnumber' as ticketnumber,
+		p.post_message ->> 'examinationroom' as examinationroom,
+		no.interview_message ->> 'seatnumber' as seatnumber,
+		case no.state
+		when 0 then '待审核'
+		when 1 then '已通过'
+		when 2 then '已驳回'
+		when 3 then '已申诉'
+		when 4 then '等待考试'
+		when 5 then '待付款'
+		else '未知' END as state,
+		case (select trade_state from t_pay as p where p.post_id = no.post_id
+		and p.uid = no.uid and p.visiable = 1 order by createtime desc limit 1
+		)
+		when '0' then '支付成功'
+		when '1' then '转入退款'
+		when '2' then '未支付'
+		when '3' then '已关闭'
+		when '4' then '支付失败'
+		when '5' then '已退款'
+		else '无支付' END  as trade_state,
+		no.operation_message ->> 'bohuimsg' as bohuimsg
+		from t_news_operation as no,t_user as u,t_post as p
+		where
+		no.uid = u.uid
+		and p.post_id = no.post_id
+		and no.post_id = #{post_id}
+		and no.visiable = 1
+		and u.visiable = 1
+		and p.visiable = 1
+		<if test="xid !=null and xid != '' ">
+			and p.xid = #{xid}
+		</if>
+		<if test="state !=null and state.size > 0">
+			and no.state in
+			<foreach item="item" index="index" collection="state" open="(" separator="," close=")">
+				#{state[${index}]}
+			</foreach>
+		</if>
 	</select>
 
 </mapper>

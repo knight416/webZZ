@@ -5,6 +5,9 @@ import cn.net.hlk.data.annotation.UserLoginToken;
 import cn.net.hlk.data.config.FileUploadProperteis;
 import cn.net.hlk.data.mapper.NewsMapper;
 import cn.net.hlk.data.mapper.SystemMapper;
+import cn.net.hlk.data.poi.easypoi.FileWithExcelUtil;
+import cn.net.hlk.data.poi.easypoi.OperationPojo;
+import cn.net.hlk.data.poi.easypoi.ScorePojo;
 import cn.net.hlk.data.poi.poi.Doc2Pdf;
 import cn.net.hlk.data.poi.poi.WordUtils;
 import cn.net.hlk.data.pojo.Page;
@@ -648,6 +651,79 @@ public class NewsOperationController extends BaseController{
 					response.setStatus(status);
 					responseBodyBean.setReason(reasonBean);
 				}
+			}else{
+				reasonBean.setCode("400");
+				reasonBean.setText("请求的参数不正确");
+				status = HttpStatus.PRECONDITION_REQUIRED.value();
+				response.setStatus(status);
+				responseBodyBean.setReason(reasonBean);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			reasonBean = ResponseUtil.getReasonBean("Exception", e.getClass().getSimpleName());
+			responseBodyBean.setReason(reasonBean);
+		}finally {
+			return responseBodyBean;
+		}
+	}
+
+	/**
+	 * @Title operationListExport
+	 * @Description 考试报名导出
+	 * @author 张泽恒
+	 * @date 2020/4/25 16:01
+	 * @param [pd, Authorization]
+	 * @return cn.net.hlk.data.pojo.ResponseBodyBean
+	 */
+	@SuppressWarnings("all")
+	@ApiOperation(value = "考试报名导出", notes = "考试报名导出")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "body", name = "pd", dataType = "PageData", required = true, value = "客户端传入JSON字符串", defaultValue = "") ,
+			@ApiImplicitParam(paramType = "header", name = "Authorization", dataType = "String", required = true, value = "安全中心颁发token验证信息", defaultValue = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJlMzEzY2MxZi1iMWMyLTQ3YzEtYjNiYi0wNzA4OGZiNmEwNDIiLCJpYXQiOjE1Nzg5MjQ0MTQsInN1YiI6IjFmMzI5YWYxNjVmZDRhNDViMDY0MzA2NzEwZjhhOTNhIiwiaXNzIjoiU2VjdXJpdHkgQ2VudGVyIiwiaWQiOiIxZjMyOWFmMTY1ZmQ0YTQ1YjA2NDMwNjcxMGY4YTkzYSIsIm5hbWUiOiJxIiwiZXhwIjoxNTgwOTk4MDE0fQ.QvhblxEtnx_VTaZp4D5k7zW0wJ26k793vPE01x8OBKk")
+	})
+	@ApiResponses({
+			@ApiResponse(code=200,message="指示客服端的请求已经成功收到，解析，接受"),
+			@ApiResponse(code=201,message="资源已被创建"),
+			@ApiResponse(code=401,message="未授权"),
+			@ApiResponse(code=400,message="请求参数没填好"),
+			@ApiResponse(code=403,message="拒绝访问"),
+			@ApiResponse(code=404,message="请求路径没有或页面跳转路径不对"),
+			@ApiResponse(code=406,message="不是指定的数据类型"),
+			@ApiResponse(code=500,message="服务器内部错误")
+	})
+	@RequestMapping(value="/operationListExport", method=RequestMethod.POST)
+	public  @ResponseBody ResponseBodyBean operationListExport( @RequestBody PageData pd,  @RequestHeader String Authorization) {
+		int status = HttpStatus.INTERNAL_SERVER_ERROR.value();//状态码
+		response.setStatus(status);//状态码存入
+		ResponseBodyBean responseBodyBean = new ResponseBodyBean();//返回值
+		ReasonBean reasonBean = new ReasonBean();//返回参数
+		PageData resData = new PageData();//返回数据
+		try{
+			if(pd != null
+					){
+				List<OperationPojo> personList = newsOperationService.operationListExport(pd);
+				if(personList != null && personList.size() > 0){
+					SimpleDateFormat sdfTime = new SimpleDateFormat("yyyyMMddHHmmss");
+					String dateTime = sdfTime.format(new Date());
+					String fileName= new String(personList.get(0).getPostname()+"-"+dateTime+".xls");    //生成word文件的文件名
+					//虚拟路径存储
+					String realPath = fileUploadProperteis.getUploadFolder();
+					String filePath = realPath + File.separator+ "operation"+ File.separator+fileName;
+					FileUtil.createDir(filePath);
+					//文件地址
+					FileOutputStream fopts = new FileOutputStream(filePath);
+					// OutputStream out = new FileOutputStream(filePath);
+					String url = "/upload"+ File.separator+ "operation"+File.separator+fileName;
+					logger.info("personList : "+personList);
+					FileWithExcelUtil.exportExcel(personList,personList.get(0).getPostname(),"sheet",OperationPojo.class,personList.get(0).getPostname()+"-"+dateTime+".xls",fopts);
+
+					resData.put("url",url);
+					responseBodyBean.setResult(resData);
+					//残留文件删除
+					FileUtil.delFileByTime(fileUploadProperteis.getUploadFolder()+ File.separator+ "operation",(long)1000*60*60*24*5);
+				}
+				status = HttpStatus.OK.value();
+				response.setStatus(status);
 			}else{
 				reasonBean.setCode("400");
 				reasonBean.setText("请求的参数不正确");
